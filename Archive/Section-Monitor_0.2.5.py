@@ -1272,7 +1272,7 @@ def saveaslayout(root):
 
 def saveaslayoutjson(root):
     infradata = {"Sections":sectiondict, "AxleCounters":ACdict, "Signals":signaldict, "Plungers":plungerdict, "Points":pointdict, "Routes":routedict}
-    json_out_file = open("jsontest.json",'w')
+    json_out_file = open("jsontest.json", 'w')
     print(jsons.dumps(infradata))
     json_out_file.write(jsons.dumps(infradata))
     json_out_file.close()  # close the file
