@@ -116,6 +116,19 @@ class Route:
         self.available = False
         self.set = False
 
+class Trigger:
+    """Trigger object containing static and dynamic variables"""
+    def __init__(self, override, section, sectionclear, plunger, lever,  timer, MQTT):
+        #static variables
+        self.override = override
+        self.section = section
+        self.sectionclear = sectionclear
+        self.plunger = plunger
+        self.lever = lever
+        self.timer = timer
+        self.MQTT = MQTT
+        #dyanamic variables
+        self.triggered = False5
 
 class Lever:
     instances = {}

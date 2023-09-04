@@ -1,0 +1,36 @@
+{
+
+    "Name": "Raynes Park Platform 2",
+	"CRScode" : "RAY",
+    "referencepoint": "milepost 10",
+    "alignedstoppingpoints": false,
+    "10carwindowstart": "0",
+    "5carwindowstart": "50m",
+    "10carwindowlength": "5m",
+    "5carwindowlength": "20m",
+    "10carexactstop": "3m",
+    "5carexactstop": "53m",
+    "Platformside": "Left",
+	"Platformstartposition": "250m",
+    "Gradient1": {
+      "Gradient%": "1.5",
+      "Gradientdirection": "up",
+      "Gradientstop": "0",
+      "Gradientstart": "1000m"
+    },
+    "Gradient2": {
+      "Gradient%": "2",
+      "Gradientdirection": "down",
+      "Gradientstop": "1000m",
+      "Gradientstart": "1400m"
+    },
+    "Speed1": {
+      "Speedvalue": "40",
+      "Speedposition": "2000m"
+    },
+	"Manualinitialisationbaliseoffset" : "0",
+	"Manualrecalibrationbaliseoffset" : "0",
+	"Manualverificationbaliseoffset" : "0",
+	"Manualprecisionbaliseoffset" : "0"
+	
+}
