@@ -88,12 +88,12 @@ class Point:
     def __init__(self, mode, address, ref, description, section=""):
         #static variables
         self.address = address  # address
-        self.mode = mode  # mode: with detection or without detection
+        self.detection_mode = mode  # mode: with detection or without detection
         self.ref = ref  # Freetext reference
         self.description = description  # Freetext description
         self.section = section
         #dynamic variables
-        self.setstatus = ""  # set status
+        self.set_direction = ""  # set status
         self.detection = ""  # detection status
         self.unlocked = False
 

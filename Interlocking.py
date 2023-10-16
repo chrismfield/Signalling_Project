@@ -122,6 +122,27 @@ def interlocking():
 
 
 def check_points():
+    for pointkey, point in Point.instances.items():
+        if point.detection_mode:
+            try:
+            slave = minimalmodbus.Instrument(RS485port, point.address)
+            detection_normal = slave.read_bit(point.register, 21) # replace 21 with reference from JSON file
+            detection_reverse = slave.read_bit(point.register, 21) # re[;ace 22 with reference from JSON file
+            if detection_normal:
+                detection_status = "normal"
+            elif detection_reverse:
+                detection_status = "reverse"
+            else:
+                detection_status = null
+            if detection_status == point.set_direction: #need to create get_detection function
+                #add point to list of set points in section
+                pass
+            else:
+                #remove point from list of set points in section
+                #set route status to not available
+                #set protecting signal to danger - or do this elsewhere??
+                pass
+            pass
     pass  # -------------need to implement-----------
 
 
@@ -167,6 +188,7 @@ if __name__ == '__main__':
     main()
 
 # Next Jobs
+# Finish points
 # Configurable direction on axlecounter triggers
 # More work on routes interface - set routes but move route triggers into route scheduling?
 # Get all the logic to work
