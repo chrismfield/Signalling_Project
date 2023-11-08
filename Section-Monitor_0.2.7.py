@@ -1014,8 +1014,8 @@ def Add_route(root, existingref):
     ttk.Entry(routesetupframe, width=7, textvariable=routeref).grid(column=1, row=0, sticky=W, pady=4)  # routeref entry
 
     ttk.Label(routesetupframe, text="Route mode:").grid(column=0, row=2, sticky=W, padx=10, pady=10)
-    Radiobutton(routesetupframe, text="Store request", variable=mode, value=0).grid(column=1, row=2, sticky=W)
-    Radiobutton(routesetupframe, text="Do not store request", variable=mode, value=1).grid(column=2, row=2, sticky=W)
+    Radiobutton(routesetupframe, text="Store request", variable=mode, value=1).grid(column=1, row=2, sticky=W)
+    Radiobutton(routesetupframe, text="Do not store request", variable=mode, value=0).grid(column=2, row=2, sticky=W)
 
     # list box for route sections
     ttk.Label(routesetupframe, text="Route sections:").grid(column=0, row=3, sticky=W, pady=4, padx=10)

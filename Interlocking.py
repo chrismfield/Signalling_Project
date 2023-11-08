@@ -38,11 +38,6 @@ def loadlayoutjson(loaddefault):
     updatesections()
     pass
 
-def updatesections():
-    pass
-
-
-
 # ---------------
 
 
@@ -89,16 +84,19 @@ def check_all_plungers():
 def section_update():
     """Update occupancy of sections based on axle-counter readings"""
     for sectionkey, section in Section.instances.items():  # for each section:
-        for AC, direction in section.inctrig.items(): #for each increment trigger (which is in form "A1":"Upcount", "A2":"Downcount")
-            if direction == "Upcount":
-                section.occstatus += AC.upcount
-            if direction == "Downcount":
-                section.occstatus += AC.downcount
-        for AC, direction in section.dectrig.items(): #for each decrement trigger (which is in form "A1":"Upcount", "A2":"Downcount")
-            if direction == "Upcount":
-                section.occstatus -= AC.upcount
-            if direction == "Downcount":
-                section.occstatus -= AC.downcount
+        #create sub functions depending on type of section occupation detection
+        if section.mode == "axlecounter":
+            for AC, direction in section.inctrig.items(): #for each increment trigger (which is in form "A1":"Upcount", "A2":"Downcount")
+                if direction == "Upcount":
+                    section.occstatus += AC.upcount
+                if direction == "Downcount":
+                    section.occstatus += AC.downcount
+            for AC, direction in section.dectrig.items(): #for each decrement trigger (which is in form "A1":"Upcount", "A2":"Downcount")
+                if direction == "Upcount":
+                    section.occstatus -= AC.upcount
+                if direction == "Downcount":
+                    section.occstatus -= AC.downcount
+
 
 def interlocking():
     """Set all protecting signals to danger and secure points and routes as required"""
@@ -144,6 +142,24 @@ def check_points():
                 pass
             pass
     pass  # -------------need to implement-----------
+
+def check_routes():
+    for routekey, route in Route.instances.items():
+        #go through routes in order of priority
+        for priority in range(0:100):
+            if route.priority = priority:
+                #test if route can be set
+                    #check for conficting routes
+                    #check for route occupancy
+                    #check points unlocked?
+
+                #set route
+                    #set section.routeset
+                    #set points
+                    #set signals (need to do this after points detected somehow)
+                #only clear route request once route fully set
+
+            pass
 
 
 # Check route triggers
