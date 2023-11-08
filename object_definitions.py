@@ -107,14 +107,15 @@ class Route:
         self.ref = ref  # Freetext reference
         self.description = description  # Freetext description
         self.sections = sections  # ordered list of sections
-        self.points = points  # ordered list of points to set
-        self.signals = signals  # ordered list of signals to set. Each signal to be a list of aspects of that signal to set
+        self.points = points  # ordered list of points to set - dictionary of points and direction to set?
+        self.signals = signals  # ordered dictionary of signals to set. Each signal to be a list of aspects of that signal to set
         self.priority = priority  # priority number (change this to be an integer)
         self.trigger = []  # list of triggers for route - section occupation, section non-occupation, plunger, lever etc.
         # Need to include an option for whether the trigger ovverides existing routes or not.
         # dynamic variables
         self.available = False
         self.set = False
+        self.requested = False
 
 class Trigger:
     """Trigger object containing static and dynamic variables"""

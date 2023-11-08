@@ -98,6 +98,7 @@ def section_update():
                     section.occstatus -= AC.downcount
 
 
+
 def interlocking():
     """Set all protecting signals to danger and secure points and routes as required"""
     # for each section:
@@ -143,23 +144,39 @@ def check_points():
             pass
     pass  # -------------need to implement-----------
 
-def check_routes():
+def check_triggers(): #if required
+    pass
+
+def check_routes_requests():
+    def check_route_ok(route):
+        for route_section in route.sections:
+            if route_section.occstatus:  # only works if actual route object is in the route.sections list
+                return False# don't set if route is occupie
+            if route_section.routeset:
+                return False
+            if route_section.conflictingsections:
+                return False
+        for point in route.points:
+            if not point.unlocked:
+                return False
+            return True
+
+
     for routekey, route in Route.instances.items():
         #go through routes in order of priority
         for priority in range(0:100):
-            if route.priority = priority:
-                #test if route can be set
-                    #check for conficting routes
-                    #check for route occupancy
-                    #check points unlocked?
+            if route.priority == priority:
+                if route.requested: #try to set if the route has been requested
+                    if check_route_ok(route): #test if route can be set
+                        for section in route.sections:
+                            section.routeset = True
+                        route.set = "setting"
+                        # set points
 
-                #set route
-                    #set section.routeset
-                    #set points
-                    #set signals (need to do this after points detected somehow)
-                #only clear route request once route fully set
+                        # set signals (need to do this after points detected somehow)
+                        # only clear route request once route fully set
+                        pass # set route
 
-            pass
 
 
 # Check route triggers
@@ -179,6 +196,7 @@ def process(RS485port):
         interlocking()
         check_points()
         check_all_plungers()
+        check_triggers()
         # put the MQTT update in here
 
 
