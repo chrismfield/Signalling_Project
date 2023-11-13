@@ -171,7 +171,7 @@ def check_routes_requests():
                         for section in route.sections:
                             section.routeset = True
                         route.set = "setting"
-                        # set points
+                        # set points - need to modify Section-Monitor to save direction to set points and aspect of signal to set.
 
                         # set signals (need to do this after points detected somehow)
                         # only clear route request once route fully set

@@ -980,12 +980,13 @@ def pointlist(parent):
 
 # route create/edit window:
 def Add_route(root, existingref):
+    set_signals = {}  # a dictionary with signal name as key and list of aspects to set as value.
     def write_route(root):
         routedict[(routeref.get())] = route(ref=routeref.get(),
                                             description=description.get(), mode=mode.get(),
                                             sections=routesectionslistbox.curselection(),
                                             points=pointlistbox.curselection(),
-                                            signals=siglistbox.curselection(), priority=priority.get())
+                                            signals=set_signals, priority=priority.get())
 
         route_list(root)
         routesetupwin.destroy()
@@ -1079,15 +1080,62 @@ def Add_route(root, existingref):
     ttk.Entry(routesetupframe, width=70, textvariable=priority).grid(column=1, columnspan=4, row=8,
                                                                      sticky=W)  # routeref entry
 
-    def choose_aspects():
-        pass
+    def choose_aspects(sig_ref):
 
-    popup = Menu(routesetupframe, tearoff=0)
-    popup.add_command(label="Set aspects", command=choose_aspects)  # , command=next) etc...
+        danger = IntVar()
+        caution = IntVar()
+        clear = IntVar()
+        callingon = IntVar()
+        banner = IntVar()
+        route1 = IntVar()
+        route2 = IntVar()
+        route3 = IntVar()
+        route4 = IntVar()
+        route5 = IntVar()
+        route6 = IntVar()
+        aspect_var_dict = {"danger" : danger, "caution": caution, "clear": clear, "callingong": callingon, "banner": banner, "route1": route1, "route2": route2, "route3": route3, "route4": route4, "route5": route5, "route6": route6}
+
+        def write_aspects(sig_ref):
+            # write the selected aspects into setpoints
+            get_aspects = []
+            for aspect, var in aspect_var_dict.items():
+                if var.get() == 1:
+                    get_aspects.append(aspect)
+            set_signals[sig_ref] = get_aspects
+            select_aspects_window.destroy()
+
+        select_aspects_window = Toplevel(root, takefocus=True)  # create window for adding and managing sections
+        select_aspects_window.title("Section Setup")
+        select_aspects_frame = ttk.Frame(select_aspects_window, padding="3 3 12 12", borderwidth=1, relief=SUNKEN)
+        select_aspects_frame.grid(column=0, row=0)
+
+        aspectvariables = [[danger, None, "Danger", 4],
+                           [caution, None, "Caution", 5],
+                           [clear, None, "Clear", 6],
+                           [callingon, None, "Calling-on", 7],
+                           [banner, None, "Banner repeater", 8],
+                           [route1, None, "Route 1", 9],
+                           [route2, None, "Route 2", 10],
+                           [route3, None, "Route 3", 11],
+                           [route4, None, "Route 4", 12],
+                           [route5, None, "Route 5", 13],
+                           [route6, None, "Route 6", 14]]
+
+        for aspect in aspectvariables:
+            Checkbutton(select_aspects_frame, text=aspect[2], variable=aspect[0], anchor=W).grid(
+                row=aspect[3], column=1, sticky=W)
+
+        ttk.Button(select_aspects_frame, text="OK", command=lambda: write_aspects(sig_ref)).grid(column=2, row=21, sticky=E)
+
 
     def do_popup(event):
         # display the popup menu
         try:
+            siglistbox.selection_set(siglistbox.nearest(event.y))
+            siglistbox.activate(siglistbox.nearest(event.y))
+            print(siglistbox.get(siglistbox.nearest(event.y)))
+            popup = Menu(routesetupframe, tearoff=0)
+            popup.add_command(label="Set aspects", command=lambda: choose_aspects(siglistbox.get(siglistbox.nearest(event.y))))
             popup.tk_popup(event.x_root, event.y_root, 0)
         finally:
             # make sure to release the grab (Tk 8.0a1 only)
@@ -1150,14 +1198,14 @@ def route_list(parent):
                                                                                                             row=posi)
 
         posi = 0
-        for key in routedict:  # populate frame with lines for each axlecounter
+        for key in routedict:  # populate frame with lines for each route
             routeline(key, posi, windowtype)
             posi += 1
 
         ttk.Button(framedict[windowtype], text="Add route", command=lambda: Add_route(parent, "")).grid(column=0,
                                                                                                         columnspan=10,
                                                                                                         row=500,
-                                                                                                        sticky=E)  # button to add an axlecounter
+                                                                                                        sticky=E)  # button to add a route
 
     routelistwindow(parent)  # Create the list window and frame
 
