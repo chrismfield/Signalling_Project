@@ -981,11 +981,21 @@ def pointlist(parent):
 # route create/edit window:
 def Add_route(root, existingref):
     set_signals = {}  # a dictionary with signal name as key and list of aspects to set as value.
+    set_points = {}  # a dictionary with signal name as key and direction as value
     def write_route(root):
+        # remove signals from set_signals if not currently selected
+        selected_signals = [siglistbox.get(x) for x in siglistbox.curselection()]
+        for key in set_signals.copy().keys():
+            if key not in selected_signals:
+                set_signals.pop(key)
+        for key in set_points.copy().keys():
+            if key not in [pointlistbox.get(x) for x in pointlistbox.curselection()]:
+                set_points.pop(key)
+        # write all route parameters to routedict
         routedict[(routeref.get())] = route(ref=routeref.get(),
                                             description=description.get(), mode=mode.get(),
                                             sections=routesectionslistbox.curselection(),
-                                            points=pointlistbox.curselection(),
+                                            points=set_points,
                                             signals=set_signals, priority=priority.get())
 
         route_list(root)
@@ -1008,6 +1018,14 @@ def Add_route(root, existingref):
         pass
     try:
         mode.set(routedict[existingref].mode)
+    except:
+        pass
+    try:
+        set_points = routedict[existingref].points
+    except:
+        pass
+    try:
+        set_signals = routedict[existingref].signals
     except:
         pass
 
@@ -1049,13 +1067,40 @@ def Add_route(root, existingref):
     pointscrollbar.config(command=pointlistbox.yview)
     pointlistbox.configure(exportselection=False)
 
-    for item in pointdict:
+    for item in pointdict.keys():
         pointlistbox.insert(END, item)
-    try:
-        for x in routedict[existingref].points:
-            pointlistbox.selection_set(x)
-    except:
-        pass
+        if item in routedict[existingref].points.keys():
+            pointlistbox.selection_set(
+                pointlistbox.size() - 1)  #make sure that points remain selected
+
+    def choose_direction(point_ref):
+
+        direction = StringVar()
+        direction.set(None)
+
+        def write_direction(point_ref):
+            set_points[point_ref] = direction.get()
+            select_direction_window.destroy()
+
+        select_direction_window = Toplevel(root, takefocus=True)
+        select_direction_window.title("Section Setup")
+        select_direction_frame = ttk.Frame(select_direction_window, padding="3 3 12 12", borderwidth=1, relief=SUNKEN)
+        select_direction_frame.grid(column=0, row=0)
+
+        Radiobutton(select_direction_frame, text="Normal", variable=direction, value = "normal").grid(row=1, column=1, sticky=W)
+        Radiobutton(select_direction_frame, text="Reverse", variable=direction, value = "reverse").grid(row=2, column=1, sticky=W)
+        if point_ref in set_points.keys():
+            direction.set(set_points[point_ref])
+
+        ttk.Button(select_direction_frame, text="OK", command=lambda: write_direction(point_ref)).grid(column=2, row=21, sticky=E)
+
+    def do_direction_popup(event):
+        if pointlistbox.nearest(event.y) in pointlistbox.curselection():
+            choose_direction(pointlistbox.get(pointlistbox.nearest(event.y)))
+
+    pointlistbox.bind("<Button-3>", do_direction_popup)
+
+
 
     ttk.Label(routesetupframe, text="Signals to set:").grid(column=0, row=5, sticky=W, pady=4, padx=10)
     sigframe = ttk.Frame(routesetupframe)
@@ -1068,17 +1113,16 @@ def Add_route(root, existingref):
     sigscrollbar.config(command=siglistbox.yview)
     siglistbox.configure(exportselection=False)
 
-    for item in signaldict:
+    for item in signaldict.keys():
         siglistbox.insert(END, item)
-    try:
-        for x in routedict[existingref].signals:
-            siglistbox.selection_set(x)  # -------------make sure that signals with aspects set remain selected?
-    except:
-        pass
+        if item in routedict[existingref].signals.keys():
+            siglistbox.selection_set(siglistbox.size()-1) # make sure that signals with aspects set remain selected
+
 
     ttk.Label(routesetupframe, text="Route priority:").grid(column=0, row=8, sticky=W, pady=4, padx=10)
     ttk.Entry(routesetupframe, width=70, textvariable=priority).grid(column=1, columnspan=4, row=8,
                                                                      sticky=W)  # routeref entry
+
 
     def choose_aspects(sig_ref):
 
@@ -1093,14 +1137,25 @@ def Add_route(root, existingref):
         route4 = IntVar()
         route5 = IntVar()
         route6 = IntVar()
-        aspect_var_dict = {"danger" : danger, "caution": caution, "clear": clear, "callingong": callingon, "banner": banner, "route1": route1, "route2": route2, "route3": route3, "route4": route4, "route5": route5, "route6": route6}
+
+        aspectvariables = [[danger, None, "Danger", 4, "danger"],
+                           [caution, None, "Caution", 5, "caution"],
+                           [clear, None, "Clear", 6, "clear"],
+                           [callingon, None, "Calling-on", 7, "callingon"],
+                           [banner, None, "Banner repeater", 8, "banner"],
+                           [route1, None, "Route 1", 9, "route1"],
+                           [route2, None, "Route 2", 10, "route2"],
+                           [route3, None, "Route 3", 11, "route3"],
+                           [route4, None, "Route 4", 12, "route4"],
+                           [route5, None, "Route 5", 13, "route5"],
+                           [route6, None, "Route 6", 14, "route6"]]
 
         def write_aspects(sig_ref):
             # write the selected aspects into setpoints
             get_aspects = []
-            for aspect, var in aspect_var_dict.items():
-                if var.get() == 1:
-                    get_aspects.append(aspect)
+            for aspect in aspectvariables:
+                if aspect[0].get() == 1:
+                    get_aspects.append(aspect[4])
             set_signals[sig_ref] = get_aspects
             select_aspects_window.destroy()
 
@@ -1109,39 +1164,22 @@ def Add_route(root, existingref):
         select_aspects_frame = ttk.Frame(select_aspects_window, padding="3 3 12 12", borderwidth=1, relief=SUNKEN)
         select_aspects_frame.grid(column=0, row=0)
 
-        aspectvariables = [[danger, None, "Danger", 4],
-                           [caution, None, "Caution", 5],
-                           [clear, None, "Clear", 6],
-                           [callingon, None, "Calling-on", 7],
-                           [banner, None, "Banner repeater", 8],
-                           [route1, None, "Route 1", 9],
-                           [route2, None, "Route 2", 10],
-                           [route3, None, "Route 3", 11],
-                           [route4, None, "Route 4", 12],
-                           [route5, None, "Route 5", 13],
-                           [route6, None, "Route 6", 14]]
-
         for aspect in aspectvariables:
             Checkbutton(select_aspects_frame, text=aspect[2], variable=aspect[0], anchor=W).grid(
                 row=aspect[3], column=1, sticky=W)
+            if sig_ref in set_signals.keys():
+                if aspect[4] in set_signals[sig_ref]:
+                    aspect[0].set(1)
+
 
         ttk.Button(select_aspects_frame, text="OK", command=lambda: write_aspects(sig_ref)).grid(column=2, row=21, sticky=E)
 
 
-    def do_popup(event):
-        # display the popup menu
-        try:
-            siglistbox.selection_set(siglistbox.nearest(event.y))
-            siglistbox.activate(siglistbox.nearest(event.y))
-            print(siglistbox.get(siglistbox.nearest(event.y)))
-            popup = Menu(routesetupframe, tearoff=0)
-            popup.add_command(label="Set aspects", command=lambda: choose_aspects(siglistbox.get(siglistbox.nearest(event.y))))
-            popup.tk_popup(event.x_root, event.y_root, 0)
-        finally:
-            # make sure to release the grab (Tk 8.0a1 only)
-            popup.grab_release()
+    def do_aspect_popup(event):
+        if siglistbox.nearest(event.y) in siglistbox.curselection():
+            choose_aspects(siglistbox.get(siglistbox.nearest(event.y)))
 
-    siglistbox.bind("<Button-3>", do_popup)
+    siglistbox.bind("<Button-3>", do_aspect_popup)
 
     ttk.Label(routesetupframe, text="Route description:").grid(column=0, row=7, sticky=W, pady=4, padx=10)
     ttk.Entry(routesetupframe, width=70, textvariable=description).grid(column=1, columnspan=4, row=7,
@@ -1347,7 +1385,7 @@ def loadlayoutjson(root, loaddefault):
     global signaldict
     global plungerdict
     global pointdict
-    global routesdict
+    global routedict
     global currentfile
     global RS485port
 
@@ -1363,7 +1401,7 @@ def loadlayoutjson(root, loaddefault):
     jsonsignaldict = jsons.load(jsoninfradata["Signals"], dict)
     jsonplungerdict = jsons.load(jsoninfradata["Plungers"], dict)
     jsonpointdict = jsons.load(jsoninfradata["Points"], dict)
-    jsonroutesdict = jsons.load(jsoninfradata["Routes"], dict)
+    jsonroutedict = jsons.load(jsoninfradata["Routes"], dict)
     for x in jsonsectiondict.keys(): # for each instance of an asset, turns the dict back into the class instance and adds to the global dict of those assets
         sectiondict[x] = jsons.load(jsonsectiondict[x], section)
     for x in jsonACdict.keys():
@@ -1374,8 +1412,8 @@ def loadlayoutjson(root, loaddefault):
         plungerdict[x] = jsons.load(jsonplungerdict[x], plunger)
     for x in jsonpointdict.keys():
         pointdict[x] = jsons.load(jsonpointdict[x], point)
-    for x in jsonroutesdict.keys():
-        routesdict[x] = jsons.load(jsonroutesdict[x], route)
+    for x in jsonroutedict.keys():
+        routedict[x] = jsons.load(jsonroutedict[x], route)
     #    RS485port =
     currentfile = os.path.basename(json_in.name)
     print("loadnow")
