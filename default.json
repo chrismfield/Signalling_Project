@@ -23,22 +23,18 @@
         },
         "R": {
             "conflictingsections": [],
-            "dectrig": [
-                [
-                    "A3",
-                    "upcount"
-                ]
-            ],
+            "dectrig": {
+                "A1": "Upcount",
+                "A2": "Upcount"
+            },
             "description": "Between 47 and 48",
             "homesignal": [
                 "47"
             ],
-            "inctrig": [
-                [
-                    "A2",
-                    "upcount"
-                ]
-            ],
+            "inctrig": {
+                "A1": "Downcount",
+                "A2": "Downcount"
+            },
             "mode": 0,
             "occstatus": 0,
             "ref": "R",
@@ -46,17 +42,16 @@
         },
         "S": {
             "conflictingsections": [],
-            "dectrig": [],
+            "dectrig": {
+                "A6": "Downcount"
+            },
             "description": "Temp section for all platforms",
             "homesignal": [
                 "48"
             ],
-            "inctrig": [
-                [
-                    "A3",
-                    "upcount"
-                ]
-            ],
+            "inctrig": {
+                "A5": "Upcount"
+            },
             "mode": 0,
             "occstatus": 0,
             "ref": "S",
@@ -259,5 +254,30 @@
             "setstatus": ""
         }
     },
-    "Routes": {}
+    "Routes": {
+        "P4": {
+            "description": "Into P4",
+            "mode": 0,
+            "points": {
+                "100": "normal",
+                "300": "reverse"
+            },
+            "priority": 0,
+            "ref": "P4",
+            "sections": [
+                0
+            ],
+            "signals": {
+                "47": [
+                    "danger",
+                    "caution",
+                    "banner",
+                    "route2",
+                    "route3",
+                    "route4"
+                ]
+            },
+            "trigger": []
+        }
+    }
 }
