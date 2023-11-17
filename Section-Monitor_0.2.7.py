@@ -3,7 +3,6 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import filedialog
 import minimalmodbus
-import pickle
 import jsons
 import json
 import os
@@ -714,9 +713,9 @@ def Addsignal(parent, existingref):
         signaltype.set(signaldict[existingref].signaltype)
     except:
         pass
-    try:
-        signaldirectionindicator.set(signaldict[existingref].directionindicator)
-    except:
+    # try:
+    #     signaldirectionindicator.set(signaldict[existingref].directionindicator)
+    # except:
         pass
     try:
         dangeroutput.set(signaldict[
@@ -1478,9 +1477,9 @@ if __name__ == '__main__':
     main()
 
 # Next Jobs
-# Configurable direction on axlecounter triggers
+# Default aspect assignments based on board index for signal aspects.
+# Add board index to signals, points and perhaps plungers?
 # More work on routes interface - set routes but move route triggers into route scheduling?
 # Get all the logic to work
 # Pickle Com port selection - put in an ini file?
-# re-work Pickling to allow differing version compatibility - perhaps put everything in one dictionary of dictionaries and pickle that.
 # Route scheduling? This could be used to cycle routes on a trigger.

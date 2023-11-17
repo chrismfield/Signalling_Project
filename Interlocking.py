@@ -35,7 +35,7 @@ def loadlayoutjson(loaddefault):
     #    RS485port =
     currentfile = os.path.basename(json_in.name)
     print("loadnow")
-    updatesections()
+    section_update()
     pass
 
 # ---------------
@@ -124,15 +124,17 @@ def check_points():
     for pointkey, point in Point.instances.items():
         if point.detection_mode:
             try:
-            slave = minimalmodbus.Instrument(RS485port, point.address)
-            detection_normal = slave.read_bit(point.register, 21) # replace 21 with reference from JSON file
-            detection_reverse = slave.read_bit(point.register, 21) # re[;ace 22 with reference from JSON file
+                slave = minimalmodbus.Instrument(RS485port, point.address)
+                detection_normal = slave.read_bit(point.register, 21) # replace 21 with reference from JSON file
+                detection_reverse = slave.read_bit(point.register, 21) # re[;ace 22 with reference from JSON file
+            except:
+                detection_status = None
             if detection_normal:
                 detection_status = "normal"
             elif detection_reverse:
                 detection_status = "reverse"
             else:
-                detection_status = null
+                detection_status = None
             if detection_status == point.set_direction: #need to create get_detection function
                 #add point to list of set points in section
                 pass
@@ -159,19 +161,22 @@ def check_routes_requests():
         for point in route.points:
             if not point.unlocked:
                 return False
-            return True
+        return True
 
 
     for routekey, route in Route.instances.items():
         #go through routes in order of priority
-        for priority in range(0:100):
+        for priority in range(100):
             if route.priority == priority:
                 if route.requested: #try to set if the route has been requested
                     if check_route_ok(route): #test if route can be set
                         for section in route.sections:
                             section.routeset = True
                         route.set = "setting"
-                        # set points - need to modify Section-Monitor to save direction to set points and aspect of signal to set.
+                        #set points
+                        for point, direction in route.points.items():
+                            slave.write_bit()
+                            pass # e.g {"47":"normal"}
 
                         # set signals (need to do this after points detected somehow)
                         # only clear route request once route fully set
