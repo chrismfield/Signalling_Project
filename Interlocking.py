@@ -5,11 +5,12 @@ import os
 import serial.tools.list_ports
 import serial_ports_list
 
-currentfile = "default.json"
+current_file = "default.json"
+RS485port = "COM4"
 
 def loadlayoutjson(loaddefault):
     """Load the layout database from file into instances of classes as defined in object_defintions"""
-    global currentfile
+    global current_file
     global RS485port
     # put file choser into a config file - set with track setup script
     json_in = open("default.json")
@@ -20,7 +21,9 @@ def loadlayoutjson(loaddefault):
     jsonplungerdict = jsons.load(jsoninfradata["Plungers"], dict)
     jsonpointdict = jsons.load(jsoninfradata["Points"], dict)
     jsonroutesdict = jsons.load(jsoninfradata["Routes"], dict)
-    for x in jsonsectiondict.keys(): # for each instance of an asset, turns the dict back into the class instance and adds to the global dict of those assets
+    # for each instance of an asset, turn the dict back into the class instance and add to the class variable dict of
+    # those assets
+    for x in jsonsectiondict.keys():
         Section.instances[x] = jsons.load(jsonsectiondict[x], Section)
     for x in jsonACdict.keys():
         AxleCounter.instances[x] = jsons.load(jsonACdict[x], AxleCounter)

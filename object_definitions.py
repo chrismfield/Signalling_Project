@@ -1,11 +1,6 @@
-# ---------Assets, Sections and Route instances --------------
+import minimalmodbus
 
-sectiondict = {}  # dictionary for containing instances of sections
-ACdict = {}  # dictionary for containing instances of axlecounters
-signaldict = {}  # dictionary for containing instances of Signals
-plungerdict = {}  # dictionary for containing instances of Plungers
-pointdict = {}  # dictionary for containing instances of Points
-routedict = {}  # dictionary for containing instances of Routes
+# ---------Assets, Sections and Route instances --------------
 
 class AxleCounter:
     """Axle-counter object containing static and dynamic variables"""
@@ -16,6 +11,9 @@ class AxleCounter:
         self.address = address  # address
         self.ref = ref  # Freetext Reference
         self.description = description  # Freetext description
+        self.board_index = 0 # TO DO get and set these in json file
+        self.normal_coil = 22 # TO DO get and set these in json file
+        self.reverse_coil = 23 # TO DO get and set these in json file
         #Dynamic variables
         self.upcount = 0
         self.downcount = 0
@@ -54,6 +52,7 @@ class Section:
     """Section object containing static and dynamic variables"""
     instances = {}
     def __init__(self, ref, description, mode, inctrig, dectrig, homesignal, conflictingsections):
+        #static variables
         self.ref = ref  # Freetext Ref
         self.description = description  # Freetext description
         # add section attributes - this comes after adding the other assets as these can be referenced by a section instance
@@ -85,18 +84,45 @@ class Plunger:
 class Point:
     """Point object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, mode, address, ref, description, section=""):
+    def __init__(self, mode, address, ref, description, section="", normal_coil=22, reverse_coil=23, board_index=0):
         #static variables
+        self.mode = mode
         self.address = address  # address
         self.detection_mode = mode  # mode: with detection or without detection
         self.ref = ref  # Freetext reference
         self.description = description  # Freetext description
-        self.section = section
+        if not section:
+            self.section = ""
+        else:
+            self.section = section
+        self.board_index = board_index
+        self.normal_coil = normal_coil
+        self.reverse_coil = reverse_coil
+        self.network = "" # get this from config file
+        #self.slave = minimalmodbus.Instrument(self.network, self.address)
         #dynamic variables
         self.set_direction = ""  # set status
         self.detection = ""  # detection status
         self.unlocked = False
 
+
+    def set_point(self, direction):
+        if direction == "normal":
+            try:
+                self.slave.write_bit(self.reverse_coil, 0)
+                self.slave.write_bit(self.normal_coil, 1)
+                return True
+            except ValueError:
+                status = "Comms failure" # add details and logging
+                return False
+        if direction == "reverse":
+            try:
+                self.slave.write_bit(self.normal_coil, 0)
+                self.slave.write_bit(self.reverse_coil, 1)
+                return True
+            except ValueError:
+                status = "Comms failure" # add details and logging
+                return False
 
 class Route:
     """Route object containing static and dynamic variables"""
@@ -129,7 +155,7 @@ class Trigger:
         self.timer = timer
         self.MQTT = MQTT
         #dyanamic variables
-        self.triggered = False5
+        self.triggered = False
 
 class Lever:
     instances = {}

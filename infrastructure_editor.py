@@ -8,6 +8,7 @@ import json
 import os
 import Comselector
 import serial.tools.list_ports
+from object_definitions import AxleCounter, Signal, Section, Plunger, Point, Route
 
 RS485port = ""
 
@@ -26,97 +27,12 @@ currentfile = "default.json"
 occstatustkvar = {}  # dictionary for occstatus variable for tk window not to be pickled (StringVar's cant be pickled)
 runvar = 0  # for defining whether system runs or not
 
-
-class axlecounter:
-    def __init__(self, mode, address, ref, description):
-        self.mode = mode  # mode = axlecount, simple trigger or directional trigger
-        self.address = address  # address
-        self.ref = ref  # Freetext Reference
-        self.description = description  # Freetext description
-        self.upcount = 0
-        self.downcount = 0
-
-
-class signal:
-    def __init__(self, sigtype, address, ref, description, availableaspects,
-                 directionindicator, dangerreg, cautionreg, clearreg, callingonreg,
-                 bannerreg, route1reg, route2reg, route3reg, route4reg, route5reg, route6reg):
-        self.sigtype = sigtype  # mode = Semaphore or coulour light
-        self.address = address  # address
-        self.ref = ref  # Freetext Reference
-        self.description = description  # Freetext description
-        self.availableaspects = availableaspects  # available aspects
-        self.directionindicator = directionindicator
-        self.dangerreg = dangerreg
-        self.cautionreg = cautionreg
-        self.clearreg = clearreg
-        self.callingonreg = callingonreg
-        self.bannerreg = bannerreg
-        self.route1reg = route1reg
-        self.route2reg = route2reg
-        self.route3reg = route3reg
-        self.route4reg = route4reg
-        self.route5reg = route5reg
-        self.route6reg = route6reg
-        self.illumination = "On"  # night illumination mode
-        self.aspect = "0"  # current aspect
-
-
-class section:
-    def __init__(self, ref, description, mode, inctrig, dectrig, homesignal, conflictingsections):
-        self.ref = ref  # Freetext Ref
-        self.description = description  # Freetext description
-        # add section attributes - this comes after adding the other assets as these can be referenced by a section instance
-        self.mode = mode  # mode: axlecounter, trackcircuit, magnet (input trigger) or RFID
-        self.inctrig = inctrig  # increment triggers
-        self.dectrig = dectrig  # decrement triggers
-        self.homesignal = homesignal  # protecting signals
-        self.conflictingsections = conflictingsections
-        self.occstatus = 0  # occupation status
-        self.routestatus = ""  # availability status
-
-
-class plunger:
-    def __init__(self, mode, address, ref, description, register):
-        self.mode = mode  # mode of operation, request store or no request store.
-        self.address = address  # address
-        self.ref = ref  # Freetext Referece
-        self.description = description  # freetext description
-        self.register = register  # register address
-        self.status = 0
-
-
-class point:
-    def __init__(self, mode, address, ref, description):
-        self.address = address  # address
-        self.mode = mode  # mode: with detection or without detection
-        self.ref = ref  # Freetext reference
-        self.description = description  # Freetext description
-        self.setstatus = ""  # set status
-        self.detection = ""  # detection status
-
-
-class route:
-    def __init__(self, ref, description, mode, sections, points, signals, priority):
-        self.mode = mode  # mode: with detection or without detection
-        self.ref = ref  # Freetext reference
-        self.description = description  # Freetext description
-        self.sections = sections  # ordered list of sections
-        self.points = points  # ordered list of points to set
-        self.signals = signals  # ordered list of signals to set. Each signal to be a list of aspects of that signal to set
-        self.priority = priority  # priority number (change this to be an integer)
-        self.trigger = []  # list of triggers for route - section occupation, section non-occupation, plunger, lever etc.
-        # Need to include an option for whether the trigger ovverides existing routes or not.
-
-
-class lever:
-    # for later on!
-    pass
-
+with open("function_to_coil_mapping.json") as file:
+    function_to_coil_mapping = json.load(file)
 
 # ---------Setup Windows-------------
 # main monitoring window:
-def updatesections(root):  # use this to update the main monitoring window
+def updatesections(root):  # replace this with an object list and link to run Interlocking
     try:
         framedict["mainframe"].destroy()
     except:
@@ -154,7 +70,7 @@ def AddSection(root, existingref):
             homeselection.append(homesiglistbox.get(selected))
         for selected in conflictlistbox.curselection():
             conflictselection.append(conflictlistbox.get(selected))
-        sectiondict[(sectionref.get())] = section(ref=sectionref.get(),
+        sectiondict[(sectionref.get())] = Section(ref=sectionref.get(),
                                                   description=description.get(), mode=mode.get(),
                                                   inctrig=incselection, dectrig=decselection,
                                                   homesignal=homeselection, conflictingsections=conflictselection)
@@ -378,7 +294,7 @@ def AddAC(parent, existingref):
         description = ACdescription.get()
         mode = ACmode.get()
         address = ACaddress.get()
-        ACdict[(ACref.get())] = axlecounter(mode, address, ref,
+        ACdict[(ACref.get())] = AxleCounter(mode, address, ref,
                                             description)  # add an instance of an axlecounter to the list, with all the parameters.
         AClist(parent)
         ACsetupwin.destroy()
@@ -500,7 +416,7 @@ def Addplunger(parent, existingref):
         mode = plungermode.get()
         address = plungeraddress.get()
         register = plungerregister.get()
-        plungerdict[(plungerref.get())] = plunger(mode, address, ref, description,
+        plungerdict[(plungerref.get())] = Plunger(mode, address, ref, description,
                                                   register)  # add an instance of an axlecounter to the list, with all the parameters.
         plungerlist(parent)
         plungersetupwin.destroy()
@@ -645,7 +561,7 @@ def Addsignal(parent, existingref):
         route5reg = route5output.get()
         route6reg = route6output.get()
         # add an instance of an signal to the list, with all the parameters:
-        signaldict[(signalref.get())] = signal(sigtype, address, ref, description,
+        signaldict[(signalref.get())] = Signal(sigtype, address, ref, description,
                                                0, 0, dangerreg, cautionreg, clearreg,
                                                callingonreg, bannerreg, route1reg, route2reg, route3reg, route4reg,
                                                route5reg, route6reg)
@@ -865,10 +781,16 @@ def Addpoint(parent, existingref):
         description = pointdescription.get()
         mode = pointmode.get()
         address = pointaddress.get()
-        pointdict[(pointref.get())] = point(mode, address, ref,
-                                            description)  # add an instance of an point to the list, with all the parameters.
+        section = ""
+        board_index = point_board_index.get()
+        normal_coil = point_normal_coil.get()
+        reverse_coil = point_reverse_coil.get()
+        pointdict[(pointref.get())] = Point(mode, address, ref,
+                                            description, section, normal_coil, reverse_coil, board_index)  # add an instance of an point to the list, with all the parameters.
         pointlist(parent)
         pointsetupwin.destroy()
+
+
 
     # create a new popup window to enter details into:
     pointsetupwin = Toplevel(parent, takefocus=True)
@@ -881,21 +803,45 @@ def Addpoint(parent, existingref):
     pointref = StringVar()  # TK variable for pointref input
     pointref.set(existingref)  # collect any existing ref for editing
     pointaddress = StringVar()  # TK variable for point address input
+    point_board_index = IntVar()
+    point_normal_coil = IntVar()
+    point_reverse_coil = IntVar()
     pointdescription = StringVar()  # TK variable for point description input
     pointmode = IntVar()  # mode is 0 for Axlecount, 1 for non-directional trigger and 2 for directional trigger
 
     try:
         pointaddress.set(pointdict[existingref].address)  # collect existing
-    except:
+    except KeyError:
         pass
     try:
         pointdescription.set(pointdict[existingref].description)
-    except:
+    except KeyError:
         pass
     try:
         pointmode.set(pointdict[existingref].mode)
-    except:
+    except KeyError:
         pass
+    try:
+        point_board_index.set(pointdict[existingref].board_index)
+    except KeyError:
+        pass
+    try:
+        point_normal_coil.set(pointdict[existingref].normal_coil)
+    except KeyError:
+        pass
+    try:
+        point_reverse_coil.set(pointdict[existingref].reverse_coil)
+    except KeyError:
+        pass
+
+    def fill_defaults(event):
+        try:
+            if point_board_index.get() in range(4):
+                point_normal_coil.set(int(function_to_coil_mapping["board_index_"+str(point_board_index.get())]["normal_direction"]))
+                point_reverse_coil.set(int(function_to_coil_mapping["board_index_" +str(point_board_index.get())]["reverse_direction"]))
+        except:
+            pass
+
 
     ttk.Label(pointsetupframe, text="Points Ref:").grid(column=0, row=0, sticky=W)
     ttk.Entry(pointsetupframe, width=7, textvariable=pointref).grid(column=1, row=0, sticky=W)  # pointref entry
@@ -903,17 +849,31 @@ def Addpoint(parent, existingref):
     ttk.Label(pointsetupframe, text="Points Address:").grid(column=0, row=1, sticky=W)
     ttk.Entry(pointsetupframe, width=7, textvariable=pointaddress).grid(column=1, row=1,
                                                                         sticky=W)  # point address entry
+    # board index, normal and reverse coil selection
+
+    ttk.Label(pointsetupframe, text="Board Index:").grid(column=0, row=2, sticky=W)
+    board_index_textbox = ttk.Entry(pointsetupframe, width=7, textvariable=point_board_index)
+    board_index_textbox.grid(column=1, row=2,
+                                                                        sticky=W)  # p
+
+    ttk.Label(pointsetupframe, text="Normal Coil:").grid(column=0, row=3, sticky=W)
+    ttk.Entry(pointsetupframe, width=7, textvariable=point_normal_coil).grid(column=1, row=3,
+                                                                        sticky=W)  # point address entry
+    ttk.Label(pointsetupframe, text="Reverse Coil:").grid(column=0, row=4, sticky=W)
+    ttk.Entry(pointsetupframe, width=7, textvariable=point_reverse_coil).grid(column=1, row=4,
+                                                                        sticky=W)  # point address entry
+
+    board_index_textbox.bind("<KeyRelease>", fill_defaults)
 
     # add in mode selector
-    ttk.Label(pointsetupframe, text="Point Mode:").grid(column=0, row=2, sticky=W)
-    Radiobutton(pointsetupframe, text="With detection", variable=pointmode, value=0).grid(column=1, row=2)
-    Radiobutton(pointsetupframe, text="Without detection", variable=pointmode, value=1).grid(column=2, row=2)
+    ttk.Label(pointsetupframe, text="Point Mode:").grid(column=0, row=5, sticky=W)
+    Radiobutton(pointsetupframe, text="With detection", variable=pointmode, value=0).grid(column=1, row=5)
+    Radiobutton(pointsetupframe, text="Without detection", variable=pointmode, value=1).grid(column=2, row=5)
 
-    ttk.Label(pointsetupframe, text="Points Description:").grid(column=0, row=3, sticky=W)
-    ttk.Entry(pointsetupframe, width=70, textvariable=pointdescription).grid(column=1, columnspan=4, row=3,
+    ttk.Label(pointsetupframe, text="Points Description:").grid(column=0, row=6, sticky=W)
+    ttk.Entry(pointsetupframe, width=70, textvariable=pointdescription).grid(column=1, columnspan=4, row=6,
                                                                              sticky=W)  # pointref entry
-
-    ttk.Button(pointsetupframe, text="OK", command=lambda: Writepoint(parent)).grid(column=4, row=10, sticky=E)
+    ttk.Button(pointsetupframe, text="OK", command=lambda: Writepoint(parent)).grid(column=7, row=10, sticky=E)
 
 
 def pointlist(parent):
@@ -991,7 +951,7 @@ def Add_route(root, existingref):
             if key not in [pointlistbox.get(x) for x in pointlistbox.curselection()]:
                 set_points.pop(key)
         # write all route parameters to routedict
-        routedict[(routeref.get())] = route(ref=routeref.get(),
+        routedict[(routeref.get())] = Route(ref=routeref.get(),
                                             description=description.get(), mode=mode.get(),
                                             sections=routesectionslistbox.curselection(),
                                             points=set_points,
@@ -1402,17 +1362,17 @@ def loadlayoutjson(root, loaddefault):
     jsonpointdict = jsons.load(jsoninfradata["Points"], dict)
     jsonroutedict = jsons.load(jsoninfradata["Routes"], dict)
     for x in jsonsectiondict.keys(): # for each instance of an asset, turns the dict back into the class instance and adds to the global dict of those assets
-        sectiondict[x] = jsons.load(jsonsectiondict[x], section)
+        sectiondict[x] = jsons.load(jsonsectiondict[x], Section)
     for x in jsonACdict.keys():
-        ACdict[x] = jsons.load(jsonACdict[x], axlecounter)
+        ACdict[x] = jsons.load(jsonACdict[x], AxleCounter)
     for x in jsonsignaldict.keys():
-        signaldict[x] = jsons.load(jsonsignaldict[x], signal)
+        signaldict[x] = jsons.load(jsonsignaldict[x], Signal)
     for x in jsonplungerdict.keys():
-        plungerdict[x] = jsons.load(jsonplungerdict[x], plunger)
+        plungerdict[x] = jsons.load(jsonplungerdict[x], Plunger)
     for x in jsonpointdict.keys():
-        pointdict[x] = jsons.load(jsonpointdict[x], point)
+        pointdict[x] = jsons.load(jsonpointdict[x], Point)
     for x in jsonroutedict.keys():
-        routedict[x] = jsons.load(jsonroutedict[x], route)
+        routedict[x] = jsons.load(jsonroutedict[x], Route)
     #    RS485port =
     currentfile = os.path.basename(json_in.name)
     print("loadnow")
@@ -1477,9 +1437,10 @@ if __name__ == '__main__':
     main()
 
 # Next Jobs
+
+# Add board index to signals and perhaps plungers?
 # Default aspect assignments based on board index for signal aspects.
-# Add board index to signals, points and perhaps plungers?
+# Put points in sections rather than sections in points?
 # More work on routes interface - set routes but move route triggers into route scheduling?
-# Get all the logic to work
-# Pickle Com port selection - put in an ini file?
+# Com port and network selection - put in an ini file?
 # Route scheduling? This could be used to cycle routes on a trigger.
