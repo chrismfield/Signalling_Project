@@ -608,18 +608,18 @@ def Addsignal(parent, existingref):
     route6output = IntVar()
 
     # define the name of the checkbox variable, a place for the entrybox instance, the text for each line,
-    # each row number and the outputvariable
-    aspectvariables = [[danger, None, "Danger", 5, dangeroutput],
-                       [caution, None, "Caution", 6, cautionoutput],
-                       [clear, None, "Clear", 7, clearoutput],
-                       [callingon, None, "Calling-on", 8, callingonoutput],
-                       [banner, None, "Banner repeater", 9, banneroutput],
-                       [route1, None, "Route 1", 10, route1output],
-                       [route2, None, "Route 2", 11, route2output],
-                       [route3, None, "Route 3", 12, route3output],
-                       [route4, None, "Route 4", 13, route4output],
-                       [route5, None, "Route 5", 14, route5output],
-                       [route6, None, "Route 6", 15, route6output]]
+    # each row number and the outputvariable and default lookup variable
+    aspectvariables = [[danger, None, "Danger", 5, dangeroutput, "danger_aspect"],
+                       [caution, None, "Caution", 6, cautionoutput,"caution_aspect"],
+                       [clear, None, "Clear", 7, clearoutput,"clear_aspect"],
+                       [callingon, None, "Calling-on", 8, callingonoutput,"calling_on"],
+                       [banner, None, "Banner repeater", 9, banneroutput,"banner_repeater"],
+                       [route1, None, "Route 1", 10, route1output,"route_1"],
+                       [route2, None, "Route 2", 11, route2output,"route_2"],
+                       [route3, None, "Route 3", 12, route3output,"route_3"],
+                       [route4, None, "Route 4", 13, route4output,"route_4"],
+                       [route5, None, "Route 5", 14, route5output,"route_5"],
+                       [route6, None, "Route 6", 15, route6output,"route_6"]]
 
     try:
         signaladdress.set(signaldict[existingref].address)  # collect existing
@@ -664,6 +664,15 @@ def Addsignal(parent, existingref):
         else:
             checkvar[0].set(0)
 
+    def fill_defaults(event):
+        try:
+            if signal_board_index.get() in range(4):
+                for aspect_x in aspectvariables:
+                    aspect_x[4].set(int(function_to_coil_mapping["board_index_"+str(signal_board_index.get())][aspect_x[5]]))
+                #dangeroutput.set(int(function_to_coil_mapping["board_index_"+str(signal_board_index.get())]["danger_aspect"]))
+        except:
+            pass
+
     ttk.Label(signalsetupframe, text="Signal ref:").grid(column=0, row=0, sticky=W, padx=10)
     ttk.Entry(signalsetupframe, width=7, textvariable=signalref).grid(column=1, row=0, sticky=W,
                                                                       pady=4)  # signalref entry
@@ -678,8 +687,9 @@ def Addsignal(parent, existingref):
     Radiobutton(signalsetupframe, text="Colour Light", variable=signaltype, value=1).grid(column=2, row=2, sticky=W)
 
     ttk.Label(signalsetupframe, text="Board Index:").grid(column=0, row=3, sticky=W, pady=4, padx=10)
-    ttk.Entry(signalsetupframe, width=7, textvariable=signal_board_index).grid(column=1, row=3,
-                                                                          sticky=W)  # signal address entry
+    board_index_textbox = ttk.Entry(signalsetupframe, width=7, textvariable=signal_board_index)
+    board_index_textbox.grid(column=1, row=3,sticky=W)
+    board_index_textbox.bind("<KeyRelease>", fill_defaults)
 
     ttk.Label(signalsetupframe, text="Aspect availability:").grid(column=1, row=4, sticky=W, pady=4, padx=10)
     ttk.Label(signalsetupframe, text="Output assignment:").grid(column=2, row=4, sticky=W, pady=4, padx=10)
@@ -697,7 +707,7 @@ def Addsignal(parent, existingref):
     for aspect in aspectvariables:
         Checkbutton(signalsetupframe, text=aspect[2] + ":", command=toggle, variable=aspect[0], anchor=W).grid(
             row=aspect[3], column=1, sticky=W)
-        aspect[1] = ttk.Entry(signalsetupframe, width=3, textvariable=aspect[4], state=DISABLED)  # signalref entry
+        aspect[1] = ttk.Entry(signalsetupframe, width=5, textvariable=aspect[4], state=DISABLED)  # signalref entry
         aspect[1].grid(column=2, row=aspect[3], sticky=W)
 
     toggle()
@@ -851,8 +861,8 @@ def Addpoint(parent, existingref):
 
     ttk.Label(pointsetupframe, text="Board Index:").grid(column=0, row=2, sticky=W)
     board_index_textbox = ttk.Entry(pointsetupframe, width=7, textvariable=point_board_index)
-    board_index_textbox.grid(column=1, row=2,
-                                                                        sticky=W)  # p
+    board_index_textbox.grid(column=1, row=2,sticky=W)
+    board_index_textbox.bind("<KeyRelease>", fill_defaults)
 
     ttk.Label(pointsetupframe, text="Normal Coil:").grid(column=0, row=3, sticky=W)
     ttk.Entry(pointsetupframe, width=7, textvariable=point_normal_coil).grid(column=1, row=3,
@@ -861,7 +871,7 @@ def Addpoint(parent, existingref):
     ttk.Entry(pointsetupframe, width=7, textvariable=point_reverse_coil).grid(column=1, row=4,
                                                                         sticky=W)  # point address entry
 
-    board_index_textbox.bind("<KeyRelease>", fill_defaults)
+
 
     # add in mode selector
     ttk.Label(pointsetupframe, text="Point Mode:").grid(column=0, row=5, sticky=W)
@@ -1436,8 +1446,6 @@ if __name__ == '__main__':
 
 # Next Jobs
 
-# Add board index to signals and perhaps plungers?
-# Default aspect assignments based on board index for signal aspects.
 # Put points in sections rather than sections in points?
 # More work on routes interface - set routes but move route triggers into route scheduling?
 # Com port and network selection - put in an ini file?
