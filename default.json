@@ -317,7 +317,7 @@
             "normal_coil": 3021,
             "ref": "150",
             "reverse_coil": 3022,
-            "section": "",
+            "section": "R",
             "set_direction": "",
             "unlocked": false
         }
@@ -336,7 +336,7 @@
             "ref": "P4",
             "requested": false,
             "sections": [
-                0
+                "Q"
             ],
             "set": false,
             "signals": {

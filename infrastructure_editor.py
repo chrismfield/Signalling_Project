@@ -781,7 +781,10 @@ def Addpoint(parent, existingref):
         description = pointdescription.get()
         mode = pointmode.get()
         address = pointaddress.get()
-        section = ""
+        try:
+            section = point_section_listbox.get(point_section_listbox.curselection())
+        except TclError: # if no section selection made
+            section = ""
         board_index = point_board_index.get()
         normal_coil = point_normal_coil.get()
         reverse_coil = point_reverse_coil.get()
@@ -870,8 +873,29 @@ def Addpoint(parent, existingref):
     Radiobutton(pointsetupframe, text="With detection", variable=pointmode, value=0).grid(column=1, row=5)
     Radiobutton(pointsetupframe, text="Without detection", variable=pointmode, value=1).grid(column=2, row=5)
 
-    ttk.Label(pointsetupframe, text="Points Description:").grid(column=0, row=6, sticky=W)
-    ttk.Entry(pointsetupframe, width=70, textvariable=pointdescription).grid(column=1, columnspan=4, row=6,
+    # list box for route sections
+    ttk.Label(pointsetupframe, text="Point containing section:").grid(column=0, row=6, sticky=W, pady=4, padx=10)
+    point_section_frame = ttk.Frame(pointsetupframe)
+    point_section_frame.grid(column=1, row=6, columnspan=2)
+    point_section_scrollbar = Scrollbar(point_section_frame)
+    point_section_scrollbar.pack(side=RIGHT, fill=Y)
+    point_section_listbox = Listbox(point_section_frame, selectmode=SINGLE, height=4)
+    point_section_listbox.pack(pady=10)
+    point_section_listbox.config(yscrollcommand=point_section_scrollbar.set)
+    point_section_scrollbar.config(command=point_section_listbox.yview)
+    point_section_listbox.configure(exportselection=False)
+
+    for item in sectiondict.keys():
+        point_section_listbox.insert(END, item)
+        try:
+            if item == pointdict[existingref].section:
+                point_section_listbox.selection_set(point_section_listbox.size()-1)
+        except KeyError:
+            pass
+
+
+    ttk.Label(pointsetupframe, text="Points Description:").grid(column=0, row=7, sticky=W)
+    ttk.Entry(pointsetupframe, width=70, textvariable=pointdescription).grid(column=1, columnspan=4, row=7,
                                                                              sticky=W)  # pointref entry
     ttk.Button(pointsetupframe, text="OK", command=lambda: Writepoint(parent)).grid(column=7, row=10, sticky=E)
 
@@ -942,18 +966,24 @@ def Add_route(root, existingref):
     set_signals = {}  # a dictionary with signal name as key and list of aspects to set as value.
     set_points = {}  # a dictionary with signal name as key and direction as value
     def write_route(root):
-        # remove signals from set_signals if not currently selected
-        selected_signals = [siglistbox.get(x) for x in siglistbox.curselection()]
+        # remove items from set_items if not currently selected
+        set_sections = []
+        for selection_index in routesectionslistbox.curselection():
+            set_sections.append(routesectionslistbox.get(selection_index))
         for key in set_signals.copy().keys():
-            if key not in selected_signals:
+            if key not in [siglistbox.get(x) for x in siglistbox.curselection()]:
                 set_signals.pop(key)
         for key in set_points.copy().keys():
             if key not in [pointlistbox.get(x) for x in pointlistbox.curselection()]:
                 set_points.pop(key)
+        # for item in set_sections.copy():
+        #     if item not in [siglistbox.get(x) for x in siglistbox.curselection()]:
+        #         set_points.pop(item)
+
         # write all route parameters to routedict
         routedict[(routeref.get())] = Route(ref=routeref.get(),
                                             description=description.get(), mode=mode.get(),
-                                            sections=routesectionslistbox.curselection(),
+                                            sections=set_sections,
                                             points=set_points,
                                             signals=set_signals, priority=priority.get())
 
@@ -987,6 +1017,10 @@ def Add_route(root, existingref):
         set_signals = routedict[existingref].signals
     except:
         pass
+    try:
+        set_sections = routedict[existingref].sections
+    except:
+        pass
 
     ttk.Label(routesetupframe, text="Route ref:").grid(column=0, row=0, sticky=W, padx=10)
     ttk.Entry(routesetupframe, width=7, textvariable=routeref).grid(column=1, row=0, sticky=W, pady=4)  # routeref entry
@@ -1007,13 +1041,14 @@ def Add_route(root, existingref):
     routesectionsscrollbar.config(command=routesectionslistbox.yview)
     routesectionslistbox.configure(exportselection=False)
 
-    for item in sectiondict:
+    for item in sectiondict.keys():
         routesectionslistbox.insert(END, item)
-    try:
-        for x in routedict[existingref].sections:
-            routesectionslistbox.selection_set(x)
-    except:
-        pass
+        try:
+            for sect in routedict[existingref].sections:
+                if sect == item:
+                    routesectionslistbox.selection_set(routesectionslistbox.size()-1)
+        except KeyError:
+            pass
 
     ttk.Label(routesetupframe, text="Route points to set:").grid(column=0, row=4, sticky=W, pady=4, padx=10)
     pointframe = ttk.Frame(routesetupframe)
