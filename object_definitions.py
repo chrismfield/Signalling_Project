@@ -24,10 +24,11 @@ class Signal:
     instances = {}
     def __init__(self, sigtype, address, ref, description, availableaspects,
                  directionindicator, dangerreg, cautionreg, clearreg, callingonreg,
-                 bannerreg, route1reg, route2reg, route3reg, route4reg, route5reg, route6reg):
+                 bannerreg, route1reg, route2reg, route3reg, route4reg, route5reg, route6reg, board_index=0):
         #static variables
         self.sigtype = sigtype  # mode = Semaphore or coulour light
         self.address = address  # address
+        self.board_index = board_index
         self.ref = ref  # Freetext Reference
         self.description = description  # Freetext description
         self.availableaspects = availableaspects  # available aspects
