@@ -20,6 +20,7 @@ signaldict = {}  # dictionary for containing instances of Signals
 plungerdict = {}  # dictionary for containing instances of Plungers
 pointdict = {}  # dictionary for containing instances of Points
 routedict = {}  # dictionary for containing instances of Routes
+trigger_dict = {} # dictonary for containing instances of Triggers
 
 windowdict = {}  # for containing all the windows associated with asset lists
 framedict = {}  # for containing the frames that contain the lines
@@ -1250,6 +1251,64 @@ def route_list(parent):
     routelistwindow(parent)  # Create the list window and frame
 
 
+def trigger_list(parent):
+    windowtype = "trigger"
+
+    def delete_trigger(key, parent):
+        if messagebox.askyesno("Delete trigger", "Delete " + windowtype + " " + key + " ?"):
+            del trigger_dict[key]
+            trigger_list_window(parent)
+        pass
+
+    def trigger_list_window(parent):
+
+        try:
+            framedict[windowtype].destroy()
+        except:
+            pass
+        if windowtype in windowdict:
+            pass
+        else:
+            windowdict[windowtype] = Toplevel(parent,
+                                              takefocus=False)  # create routelistwindow and put it into class dictionary windowdict
+            windowdict[windowtype].title(windowtype)
+
+        try:  # this try is required for when the window has been closed and cant be found to put a frame in, although the instance still lives in the dict
+            framedict[windowtype] = ttk.Frame(windowdict[windowtype])
+            framedict[windowtype].grid()
+        except:
+            windowdict[windowtype] = Toplevel(parent,
+                                              takefocus=False)  # create routelistwindow and put it into class dictionary windowdict
+            windowdict[windowtype].title(windowtype)
+            framedict[windowtype] = ttk.Frame(windowdict[windowtype])
+            framedict[windowtype].grid()
+
+        def trigger_line(key, posi, windowtype):
+            if trigger_dict[key].mode == 0:
+                modedescription = "Store request"
+            if trigger_dict[key].mode == 1:
+                modedescription = "Do not store request"
+            ttk.Label(framedict[windowtype], text="Trigger ref: " + key).grid(column=0, row=posi, padx=10)
+            ttk.Label(framedict[windowtype], text="Mode: " + modedescription).grid(column=4, row=posi, padx=10)
+            ttk.Label(framedict[windowtype], text="Description: " + trigger_dict[key].description).grid(column=5, row=posi,
+                                                                                                     padx=10)
+            ttk.Button(framedict[windowtype], text="Edit", command=lambda: Add_route(parent, key)).grid(column=6,
+                                                                                                        row=posi)
+            ttk.Button(framedict[windowtype], text="Delete", command=lambda: delete_trigger(key, parent)).grid(column=7,
+                                                                                                            row=posi)
+
+        posi = 0
+        for key in trigger_dict:  # populate frame with lines for each route
+            trigger_line(key, posi, windowtype)
+            posi += 1
+
+        ttk.Button(framedict[windowtype], text="Add trigger", command=lambda: Add_trigger(parent, "")).grid(column=0,
+                                                                                                        columnspan=10,
+                                                                                                        row=500,
+                                                                                                        sticky=E)  # button to add a route
+
+    trigger_list_window(parent)  # Create the list window and frame
+
 # ---------------
 
 
@@ -1467,6 +1526,7 @@ def main():
     menubar.add_cascade(label="Section", menu=sectionmenu)
     routemenu = Menu(menubar, tearoff=0)
     routemenu.add_command(label="Manage routes", command=lambda: route_list(root))
+    routemenu.add_command(label="Triggers", command=lambda: trigger_list(root))
     menubar.add_cascade(label="Route", menu=routemenu)
     # display the menu
     root.config(menu=menubar)
