@@ -101,7 +101,6 @@ def section_update():
                     section.occstatus -= AC.downcount
 
 
-
 def interlocking():
     """Set all protecting signals to danger and secure points and routes as required"""
     # for each section:
@@ -149,8 +148,10 @@ def check_points():
             pass
     pass  # -------------need to implement-----------
 
+
 def check_triggers(): #if required
     pass
+
 
 def check_routes_requests():
     def check_route_ok(route):
@@ -186,14 +187,12 @@ def check_routes_requests():
                         pass # set route
 
 
-
 # Check route triggers
 # Set routes (will need to iterate this to wait for point detection)
 # check conflicting sections
 # apply interlocking doublecheck
 
 # Send outputs to relevant points and all signals
-
 
 # ---------------
 
@@ -208,13 +207,11 @@ def process(RS485port):
         # put the MQTT update in here
 
 
-
 #not used - delete once other com port method proven.
 def comm_chooser(master):
     #put logic to work in both linux and windows in here
     mycomlist = ([comport.device for comport in serial.tools.list_ports.comports()])
     RS485port = mycomlist[-1]
-
 
 
 def main():

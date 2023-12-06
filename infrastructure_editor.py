@@ -1250,6 +1250,119 @@ def route_list(parent):
 
     routelistwindow(parent)  # Create the list window and frame
 
+def add_trigger(parent, existing_ref):
+    def write_trigger(parent):
+        #save data here
+        pass
+        trigger_setup_win.destroy()
+
+    trigger_setup_win = Toplevel(parent, takefocus=True)
+    trigger_setup_win.title("Axle Counter Setup")
+    trigger_setup_frame = ttk.Frame(trigger_setup_win, padding="3 3 12 12", borderwidth=1, relief=SUNKEN)
+    trigger_setup_frame.grid(column=0, row=0)
+
+    #tk variables:
+    trigger_ref = StringVar()
+    trigger_ref.set(existing_ref) # collect any existing ref for editing
+    trigger_description = StringVar()
+
+    ttk.Label(trigger_setup_frame, text="Trigger Ref:").grid(column=0, row=0, sticky=W)
+    ttk.Entry(trigger_setup_frame, width=7, textvariable=trigger_ref).grid(column=1, row=0, sticky=W)  # ACref entry
+
+    ttk.Label(trigger_setup_frame, text="Trigger Description:").grid(column=0, row=1, sticky=W)
+    ttk.Entry(trigger_setup_frame, width=70, textvariable=trigger_description).grid(column=1, columnspan=4, row=1,
+                                                                       sticky=W)
+
+    ttk.Label(trigger_setup_frame, text="Plunger Triggers:").grid(column=0, row=3, sticky=W, pady=4, padx=10)
+    plunger_triggers_frame = ttk.Frame(trigger_setup_frame)
+    plunger_triggers_frame.grid(column=1, row=3, columnspan=2)
+    plungers_scrollbar = Scrollbar(plunger_triggers_frame)
+    plungers_scrollbar.pack(side=RIGHT, fill=Y)
+    plungers_listbox = Listbox(plunger_triggers_frame, selectmode=MULTIPLE, height=4)
+    plungers_listbox.pack(pady=10)
+    plungers_listbox.config(yscrollcommand=plungers_scrollbar.set)
+    plungers_scrollbar.config(command=plungers_listbox.yview)
+    plungers_listbox.configure(exportselection=False)
+
+    for item in plungerdict.keys():
+        plungers_listbox.insert(END, item)
+        try:
+            for plunger in trigger_dict[existing_ref].plungers:
+                if plunger == item:
+                    plungers_listbox.selection_set(plungers_listbox.size() - 1)
+        except KeyError:
+            pass
+
+    ttk.Label(trigger_setup_frame, text="Section Triggers:").grid(column=0, row=4, sticky=W, pady=4, padx=10)
+    section_triggers_frame = ttk.Frame(trigger_setup_frame)
+    section_triggers_frame.grid(column=1, row=4, columnspan=2)
+    sections_scrollbar = Scrollbar(section_triggers_frame)
+    sections_scrollbar.pack(side=RIGHT, fill=Y)
+    sections_listbox = Listbox(section_triggers_frame, selectmode=MULTIPLE, height=4)
+    sections_listbox.pack(pady=10)
+    sections_listbox.config(yscrollcommand=sections_scrollbar.set)
+    sections_scrollbar.config(command=sections_listbox.yview)
+    sections_listbox.configure(exportselection=False)
+
+    for item in sectiondict.keys():
+        sections_listbox.insert(END, item)
+        try:
+            for section in trigger_dict[existing_ref].sections:
+                if section == item:
+                    sections_listbox.selection_set(sections_listbox.size() - 1)
+        except KeyError:
+            pass
+
+    # add in select conditions (Routes set or not set, sections occupied or not occupied)
+
+    ttk.Label(trigger_setup_frame, text="Routes to set:").grid(column=0, row=5, sticky=W, pady=4, padx=10)
+    route_triggers_frame = ttk.Frame(trigger_setup_frame)
+    route_triggers_frame.grid(column=1, row=5, columnspan=2)
+    routes_scrollbar = Scrollbar(route_triggers_frame)
+    routes_scrollbar.pack(side=RIGHT, fill=Y)
+    routes_listbox = Listbox(route_triggers_frame, selectmode=MULTIPLE, height=4)
+    routes_listbox.pack(pady=10)
+    routes_listbox.config(yscrollcommand=routes_scrollbar.set)
+    routes_scrollbar.config(command=routes_listbox.yview)
+    routes_listbox.configure(exportselection=False)
+
+    for item in routedict.keys():
+        routes_listbox.insert(END, item)
+        try:
+            for route in trigger_dict[existing_ref].routes_to_set:
+                if route == item:
+                    routes_listbox.selection_set(routes_listbox.size() - 1)
+        except KeyError:
+            pass
+
+    ttk.Label(trigger_setup_frame, text="Routes to clear:").grid(column=0, row=6, sticky=W, pady=4, padx=10)
+    route_triggers_frame = ttk.Frame(trigger_setup_frame)
+    route_triggers_frame.grid(column=1, row=6, columnspan=2)
+    routes_scrollbar = Scrollbar(route_triggers_frame)
+    routes_scrollbar.pack(side=RIGHT, fill=Y)
+    routes_listbox = Listbox(route_triggers_frame, selectmode=MULTIPLE, height=4)
+    routes_listbox.pack(pady=10)
+    routes_listbox.config(yscrollcommand=routes_scrollbar.set)
+    routes_scrollbar.config(command=routes_listbox.yview)
+    routes_listbox.configure(exportselection=False)
+
+    for item in routedict.keys():
+        routes_listbox.insert(END, item)
+        try:
+            for route in trigger_dict[existing_ref].routes_to_clear:
+                if route == item:
+                    routes_listbox.selection_set(routes_listbox.size() - 1)
+        except KeyError:
+            pass
+
+    # add in order of route setting?
+
+    ttk.Button(trigger_setup_frame, text="OK", command=lambda: write_trigger(parent)).grid(column=4, row=10, sticky=E)
+
+
+
+    pass
+
 
 def trigger_list(parent):
     windowtype = "trigger"
@@ -1292,7 +1405,7 @@ def trigger_list(parent):
             ttk.Label(framedict[windowtype], text="Mode: " + modedescription).grid(column=4, row=posi, padx=10)
             ttk.Label(framedict[windowtype], text="Description: " + trigger_dict[key].description).grid(column=5, row=posi,
                                                                                                      padx=10)
-            ttk.Button(framedict[windowtype], text="Edit", command=lambda: Add_route(parent, key)).grid(column=6,
+            ttk.Button(framedict[windowtype], text="Edit", command=lambda: add_trigger(parent, key)).grid(column=6,
                                                                                                         row=posi)
             ttk.Button(framedict[windowtype], text="Delete", command=lambda: delete_trigger(key, parent)).grid(column=7,
                                                                                                             row=posi)
@@ -1302,7 +1415,7 @@ def trigger_list(parent):
             trigger_line(key, posi, windowtype)
             posi += 1
 
-        ttk.Button(framedict[windowtype], text="Add trigger", command=lambda: Add_trigger(parent, "")).grid(column=0,
+        ttk.Button(framedict[windowtype], text="Add trigger", command=lambda: add_trigger(parent, "")).grid(column=0,
                                                                                                         columnspan=10,
                                                                                                         row=500,
                                                                                                         sticky=E)  # button to add a route
@@ -1541,7 +1654,9 @@ if __name__ == '__main__':
 
 # Next Jobs
 
-# Put points in sections rather than sections in points?
+# start by just doing triggers as plungers and section occupancy
 # More work on routes interface - set routes but move route triggers into route scheduling?
 # Com port and network selection - put in an ini file?
 # Route scheduling? This could be used to cycle routes on a trigger.
+# triggers and conditions?
+
