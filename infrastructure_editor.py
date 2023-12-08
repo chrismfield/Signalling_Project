@@ -8,7 +8,7 @@ import json
 import os
 import Comselector
 import serial.tools.list_ports
-from object_definitions import AxleCounter, Signal, Section, Plunger, Point, Route
+from object_definitions import AxleCounter, Signal, Section, Plunger, Point, Route, Trigger
 
 RS485port = ""
 
@@ -1253,6 +1253,16 @@ def route_list(parent):
 def add_trigger(parent, existing_ref):
     def write_trigger(parent):
         #save data here
+        set_sections_occupied = []
+        for selection_index in sections_listbox.curselection():
+            set_sections_occupied.append(sections_listbox.get(selection_index))
+        trigger_dict[trigger_ref.get()] = Trigger(
+            sections_occupied = set_sections_occupied,
+            sections_clear = None,
+            plungers = None,
+            routes_to_set= None,
+            routes_to_cancel=None
+        )
         pass
         trigger_setup_win.destroy()
 
@@ -1335,21 +1345,21 @@ def add_trigger(parent, existing_ref):
         except KeyError:
             pass
 
-    ttk.Label(trigger_setup_frame, text="Routes to clear:").grid(column=0, row=6, sticky=W, pady=4, padx=10)
-    route_triggers_frame = ttk.Frame(trigger_setup_frame)
-    route_triggers_frame.grid(column=1, row=6, columnspan=2)
-    routes_scrollbar = Scrollbar(route_triggers_frame)
-    routes_scrollbar.pack(side=RIGHT, fill=Y)
-    routes_listbox = Listbox(route_triggers_frame, selectmode=MULTIPLE, height=4)
-    routes_listbox.pack(pady=10)
-    routes_listbox.config(yscrollcommand=routes_scrollbar.set)
-    routes_scrollbar.config(command=routes_listbox.yview)
-    routes_listbox.configure(exportselection=False)
+    ttk.Label(trigger_setup_frame, text="Routes to cancel:").grid(column=0, row=6, sticky=W, pady=4, padx=10)
+    cancel_route_triggers_frame = ttk.Frame(trigger_setup_frame)
+    cancel_route_triggers_frame.grid(column=1, row=6, columnspan=2)
+    cancel_routes_scrollbar = Scrollbar(cancel_route_triggers_frame)
+    cancel_routes_scrollbar.pack(side=RIGHT, fill=Y)
+    cancel_routes_listbox = Listbox(cancel_route_triggers_frame, selectmode=MULTIPLE, height=4)
+    cancel_routes_listbox.pack(pady=10)
+    cancel_routes_listbox.config(yscrollcommand=cancel_routes_scrollbar.set)
+    cancel_routes_scrollbar.config(command=cancel_routes_listbox.yview)
+    cancel_routes_listbox.configure(exportselection=False)
 
     for item in routedict.keys():
-        routes_listbox.insert(END, item)
+        cancel_routes_listbox.insert(END, item)
         try:
-            for route in trigger_dict[existing_ref].routes_to_clear:
+            for route in trigger_dict[existing_ref].routes_to_cancel:
                 if route == item:
                     routes_listbox.selection_set(routes_listbox.size() - 1)
         except KeyError:
@@ -1397,12 +1407,7 @@ def trigger_list(parent):
             framedict[windowtype].grid()
 
         def trigger_line(key, posi, windowtype):
-            if trigger_dict[key].mode == 0:
-                modedescription = "Store request"
-            if trigger_dict[key].mode == 1:
-                modedescription = "Do not store request"
             ttk.Label(framedict[windowtype], text="Trigger ref: " + key).grid(column=0, row=posi, padx=10)
-            ttk.Label(framedict[windowtype], text="Mode: " + modedescription).grid(column=4, row=posi, padx=10)
             ttk.Label(framedict[windowtype], text="Description: " + trigger_dict[key].description).grid(column=5, row=posi,
                                                                                                      padx=10)
             ttk.Button(framedict[windowtype], text="Edit", command=lambda: add_trigger(parent, key)).grid(column=6,
