@@ -1252,18 +1252,30 @@ def route_list(parent):
 
 def add_trigger(parent, existing_ref):
     def write_trigger(parent):
-        #save data here
+        #get data to save from selections
         set_sections_occupied = []
         for selection_index in sections_listbox.curselection():
             set_sections_occupied.append(sections_listbox.get(selection_index))
+        plungers = []
+        for selection_index in plungers_listbox.curselection():
+            plungers.append(plungers_listbox.get(selection_index))
+        routes_to_set = []
+        for selection_index in routes_listbox.curselection():
+            routes_to_set.append(routes_listbox.get(selection_index))
+        routes_to_clear = []
+        for selection_index in cancel_routes_listbox.curselection():
+            routes_to_clear.append(cancel_routes_listbox.get(selection_index))
+        # save data to main trigger_dict
         trigger_dict[trigger_ref.get()] = Trigger(
+            ref = trigger_ref.get(),
+            description = trigger_description.get(),
             sections_occupied = set_sections_occupied,
             sections_clear = None,
-            plungers = None,
-            routes_to_set= None,
-            routes_to_cancel=None
+            plungers = plungers,
+            routes_to_set= routes_to_set,
+            routes_to_cancel = routes_to_clear
         )
-        pass
+        trigger_list(parent)
         trigger_setup_win.destroy()
 
     trigger_setup_win = Toplevel(parent, takefocus=True)
@@ -1275,6 +1287,10 @@ def add_trigger(parent, existing_ref):
     trigger_ref = StringVar()
     trigger_ref.set(existing_ref) # collect any existing ref for editing
     trigger_description = StringVar()
+    try:
+        trigger_description.set(trigger_dict[existing_ref].description)
+    except KeyError:
+        pass
 
     ttk.Label(trigger_setup_frame, text="Trigger Ref:").grid(column=0, row=0, sticky=W)
     ttk.Entry(trigger_setup_frame, width=7, textvariable=trigger_ref).grid(column=1, row=0, sticky=W)  # ACref entry
@@ -1317,7 +1333,7 @@ def add_trigger(parent, existing_ref):
     for item in sectiondict.keys():
         sections_listbox.insert(END, item)
         try:
-            for section in trigger_dict[existing_ref].sections:
+            for section in trigger_dict[existing_ref].sections_occupied:
                 if section == item:
                     sections_listbox.selection_set(sections_listbox.size() - 1)
         except KeyError:
@@ -1361,7 +1377,7 @@ def add_trigger(parent, existing_ref):
         try:
             for route in trigger_dict[existing_ref].routes_to_cancel:
                 if route == item:
-                    routes_listbox.selection_set(routes_listbox.size() - 1)
+                    cancel_routes_listbox.selection_set(routes_listbox.size() - 1)
         except KeyError:
             pass
 
@@ -1550,7 +1566,7 @@ def saveaslayoutjson(root, currentfile, saveas):
     else:
         json_out = open(currentfile, 'w')
     infradata = {"Sections": sectiondict, "AxleCounters": ACdict, "Signals": signaldict, "Plungers": plungerdict,
-                 "Points": pointdict, "Routes": routedict}
+                 "Points": pointdict, "Routes": routedict, "Triggers": trigger_dict}
     json_string = jsons.dumps(infradata)
     temp_objects = json.loads(json_string)
     json_out.write(json.dumps(temp_objects, indent=4))
@@ -1567,6 +1583,7 @@ def loadlayoutjson(root, loaddefault):
     global routedict
     global currentfile
     global RS485port
+    global trigger_dict
 
     if loaddefault == False:
         json_in = filedialog.askopenfile(mode='rb', defaultextension=".json")
@@ -1581,6 +1598,11 @@ def loadlayoutjson(root, loaddefault):
     jsonplungerdict = jsons.load(jsoninfradata["Plungers"], dict)
     jsonpointdict = jsons.load(jsoninfradata["Points"], dict)
     jsonroutedict = jsons.load(jsoninfradata["Routes"], dict)
+    #do the try below for all the above for empty files and backward compatibility.
+    try:
+        json_trigger_dict = jsons.load(jsoninfradata["Triggers"], dict)
+    except KeyError:
+        json_trigger_dict = {}
     for x in jsonsectiondict.keys(): # for each instance of an asset, turns the dict back into the class instance and adds to the global dict of those assets
         sectiondict[x] = jsons.load(jsonsectiondict[x], Section)
     for x in jsonACdict.keys():
@@ -1593,6 +1615,8 @@ def loadlayoutjson(root, loaddefault):
         pointdict[x] = jsons.load(jsonpointdict[x], Point)
     for x in jsonroutedict.keys():
         routedict[x] = jsons.load(jsonroutedict[x], Route)
+    for x in json_trigger_dict.keys():
+        trigger_dict[x] = jsons.load(json_trigger_dict[x], Trigger)
     #    RS485port =
     currentfile = os.path.basename(json_in.name)
     print("loadnow")

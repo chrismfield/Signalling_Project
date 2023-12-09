@@ -146,10 +146,12 @@ class Route:
 
 class Trigger:
     """Trigger object containing static and dynamic variables"""
-    def __init__(self, override=None, sections_occupied=None, sections_clear=None, plungers=None, lever=None, timer=None, MQTT=None, routes_to_set=None, routes_to_cancel=None, priority=10):
+    def __init__(self, ref, description = None, override=None, sections_occupied=None, sections_clear=None, plungers=None, lever=None, timer=None, MQTT=None, routes_to_set=None, routes_to_cancel=None, priority=10):
         #static variables
+        self.ref = ref
+        self.description = description
         self.override = override
-        self.section_occupied = sections_occupied
+        self.sections_occupied = sections_occupied
         self.sections_clear = sections_clear
         self.plungers = plungers
         self.lever = lever
