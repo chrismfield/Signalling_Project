@@ -355,5 +355,29 @@
             },
             "trigger": []
         }
+    },
+    "Triggers": {
+        "AA": {
+            "MQTT": null,
+            "description": "t1",
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P2"
+            ],
+            "priority": 7,
+            "ref": "AA",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "P4"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [
+                "R"
+            ],
+            "store_request": 0,
+            "timer": null,
+            "triggered": false
+        }
     }
 }

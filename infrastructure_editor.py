@@ -1271,9 +1271,12 @@ def add_trigger(parent, existing_ref):
             description = trigger_description.get(),
             sections_occupied = set_sections_occupied,
             sections_clear = None,
+            override=False,
             plungers = plungers,
             routes_to_set= routes_to_set,
-            routes_to_cancel = routes_to_clear
+            routes_to_cancel = routes_to_clear,
+            store_request = store_request.get(),
+            priority = priority.get()
         )
         trigger_list(parent)
         trigger_setup_win.destroy()
@@ -1291,6 +1294,17 @@ def add_trigger(parent, existing_ref):
         trigger_description.set(trigger_dict[existing_ref].description)
     except KeyError:
         pass
+    store_request = IntVar()
+    try:
+        store_request.set(trigger_dict[existing_ref].store_request)
+    except KeyError:
+        store_request.set(0)
+    priority = IntVar()
+    try:
+        priority.set(trigger_dict[existing_ref].priority)
+    except KeyError:
+        priority.set(0)
+
 
     ttk.Label(trigger_setup_frame, text="Trigger Ref:").grid(column=0, row=0, sticky=W)
     ttk.Entry(trigger_setup_frame, width=7, textvariable=trigger_ref).grid(column=1, row=0, sticky=W)  # ACref entry
@@ -1380,10 +1394,21 @@ def add_trigger(parent, existing_ref):
                     cancel_routes_listbox.selection_set(routes_listbox.size() - 1)
         except KeyError:
             pass
+    #
+    # store_request_checkbox = Checkbutton(trigger_setup_frame, text="Store Request", variable=store_request, anchor=W)
+    # store_request_checkbox.grid(row=7, column=1, sticky=E)
+
+    ttk.Label(trigger_setup_frame, text="Trigger mode:").grid(column=0, row=7, sticky=W, padx=10, pady=10)
+    Radiobutton(trigger_setup_frame, text="Store request", variable=store_request, value=1).grid(column=1, row=7, sticky=W)
+    Radiobutton(trigger_setup_frame, text="Do not store request", variable=store_request, value=0).grid(column=2, row=7, sticky=W)
+
+    ttk.Label(trigger_setup_frame, text="Trigger priority:").grid(column=0, row=8, sticky=W, pady=4, padx=10)
+    ttk.Entry(trigger_setup_frame, width=70, textvariable=priority).grid(column=1, columnspan=4, row=8,
+                                                                     sticky=W)
 
     # add in order of route setting?
 
-    ttk.Button(trigger_setup_frame, text="OK", command=lambda: write_trigger(parent)).grid(column=4, row=10, sticky=E)
+    ttk.Button(trigger_setup_frame, text="OK", command=lambda: write_trigger(parent)).grid(column=1, row=10, sticky=E)
 
 
 
