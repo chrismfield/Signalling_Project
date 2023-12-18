@@ -3,7 +3,8 @@ import minimalmodbus
 import jsons
 import os
 import serial.tools.list_ports
-#import serial_ports_list
+import serial_ports_list
+import set
 
 with "config.json" as config_file:
     config = jsons.loads(config_file.read())
@@ -25,6 +26,7 @@ def loadlayoutjson(loaddefault):
     jsonplungerdict = jsons.load(jsoninfradata["Plungers"], dict)
     jsonpointdict = jsons.load(jsoninfradata["Points"], dict)
     jsonroutesdict = jsons.load(jsoninfradata["Routes"], dict)
+    json_trigger_dict = jsons.load(jsoninfradata["Triggers"], dict)
     # for each instance of an asset, turn the dict back into the class instance and add to the class variable dict of
     # those assets
     for x in jsonsectiondict.keys():
@@ -39,6 +41,8 @@ def loadlayoutjson(loaddefault):
         Point.instances[x] = jsons.load(jsonpointdict[x], Point)
     for x in jsonroutesdict.keys():
         Route.instances[x] = jsons.load(jsonroutesdict[x], Route)
+    for x in json_trigger_dict.keys():
+        Trigger.instances[x] = jsons.load(json_trigger_dict[x], Trigger)
     #    RS485port =
     currentfile = os.path.basename(json_in.name)
     print("loadnow")
@@ -153,11 +157,14 @@ def check_points():
     pass  # -------------need to implement-----------
 
 
+def clear_used_routes(): #if required
+    pass
+
 def check_triggers(): #if required
     pass
 
 
-def check_routes_requests():
+def check_routes_requests(): # TODO change this to set routes based on triggers and priorities
     def check_route_ok(route):
         for route_section in route.sections:
             if route_section.occstatus:  # only works if actual route object is in the route.sections list
@@ -183,12 +190,17 @@ def check_routes_requests():
                         route.set = "setting"
                         #set points
                         for point, direction in route.points.items():
-                            #slave.write_bit()
+                            slave.write_bit()
                             pass # e.g {"47":"normal"}
 
                         # set signals (need to do this after points detected somehow)
                         # only clear route request once route fully set
                         pass # set route
+
+# TODO Create network 1 reference in config file and correlate to port
+# TODO put network reference into each object
+# TODO put slave instance into each class instance
+# TODO remove route triggers and priorities
 
 
 # Check route triggers
@@ -221,8 +233,8 @@ def comm_chooser(master):
 def main():
     loaddefault = False
     loadlayoutjson(loaddefault)
-    #comlist = serial_ports_list()
-    #RS485port = comlist[-1]
+    comlist = serial_ports_list()
+    RS485port = comlist[-1]
     process(RS485port)
     pass
 
