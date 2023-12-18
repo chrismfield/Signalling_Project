@@ -379,5 +379,49 @@
             "timer": null,
             "triggered": false
         }
+    },
+    "Triggers": {
+        "AA": {
+            "MQTT": null,
+            "description": "Test",
+            "lever": null,
+            "override": null,
+            "plungers": [
+                "P5"
+            ],
+            "priority": 10,
+            "ref": "AA",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "P4"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [
+                "R"
+            ],
+            "timer": null,
+            "triggered": false
+        },
+        "BB": {
+            "MQTT": null,
+            "description": "Test 2 ",
+            "lever": null,
+            "override": null,
+            "plungers": [
+                "P1"
+            ],
+            "priority": 10,
+            "ref": "BB",
+            "routes_to_cancel": [
+                "P4"
+            ],
+            "routes_to_set": [],
+            "sections_clear": null,
+            "sections_occupied": [
+                "S"
+            ],
+            "timer": null,
+            "triggered": false
+        }
     }
 }

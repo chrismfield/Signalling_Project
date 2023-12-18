@@ -3,10 +3,14 @@ import minimalmodbus
 import jsons
 import os
 import serial.tools.list_ports
-import serial_ports_list
+#import serial_ports_list
 
-current_file = "default.json"
-RS485port = "COM4"
+with "config.json" as config_file:
+    config = jsons.loads(config_file.read())
+print(config["layoutDB"])
+
+# current_file = "default.json"
+# RS485port = "COM4"
 
 def loadlayoutjson(loaddefault):
     """Load the layout database from file into instances of classes as defined in object_defintions"""
@@ -179,7 +183,7 @@ def check_routes_requests():
                         route.set = "setting"
                         #set points
                         for point, direction in route.points.items():
-                            slave.write_bit()
+                            #slave.write_bit()
                             pass # e.g {"47":"normal"}
 
                         # set signals (need to do this after points detected somehow)
@@ -217,8 +221,8 @@ def comm_chooser(master):
 def main():
     loaddefault = False
     loadlayoutjson(loaddefault)
-    comlist = serial_ports_list()
-    RS485port = comlist[-1]
+    #comlist = serial_ports_list()
+    #RS485port = comlist[-1]
     process(RS485port)
     pass
 
