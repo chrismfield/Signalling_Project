@@ -5,15 +5,17 @@ import minimalmodbus
 class AxleCounter:
     """Axle-counter object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, mode, address, ref, description):
+    def __init__(self, mode, address, ref, description, slave = None):
         #Static variables
         self.mode = mode  # mode = axlecount, simple trigger or directional trigger
         self.address = address  # address
         self.ref = ref  # Freetext Reference
         self.description = description  # Freetext description
-        self.board_index = 0 # TO DO get and set these in json file
-        self.normal_coil = 22 # TO DO get and set these in json file
-        self.reverse_coil = 23 # TO DO get and set these in json file
+        self.board_index = 0 # TODO get and set these in json file
+        self.upcount_reg = 13 # TODO get and set these in json file
+        self.downcount_reg = 14 # TODO get and set these in json file
+        self.slave = slave
+        self.network = "network_1" # TODO set this in json file using infrastructure editor
         #Dynamic variables
         self.upcount = 0
         self.downcount = 0
@@ -24,7 +26,7 @@ class Signal:
     instances = {}
     def __init__(self, sigtype, address, ref, description, availableaspects,
                  directionindicator, dangerreg, cautionreg, clearreg, callingonreg,
-                 bannerreg, route1reg, route2reg, route3reg, route4reg, route5reg, route6reg, board_index=0):
+                 bannerreg, route1reg, route2reg, route3reg, route4reg, route5reg, route6reg, board_index=0, slave = None):
         #static variables
         self.sigtype = sigtype  # mode = Semaphore or coulour light
         self.address = address  # address
@@ -44,6 +46,8 @@ class Signal:
         self.route4reg = route4reg
         self.route5reg = route5reg
         self.route6reg = route6reg
+        self.network = "network_1" # TODO set this in json file using infrastructure editor
+        self.slave = slave
         # dynamic variables
         self.illumination = "On"  # night illumination mode
         self.aspect = "0"  # current aspect
@@ -71,13 +75,15 @@ class Section:
 class Plunger:
     """Plunger object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, mode, address, ref, description, register):
+    def __init__(self, mode, address, ref, description, register, slave = None):
         #static variables
         self.mode = mode  # mode of operation, request store or no request store.
         self.address = address  # address
         self.ref = ref  # Freetext Referece
         self.description = description  # freetext description
         self.register = register  # register address
+        self.network = "network_1"  # TODO set this in json file using infrastructure editor
+        self.slave = slave
         #dynamic variables
         self.status = 0
 
@@ -85,7 +91,7 @@ class Plunger:
 class Point:
     """Point object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, mode, address, ref, description, section="", normal_coil=22, reverse_coil=23, board_index=0):
+    def __init__(self, mode, address, ref, description, section="", normal_coil=22, reverse_coil=23, board_index=0, slave = None):
         #static variables
         self.mode = mode
         self.address = address  # address
@@ -99,31 +105,15 @@ class Point:
         self.board_index = board_index
         self.normal_coil = normal_coil
         self.reverse_coil = reverse_coil
-        self.network = "" # get this from config file
+        self.network = "network_1"  # TODO set this in json file using infrastructure editor
+        self.slave = slave
         #self.slave = minimalmodbus.Instrument(self.network, self.address)
         #dynamic variables
         self.set_direction = ""  # set status
-        self.detection = ""  # detection status
+        self.detection_status = ""  # detection status
+        self.detection_boolean = False
         self.unlocked = False
 
-
-    def set_point(self, direction):
-        if direction == "normal":
-            try:
-                self.slave.write_bit(self.reverse_coil, 0)
-                self.slave.write_bit(self.normal_coil, 1)
-                return True
-            except ValueError:
-                status = "Comms failure" # add details and logging
-                return False
-        if direction == "reverse":
-            try:
-                self.slave.write_bit(self.normal_coil, 0)
-                self.slave.write_bit(self.reverse_coil, 1)
-                return True
-            except ValueError:
-                status = "Comms failure" # add details and logging
-                return False
 
 class Route:
     """Route object containing static and dynamic variables"""
@@ -134,11 +124,8 @@ class Route:
         self.ref = ref  # Freetext reference
         self.description = description  # Freetext description
         self.sections = sections  # ordered list of sections
-        self.points = points  # ordered list of points to set - dictionary of points and direction to set?
+        self.points = points  # dictionary of points and direction to set
         self.signals = signals  # ordered dictionary of signals to set. Each signal to be a list of aspects of that signal to set
-        self.priority = priority  # priority number (change this to be an integer)
-        self.trigger = []  # list of triggers for route - section occupation, section non-occupation, plunger, lever etc.
-        # Need to include an option for whether the trigger ovverides existing routes or not.
         # dynamic variables
         self.available = False
         self.set = False
@@ -146,6 +133,7 @@ class Route:
 
 class Trigger:
     """Trigger object containing static and dynamic variables"""
+    instances = {}
     def __init__(self, ref, description = None, override=False, sections_occupied=None, sections_clear=None, plungers=None, lever=None,
                  timer=None, MQTT=None, routes_to_set=None, routes_to_cancel=None, priority=10, store_request = 0):
         #static variables

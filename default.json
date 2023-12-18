@@ -70,60 +70,80 @@
             "board_index": 0,
             "description": "After Level Crossing",
             "downcount": 0,
+            "downcount_reg": 14,
             "instances": {},
             "mode": 0,
+            "network": "network_1",
             "normal_coil": 22,
             "ref": "A1",
             "reverse_coil": 23,
-            "upcount": 0
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
         },
         "A2": {
             "address": 2,
             "board_index": 0,
             "description": "At 47 Signal",
             "downcount": 0,
+            "downcount_reg": 14,
             "instances": {},
             "mode": 0,
+            "network": "network_1",
             "normal_coil": 22,
             "ref": "A2",
             "reverse_coil": 23,
-            "upcount": 0
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
         },
         "A3": {
             "address": 3,
             "board_index": 0,
             "description": "At 48 Signal",
             "downcount": 0,
+            "downcount_reg": 14,
             "instances": {},
             "mode": 0,
+            "network": "network_1",
             "normal_coil": 22,
             "ref": "A3",
             "reverse_coil": 23,
-            "upcount": 0
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
         },
         "A5": {
             "address": 5,
             "board_index": 0,
             "description": "Additional",
             "downcount": 0,
+            "downcount_reg": 14,
             "instances": {},
             "mode": 0,
+            "network": "network_1",
             "normal_coil": 22,
             "ref": "A5",
             "reverse_coil": 23,
-            "upcount": 0
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
         },
         "A6": {
             "address": 6,
             "board_index": 0,
             "description": "Additional 22",
             "downcount": 0,
+            "downcount_reg": 14,
             "instances": {},
             "mode": 1,
+            "network": "network_1",
             "normal_coil": 22,
             "ref": "A6",
             "reverse_coil": 23,
-            "upcount": 0
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
         }
     },
     "Signals": {
@@ -141,6 +161,7 @@
             "directionindicator": 0,
             "illumination": "On",
             "instances": {},
+            "network": "network_1",
             "ref": "47",
             "route1reg": 0,
             "route2reg": 0,
@@ -164,6 +185,7 @@
             "directionindicator": 0,
             "illumination": "On",
             "instances": {},
+            "network": "network_1",
             "ref": "48",
             "route1reg": 0,
             "route2reg": 0,
@@ -187,6 +209,7 @@
             "directionindicator": 0,
             "illumination": "On",
             "instances": {},
+            "network": "network_1",
             "ref": "99",
             "route1reg": 0,
             "route2reg": 0,
@@ -210,6 +233,7 @@
             "directionindicator": 0,
             "illumination": "On",
             "instances": {},
+            "network": "network_1",
             "ref": "55",
             "route1reg": 0,
             "route2reg": 0,
@@ -226,6 +250,7 @@
             "description": "Select Platform 2",
             "instances": {},
             "mode": 1,
+            "network": "network_1",
             "ref": "P1",
             "register": 0,
             "status": 0
@@ -235,6 +260,7 @@
             "description": "Select Platform 3",
             "instances": {},
             "mode": 1,
+            "network": "network_1",
             "ref": "P2",
             "register": 1,
             "status": 0
@@ -244,6 +270,7 @@
             "description": "Select Platform 4",
             "instances": {},
             "mode": 1,
+            "network": "network_1",
             "ref": "P5",
             "register": 3,
             "status": 0
@@ -253,6 +280,7 @@
             "description": "Exit Platform 4",
             "instances": {},
             "mode": 1,
+            "network": "network_1",
             "ref": "P3",
             "register": 0,
             "status": 0
@@ -262,6 +290,7 @@
             "description": "Cycle Route",
             "instances": {},
             "mode": 1,
+            "network": "network_1",
             "ref": "P4",
             "register": 0,
             "status": 0
@@ -271,6 +300,7 @@
             "description": "Exit Yard",
             "instances": {},
             "mode": 1,
+            "network": "network_1",
             "ref": "P6",
             "register": 7,
             "status": 0
@@ -281,48 +311,54 @@
             "address": "51",
             "board_index": 0,
             "description": "Points Platform 2/3",
-            "detection": "",
+            "detection_boolean": false,
             "detection_mode": 1,
+            "detection_status": "",
             "instances": {},
             "mode": 1,
-            "network": "",
+            "network": "network_1",
             "normal_coil": 21,
             "ref": "100",
             "reverse_coil": 22,
-            "section": "",
+            "section": "Q",
             "set_direction": "",
+            "slave": null,
             "unlocked": false
         },
         "300": {
             "address": "52",
             "board_index": 1,
             "description": "Points Platform 3/4",
-            "detection": "",
+            "detection_boolean": false,
             "detection_mode": 1,
+            "detection_status": "",
             "instances": {},
             "mode": 1,
-            "network": "",
+            "network": "network_1",
             "normal_coil": 1021,
             "ref": "300",
             "reverse_coil": 1022,
-            "section": "",
+            "section": "R",
             "set_direction": "",
+            "slave": null,
             "unlocked": false
         },
         "150": {
             "address": "44",
             "board_index": 3,
             "description": "Fictional",
-            "detection": "",
+            "detection_boolean": false,
             "detection_mode": 0,
+            "detection_status": "",
             "instances": {},
             "mode": 0,
-            "network": "",
+            "network": "network_1",
             "normal_coil": 3021,
             "ref": "150",
             "reverse_coil": 3022,
-            "section": "R",
+            "section": "S",
             "set_direction": "",
+            "slave": null,
             "unlocked": false
         }
     },
@@ -359,31 +395,8 @@
     "Triggers": {
         "AA": {
             "MQTT": null,
-            "description": "t1",
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P2"
-            ],
-            "priority": 7,
-            "ref": "AA",
-            "routes_to_cancel": [],
-            "routes_to_set": [
-                "P4"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [
-                "R"
-            ],
-            "store_request": 0,
-            "timer": null,
-            "triggered": false
-        }
-    },
-    "Triggers": {
-        "AA": {
-            "MQTT": null,
             "description": "Test",
+            "instances": {},
             "lever": null,
             "override": null,
             "plungers": [
@@ -399,12 +412,14 @@
             "sections_occupied": [
                 "R"
             ],
+            "store_request": 0,
             "timer": null,
             "triggered": false
         },
         "BB": {
             "MQTT": null,
             "description": "Test 2 ",
+            "instances": {},
             "lever": null,
             "override": null,
             "plungers": [
@@ -420,6 +435,7 @@
             "sections_occupied": [
                 "S"
             ],
+            "store_request": 0,
             "timer": null,
             "triggered": false
         }

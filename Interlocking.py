@@ -1,12 +1,12 @@
-from object_definitions import AxleCounter, Signal, Point, Plunger, Section, Route
+from object_definitions import AxleCounter, Signal, Point, Plunger, Section, Route, Trigger
 import minimalmodbus
 import jsons
 import os
 import serial.tools.list_ports
-import serial_ports_list
+#import serial_ports_list
 import set
 
-with "config.json" as config_file:
+with open("config.json") as config_file:
     config = jsons.loads(config_file.read())
 print(config["layoutDB"])
 
@@ -33,12 +33,22 @@ def loadlayoutjson(loaddefault):
         Section.instances[x] = jsons.load(jsonsectiondict[x], Section)
     for x in jsonACdict.keys():
         AxleCounter.instances[x] = jsons.load(jsonACdict[x], AxleCounter)
+        # create modbus slave object for each Axlecounter instance:
+        AxleCounter.instances[x].slave = minimalmodbus.Instrument(
+            config["network_ports"][AxleCounter.instances[x].network], AxleCounter.instances[x].address)
     for x in jsonsignaldict.keys():
         Signal.instances[x] = jsons.load(jsonsignaldict[x], Signal)
+        Signal.instances[x].slave = minimalmodbus.Instrument(
+            config["network_ports"][Signal.instances[x].network], Signal.instances[x].address)
     for x in jsonplungerdict.keys():
         Plunger.instances[x] = jsons.load(jsonplungerdict[x], Plunger)
+        Plunger.instances[x].slave = minimalmodbus.Instrument(
+            config["network_ports"][Plunger.instances[x].network], Plunger.instances[x].address)
     for x in jsonpointdict.keys():
         Point.instances[x] = jsons.load(jsonpointdict[x], Point)
+        # create modbus slave object for each Point instance:
+        Point.instances[x].slave = minimalmodbus.Instrument(
+            config["network_ports"][Point.instances[x].network], Point.instances[x].address)
     for x in jsonroutesdict.keys():
         Route.instances[x] = jsons.load(jsonroutesdict[x], Route)
     for x in json_trigger_dict.keys():
@@ -57,11 +67,10 @@ def check_all_ACs():
     """ get upcount and downcount from all axlecounters and store them in their instance"""
     for ACkey, ACinstance in AxleCounter.instances.items():
         try:
-            slave = minimalmodbus.Instrument(RS485port, ACinstance.address)
-            ACinstance.upcount, ACinstance.downcount = slave.read_registers(13,
+            ACinstance.upcount, ACinstance.downcount = ACinstance.slave.read_registers(13,
                                                                             2)  # register number, number of registers
-            slave.write_register(13, 0, functioncode=6)  # register number, value
-            slave.write_register(14, 0, functioncode=6)  # register number, value
+            ACinstance.slave.write_register(13, 0, functioncode=6)  # register number, value
+            ACinstance.slave.write_register(14, 0, functioncode=6)  # register number, value
             status = "OK"
 
         except:
@@ -124,10 +133,14 @@ def interlocking():
             for pointkey, point in Point.instances.items():
                 if point.section == sectionkey:
                     point.unlocked = False
+                else:
+                    point.unlocked = True
             #for every route, make not available if the section is occupied or route already set through:
             for routekey, route in Route.instances.items():
                 if sectionkey in route.sections:
                     route.available = False
+                else:
+                    route.available = True
 
 
 def check_points():
@@ -139,6 +152,7 @@ def check_points():
                 detection_reverse = slave.read_bit(point.register, 21) # re[;ace 22 with reference from JSON file
             except:
                 detection_status = None
+                detection_normal = detection_reverse = False
             if detection_normal:
                 detection_status = "normal"
             elif detection_reverse:
@@ -146,25 +160,28 @@ def check_points():
             else:
                 detection_status = None
             if detection_status == point.set_direction: #need to create get_detection function
+                point.detection_boolean = True
+                point.detection_status = detection_status
                 #add point to list of set points in section
-                pass
+
             else:
+                point.detection_boolean = False
+                point.detection_status = ""
+                set.set_signal(Section.instances[point.section].homesignal, "danger")
+
                 #remove point from list of set points in section
                 #set route status to not available
                 #set protecting signal to danger - or do this elsewhere??
-                pass
-            pass
-    pass  # -------------need to implement-----------
+
+
+
 
 
 def clear_used_routes(): #if required
     pass
 
-def check_triggers(): #if required
-    pass
 
-
-def check_routes_requests(): # TODO change this to set routes based on triggers and priorities
+def check_triggers(): # TODO change this to set routes based on triggers and priorities
     def check_route_ok(route):
         for route_section in route.sections:
             if route_section.occstatus:  # only works if actual route object is in the route.sections list
@@ -178,41 +195,49 @@ def check_routes_requests(): # TODO change this to set routes based on triggers 
                 return False
         return True
 
+    for priority in range(100):
+        for trigger_key, trigger in Trigger.instances.items():
+            if trigger.priority == priority:
+                pass
+                # TODO check if triggered by plunger
+                # TODO check if triggered by section occupancy
+                # TODO check if triggered by section vacancy
+                # TODO check if triggered by stored request
+                # TODO check if triggered by timer
+                # TODO check if triggered by MQTT
+                # TODO set triggered to true if it is
+                if trigger.triggered: #try to set if the route has been requested
+                    for route in trigger.routes_to_set:
+                        if check_route_ok(Route.instances[route]): #test if route can be set
+                            for section in Route.instances[route].sections:
+                                section.routeset = True
+                            route.set = "setting"
+                            #set points
+                            for point_ref, direction in Route.instances[route].points.items():
+                                set.set_point(Point.instances[point_ref], direction)
 
-    for routekey, route in Route.instances.items():
-        #go through routes in order of priority
-        for priority in range(100):
-            if route.priority == priority:
-                if route.requested: #try to set if the route has been requested
-                    if check_route_ok(route): #test if route can be set
-                        for section in route.sections:
-                            section.routeset = True
-                        route.set = "setting"
-                        #set points
-                        for point, direction in route.points.items():
-                            slave.write_bit()
-                            pass # e.g {"47":"normal"}
 
-                        # set signals (need to do this after points detected somehow)
-                        # only clear route request once route fully set
+                        # TODO set signals (need to do this after points detected somehow)
+                        # TODO only clear route request once route fully set
                         pass # set route
 
-# TODO Create network 1 reference in config file and correlate to port
-# TODO put network reference into each object
-# TODO put slave instance into each class instance
-# TODO remove route triggers and priorities
 
 
-# Check route triggers
-# Set routes (will need to iterate this to wait for point detection)
-# check conflicting sections
-# apply interlocking doublecheck
+    set.set_plungers_clear(Plunger.instances)
+        #clear all plungers requests after checking all triggers
 
-# Send outputs to relevant points and all signals
+
+
+
+# TODO Set routes (will need to iterate this to wait for point detection)
+# TODO check conflicting sections
+# TODO apply interlocking doublecheck
+
+# TODO Send outputs to relevant points and all signals
 
 # ---------------
 
-def process(RS485port):
+def process():
     while True:
         check_all_ACs()
         section_update()
@@ -220,22 +245,14 @@ def process(RS485port):
         check_points()
         check_all_plungers()
         check_triggers()
-        # put the MQTT update in here
-
-
-#not used - delete once other com port method proven.
-def comm_chooser(master):
-    #put logic to work in both linux and windows in here
-    mycomlist = ([comport.device for comport in serial.tools.list_ports.comports()])
-    RS485port = mycomlist[-1]
+        # TODO put the MQTT update in here
+        # TODO put MQTT commands in too
 
 
 def main():
     loaddefault = False
     loadlayoutjson(loaddefault)
-    comlist = serial_ports_list()
-    RS485port = comlist[-1]
-    process(RS485port)
+    process()
     pass
 
 
@@ -244,8 +261,6 @@ if __name__ == '__main__':
 
 # Next Jobs
 # Finish points
-# Configurable direction on axlecounter triggers
 # More work on routes interface - set routes but move route triggers into route scheduling?
 # Get all the logic to work
-# Pickle Com port selection - put in an ini file?
-# Route scheduling? This could be used to cycle routes on a trigger.
+# Route scheduling? This could be used to cycle routes on a trigger. Helper variables may be required
