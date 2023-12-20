@@ -169,7 +169,8 @@
             "route4reg": 0,
             "route5reg": 0,
             "route6reg": 0,
-            "sigtype": 0
+            "sigtype": 0,
+            "slave": null
         },
         "48": {
             "address": "31",
@@ -193,7 +194,8 @@
             "route4reg": 0,
             "route5reg": 0,
             "route6reg": 0,
-            "sigtype": 1
+            "sigtype": 1,
+            "slave": null
         },
         "99": {
             "address": "98",
@@ -217,7 +219,8 @@
             "route4reg": 0,
             "route5reg": 0,
             "route6reg": 0,
-            "sigtype": 0
+            "sigtype": 0,
+            "slave": null
         },
         "55": {
             "address": "55",
@@ -241,7 +244,8 @@
             "route4reg": 0,
             "route5reg": 0,
             "route6reg": 0,
-            "sigtype": 0
+            "sigtype": 0,
+            "slave": null
         }
     },
     "Plungers": {
@@ -253,6 +257,7 @@
             "network": "network_1",
             "ref": "P1",
             "register": 0,
+            "slave": null,
             "status": 0
         },
         "P2": {
@@ -263,6 +268,7 @@
             "network": "network_1",
             "ref": "P2",
             "register": 1,
+            "slave": null,
             "status": 0
         },
         "P5": {
@@ -273,6 +279,7 @@
             "network": "network_1",
             "ref": "P5",
             "register": 3,
+            "slave": null,
             "status": 0
         },
         "P3": {
@@ -283,6 +290,7 @@
             "network": "network_1",
             "ref": "P3",
             "register": 0,
+            "slave": null,
             "status": 0
         },
         "P4": {
@@ -293,6 +301,7 @@
             "network": "network_1",
             "ref": "P4",
             "register": 0,
+            "slave": null,
             "status": 0
         },
         "P6": {
@@ -303,6 +312,7 @@
             "network": "network_1",
             "ref": "P6",
             "register": 7,
+            "slave": null,
             "status": 0
         }
     },
@@ -372,7 +382,6 @@
                 "100": "normal",
                 "300": "reverse"
             },
-            "priority": 0,
             "ref": "P4",
             "requested": false,
             "sections": [
@@ -395,10 +404,11 @@
     "Triggers": {
         "AA": {
             "MQTT": null,
+            "conditions": true,
             "description": "Test",
             "instances": {},
             "lever": null,
-            "override": null,
+            "override": false,
             "plungers": [
                 "P5"
             ],
@@ -412,12 +422,15 @@
             "sections_occupied": [
                 "R"
             ],
-            "store_request": 0,
+            "store_request": 1,
+            "stored_request": false,
             "timer": null,
+            "trigger_expressions": [],
             "triggered": false
         },
         "BB": {
             "MQTT": null,
+            "conditions": true,
             "description": "Test 2 ",
             "instances": {},
             "lever": null,
@@ -435,8 +448,10 @@
             "sections_occupied": [
                 "S"
             ],
-            "store_request": 0,
+            "store_request": false,
+            "stored_request": false,
             "timer": null,
+            "trigger_expressions": [],
             "triggered": false
         }
     }

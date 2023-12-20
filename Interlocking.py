@@ -2,6 +2,7 @@ from object_definitions import AxleCounter, Signal, Point, Plunger, Section, Rou
 import minimalmodbus
 import jsons
 import os
+import operator
 import serial.tools.list_ports
 #import serial_ports_list
 import set
@@ -10,13 +11,10 @@ with open("config.json") as config_file:
     config = jsons.loads(config_file.read())
 print(config["layoutDB"])
 
-# current_file = "default.json"
-# RS485port = "COM4"
 
 def loadlayoutjson(loaddefault):
     """Load the layout database from file into instances of classes as defined in object_defintions"""
     global current_file
-    global RS485port
     # put file choser into a config file - set with track setup script
     json_in = open("default.json")
     jsoninfradata = jsons.loads(json_in.read())  # turns file contents into a dictionary of the asset dictionaries
@@ -86,9 +84,8 @@ def check_all_plungers():
     """ get status from all plungers and store in their instance"""
     for plungerkey, plungerinstance in Plunger.instances.items():
         try:
-            slave = minimalmodbus.Instrument(RS485port, plungerinstance.address)
-            plungerinstance.status = slave.read_bit(plungerinstance.register, 1)  # register number, number of registers
-            slave.write_bit(plungerinstance.register, 0)  # register number,value
+            plungerinstance.status = plungerinstance.slave.read_bit(plungerinstance.register, 1)  # register number, number of registers
+            plungerinstance.slave.write_bit(plungerinstance.register, 0)  # register number,value
             status = "OK"
         except:
             plungerinstance.status = 0  # reset these variables to zero if no comms to avoid double counting
@@ -116,6 +113,8 @@ def section_update():
                     section.occstatus -= AC.upcount
                 if direction == "Downcount":
                     section.occstatus -= AC.downcount
+        if section.occstatus:
+            section.routeset = False
 
 
 def interlocking():
@@ -126,7 +125,7 @@ def interlocking():
         if section.occstatus > 0:
             # for each homesignal in each section set signal to danger:
             for homesignal in section.homesignal:
-                Signal.instances[homesignal].aspect = 0
+                Signal.instances[homesignal].aspect = "danger"
         #if section has any axles or route is set through section:
         if section.occstatus > 0 or section.routeset == True:
             #for every point, lock if it is in this occupied/route-set section:
@@ -147,9 +146,8 @@ def check_points():
     for pointkey, point in Point.instances.items():
         if point.detection_mode:
             try:
-                slave = minimalmodbus.Instrument(RS485port, point.address)
-                detection_normal = slave.read_bit(point.register, 21) # replace 21 with reference from JSON file
-                detection_reverse = slave.read_bit(point.register, 21) # re[;ace 22 with reference from JSON file
+                detection_normal = point.slave.read_bit(point.register, 21) # replace 21 with reference from JSON file
+                detection_reverse = point.slave.read_bit(point.register, 21) # re[;ace 22 with reference from JSON file
             except:
                 detection_status = None
                 detection_normal = detection_reverse = False
@@ -167,73 +165,81 @@ def check_points():
             else:
                 point.detection_boolean = False
                 point.detection_status = ""
-                set.set_signal(Section.instances[point.section].homesignal, "danger")
+                set.set_signal(Signal.instances[Section.instances[point.section].homesignal], "danger")
 
                 #remove point from list of set points in section
                 #set route status to not available
                 #set protecting signal to danger - or do this elsewhere??
 
-
-
+def maintain_signals():
+    # maintain signals by sending aspect regularly to avoid timeout
+    for signal in Signal.instances():
+        set.set_signal(signal, nextsignal = Signal.instances[signal.nextsignal])
 
 
 def clear_used_routes(): #if required
     pass
 
 
-def check_triggers(): # TODO change this to set routes based on triggers and priorities
-    def check_route_ok(route):
-        for route_section in route.sections:
-            if route_section.occstatus:  # only works if actual route object is in the route.sections list
-                return False# don't set if route is occupie
-            if route_section.routeset:
-                return False
-            if route_section.conflictingsections:
-                return False
-        for point in route.points:
-            if not point.unlocked:
-                return False
-        return True
+def check_triggers():
 
-    for priority in range(100):
-        for trigger_key, trigger in Trigger.instances.items():
-            if trigger.priority == priority:
-                pass
-                # TODO check if triggered by plunger
-                # TODO check if triggered by section occupancy
-                # TODO check if triggered by section vacancy
-                # TODO check if triggered by stored request
-                # TODO check if triggered by timer
-                # TODO check if triggered by MQTT
-                # TODO set triggered to true if it is
-                if trigger.triggered: #try to set if the route has been requested
-                    for route in trigger.routes_to_set:
-                        if check_route_ok(Route.instances[route]): #test if route can be set
-                            for section in Route.instances[route].sections:
-                                section.routeset = True
-                            route.set = "setting"
-                            #set points
-                            for point_ref, direction in Route.instances[route].points.items():
-                                set.set_point(Point.instances[point_ref], direction)
+    for trigger_key, trigger in (sorted(Trigger.instances.items(), key=operator.attrgetter("priority"))):
+        #check all conditions are true and continue to next trigger if not
+        if not all([eval(condition) for condition in trigger.conditions]):
+            continue
+        # check if triggered by plunger:
+        for plunger in trigger.plungers:
+            if Plunger.instances[plunger].status:
+                trigger.triggered = True
+        # check if triggered by section occupancy:
+        for trigger_section in trigger.sections_occupied:
+            if Section.instances[trigger_section].occstatus > 0:
+                trigger.triggered = True
+        # check if triggered by section vacancy:
+        for trigger_section_clear in trigger.sections_clear:
+            if Section.instances[trigger_section_clear].occstatus == 0:
+                trigger.triggered = True
+        # check if triggered by stored request:
+        if trigger.stored_request:
+            trigger.triggered = True
+        # TODO check if triggered by timer
+        pass
+        # check if triggered by expression - use eval()
+        for expression in trigger.trigger_expressions:
+            if eval(expression):
+                trigger.triggered = True
+        # TODO check if triggered by MQTT
+        pass
 
+        # try to set routes if triggered
+        if trigger.triggered:
+            full_route_ok = False
+            for route in trigger.routes_to_set:
+                # test if full route can be set
+                if set.check_route_available(Route.instances[route]):
+                    full_route_ok = True
+                else:
+                    full_route_ok = False
+                    # store trigger if not possible to execute:
+                    if trigger.store_request:
+                        trigger.stored_request = True
+                    continue
 
-                        # TODO set signals (need to do this after points detected somehow)
-                        # TODO only clear route request once route fully set
-                        pass # set route
+            if full_route_ok:
+                for route in trigger.routes_to_set:
+                    set.set_route(route,
+                                  sections = Section.instances,
+                                  points = Point.instances,
+                                  signals = Signal.instances)
+                    trigger.triggered = False
 
+        pass # set route
 
-
+    # clear all plungers requests after checking all triggers:
     set.set_plungers_clear(Plunger.instances)
-        #clear all plungers requests after checking all triggers
 
 
-
-
-# TODO Set routes (will need to iterate this to wait for point detection)
-# TODO check conflicting sections
-# TODO apply interlocking doublecheck
-
-# TODO Send outputs to relevant points and all signals
+# TODO apply interlocking doublecheck?
 
 # ---------------
 
@@ -243,8 +249,13 @@ def process():
         section_update()
         interlocking()
         check_points()
+        maintain_signals()
         check_all_plungers()
         check_triggers()
+        # iterate through setting routes
+        for route in Route.instances.values():
+            if route.set == "setting":
+                set.set_route(route, sections = Section.instances, points = Point.instances, signals = Signal.instances)
         # TODO put the MQTT update in here
         # TODO put MQTT commands in too
 

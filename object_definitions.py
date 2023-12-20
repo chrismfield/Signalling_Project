@@ -26,7 +26,7 @@ class Signal:
     instances = {}
     def __init__(self, sigtype, address, ref, description, availableaspects,
                  directionindicator, dangerreg, cautionreg, clearreg, callingonreg,
-                 bannerreg, route1reg, route2reg, route3reg, route4reg, route5reg, route6reg, board_index=0, slave = None):
+                 bannerreg, route1reg, route2reg, route3reg, route4reg, route5reg, route6reg, doublecaution = None, nextsignal = None, board_index=0, slave = None):
         #static variables
         self.sigtype = sigtype  # mode = Semaphore or coulour light
         self.address = address  # address
@@ -37,6 +37,7 @@ class Signal:
         self.directionindicator = directionindicator
         self.dangerreg = dangerreg
         self.cautionreg = cautionreg
+        self.doublecaution = doublecaution # TODO set this in json file using infrastructure editor
         self.clearreg = clearreg
         self.callingonreg = callingonreg
         self.bannerreg = bannerreg
@@ -46,11 +47,12 @@ class Signal:
         self.route4reg = route4reg
         self.route5reg = route5reg
         self.route6reg = route6reg
+        self.nextsignal = nextsignal # TODO set this in json file using infrastructure editor
         self.network = "network_1" # TODO set this in json file using infrastructure editor
         self.slave = slave
         # dynamic variables
         self.illumination = "On"  # night illumination mode
-        self.aspect = "0"  # current aspect
+        self.aspect = []  # list of current aspects
 
 
 class Section:
@@ -128,14 +130,14 @@ class Route:
         self.signals = signals  # ordered dictionary of signals to set. Each signal to be a list of aspects of that signal to set
         # dynamic variables
         self.available = False
-        self.set = False
+        self.setting = False
         self.requested = False
 
 class Trigger:
     """Trigger object containing static and dynamic variables"""
     instances = {}
     def __init__(self, ref, description = None, override=False, sections_occupied=None, sections_clear=None, plungers=None, lever=None,
-                 timer=None, MQTT=None, routes_to_set=None, routes_to_cancel=None, priority=10, store_request = 0):
+                 timer=None, MQTT=None, routes_to_set=None, routes_to_cancel=None, priority=10, store_request = False, conditions = True, trigger_expressions = []):
         #static variables
         self.ref = ref
         self.description = description
@@ -150,8 +152,11 @@ class Trigger:
         self.routes_to_cancel = routes_to_cancel
         self.priority = priority
         self.store_request = store_request
+        self.conditions = conditions
+        self.trigger_expressions = trigger_expressions
         #dyanamic variables
         self.triggered = False
+        self.stored_request = False
 
 class Lever:
     instances = {}
