@@ -1,22 +1,35 @@
 from object_definitions import AxleCounter, Signal, Point, Plunger, Section, Route, Trigger
 import minimalmodbus
 import jsons
-import os
-import operator
-#import serial.tools.list_ports
-#import serial_ports_list
 import set
+import logging
+from logging.handlers import RotatingFileHandler
+from custom_exceptions import *
+import os
+import time
+dynamic_variables = True
+
+def setup_logger(logging_level):
+    logger = logging.getLogger('Interlocking Processor')
+    RFH = logging.handlers.RotatingFileHandler('./log.txt', maxBytes=50000, backupCount=3)
+    RFH.setFormatter(logging.Formatter("%(asctime)s;%(levelname)s;%(message)s"))
+    logger.addHandler(RFH)
+    CH = logging.StreamHandler()
+    CH.setFormatter(logging.Formatter("%(asctime)s;%(levelname)s;%(message)s"))
+    logger.addHandler(CH)
+    logger.info(",Boot-Up")
+    logger.setLevel(logging_level)
+    return logger
+
 
 with open("config.json") as config_file:
     config = jsons.loads(config_file.read())
-print(config["layoutDB"])
 
 
-def loadlayoutjson(loaddefault):
+def loadlayoutjson(logger):
     """Load the layout database from file into instances of classes as defined in object_defintions"""
-    global current_file
-    # put file choser into a config file - set with track setup script
-    json_in = open("default.json")
+    json_in = open(config["layoutDB"])
+    logger.info(" loaded " + config["layoutDB"])
     jsoninfradata = jsons.loads(json_in.read())  # turns file contents into a dictionary of the asset dictionaries
     jsonsectiondict = jsons.load(jsoninfradata["Sections"], dict)  #Strips into seperate assets dicts
     jsonACdict = jsons.load(jsoninfradata["AxleCounters"], dict)
@@ -58,38 +71,44 @@ def loadlayoutjson(loaddefault):
 
 
 # need to apply inputs, outputs and logic.
-def check_all_ACs():
+def check_all_ACs(logger):
     """ get upcount and downcount from all axlecounters and store them in their instance"""
     for ACkey, ACinstance in AxleCounter.instances.items():
+        ACinstance.upcount, ACinstance.downcount = 0, 0  # reset these variables to zero prior to read
         try:
             ACinstance.upcount, ACinstance.downcount = ACinstance.slave.read_registers(13,
                                                                             2)  # register number, number of registers
             ACinstance.slave.write_register(13, 0, functioncode=6)  # register number, value
             ACinstance.slave.write_register(14, 0, functioncode=6)  # register number, value
-            status = "OK"
+            comms_status = " OK"
 
-        except:
+        except OSError:
             ACinstance.upcount, ACinstance.downcount = 0, 0  # reset these variables to zero if no comms to avoid double counting
-            status = "Comms failure with " + ACinstance.ref
+            comms_status = " Comms failure"
 
-        if status != "OK":
-            print(status) # TODO implement logging
+        if ACinstance.comms_status != comms_status:
+            logger.error(ACinstance.ref + comms_status)
+            ACinstance.comms_status = comms_status
     return
 
 
-def check_all_plungers():
+def check_all_plungers(logger):
     """ get status from all plungers and store in their instance"""
     for plungerkey, plungerinstance in Plunger.instances.items():
         try:
             plungerinstance.status = plungerinstance.slave.read_bit(plungerinstance.register, 1)  # register number, number of registers
             plungerinstance.slave.write_bit(plungerinstance.register, 0)  # register number,value
-            status = "OK"
-        except:
+            if plungerinstance.status:
+                logger.info(str(plungerinstance.ref) + " operated")
+            comms_status = " OK"
+        except OSError:
             plungerinstance.status = 0  # reset these variables to zero if no comms to avoid double counting
-            status = "Comms failure with " + plungerinstance.ref
+            comms_status = " Comms failure"
 
-        if status != "OK":
-            print(status) #TODO implement logging
+        if plungerinstance.comms_status != comms_status:
+            logger.error(plungerinstance.ref + comms_status)
+            plungerinstance.comms_status = comms_status
+
     return
 
     pass  # -----------need to implement -------------
@@ -97,24 +116,33 @@ def check_all_plungers():
 
 def section_update():
     """Update occupancy of sections based on axle-counter readings"""
+    axle_tolerance = config["axle_tolerance"]
     for sectionkey, section in Section.instances.items():  # for each section:
         #create sub functions depending on type of section occupation detection
+        old_occstatus = section.occstatus
         if section.mode == "axlecounter":
             for AC, direction in section.inctrig.items(): #for each increment trigger (which is in form "A1":"Upcount", "A2":"Downcount")
                 if direction == "Upcount":
-                    section.occstatus += AC.upcount
+                    section.occstatus += AxleCounter.instances[AC].upcount
                 if direction == "Downcount":
-                    section.occstatus += AC.downcount
+                    section.occstatus += AxleCounter.instances[AC].downcount
             for AC, direction in section.dectrig.items(): #for each decrement trigger (which is in form "A1":"Upcount", "A2":"Downcount")
                 if direction == "Upcount":
-                    section.occstatus -= AC.upcount
+                    section.occstatus -= AxleCounter.instances[AC].upcount
+                    if AxleCounter.instances[AC].upcount and (section.occstatus < axle_tolerance):
+                        section.occstatus = 0
                 if direction == "Downcount":
-                    section.occstatus -= AC.downcount
+                    section.occstatus -= AxleCounter.instances[AC].downcount
+                    if AxleCounter.instances[AC].downcount and (section.occstatus < axle_tolerance):
+                        section.occstatus = 0
+        # TODO add in other detection modes logic i.e. treadle and track circuit
+        if section.occstatus != old_occstatus:
+            logging.info(sectionkey + " " + section.occstatus)
         if section.occstatus:
             section.routeset = False
 
 
-def interlocking():
+def interlocking(logger):
     """Set all protecting signals to danger and secure points and routes as required"""
     # for each section:
     for sectionkey, section in Section.instances.items():
@@ -139,15 +167,20 @@ def interlocking():
                     route.available = True
 
 
-def check_points():
+def check_points(logger):
     for pointkey, point in Point.instances.items():
+        old_detection_status = point.detection_status
+        old_detection_boolean = point.detection_boolean
         if point.detection_mode:
             try:
-                detection_normal = point.slave.read_bit(point.register, 21) # replace 21 with reference from JSON file
-                detection_reverse = point.slave.read_bit(point.register, 21) # re[;ace 22 with reference from JSON file
-            except:
+                detection_normal = point.slave.read_bit(point.normal_coil, 1) # read input corresponding to coil
+                detection_reverse = point.slave.read_bit(point.reverse_coil, 1) # read input corresponding to coil
+                comms_status = " OK"
+            except OSError:
                 detection_status = None
-                detection_normal = detection_reverse = False
+                detection_normal = False
+                detection_reverse = False
+                comms_status = " Comms failure"
             if detection_normal:
                 detection_status = "normal"
             elif detection_reverse:
@@ -163,26 +196,36 @@ def check_points():
                 point.detection_boolean = False
                 point.detection_status = ""
                 for home_signal in Section.instances[point.section].homesignal:
-                    set.set_signal(Signal.instances[home_signal], "danger")
+                    set.set_signal(Signal.instances[home_signal], Section.instances, logger=logger, aspect="danger")
 
-                #remove point from list of set points in section
-                #set route status to not available
-                #set protecting signal to danger - or do this elsewhere??
+            if point.comms_status != comms_status:
+                logger.error(point.ref + comms_status)
+                point.comms_status = comms_status
+        else:
+            point.detection_boolean = True
+        if point.detection_status != old_detection_status or point.detection_boolean != old_detection_boolean:
+            logging.info(point.ref + " detection direction " + point.detection_status + " boolean " + str(point.detection_boolean))
 
-def maintain_signals():
+
+def maintain_signals(logger):
     # maintain signals by sending aspect regularly to avoid timeout
     for signal in Signal.instances.values():
         try:
-            set.set_signal(signal, nextsignal = Signal.instances[signal.nextsignal])
+            set.set_signal(signal, Section.instances, logger = logger, nextsignal = Signal.instances[signal.nextsignal])
+            comms_status = " OK"
         except KeyError:
-            set.set_signal(signal)
+            set.set_signal(signal, Section.instances, logger=logger)
+            comms_status = " Comms failure"
 
+        if signal.comms_status != comms_status:
+            logger.error(signal.ref + comms_status)
+            signal.comms_status = comms_status
 
 def clear_used_routes(): #if required
     pass
 
 
-def check_triggers():
+def check_triggers(logger):
     for trigger in sorted(Trigger.instances.values(), key=lambda x: x.priority):
         #check all conditions are true and continue to next trigger if not
         if not all([eval(condition) for condition in trigger.conditions]):
@@ -213,6 +256,7 @@ def check_triggers():
 
         # try to set routes if triggered
         if trigger.triggered:
+            logging.debug(trigger.ref + " triggered")
             full_route_ok = False
             for route in trigger.routes_to_set:
                 # test if full route can be set
@@ -224,16 +268,20 @@ def check_triggers():
                     full_route_ok = False
                     # store trigger if not possible to execute:
                     if trigger.store_request:
-                        trigger.stored_request = True
-                    continue
+                        if not trigger.stored_request:
+                            trigger.stored_request = True
+                            logging.info(trigger.ref + " trigger stored")
+                    break
 
             if full_route_ok:
                 for route in trigger.routes_to_set:
                     set.set_route(route,
                                   sections = Section.instances,
                                   points = Point.instances,
-                                  signals = Signal.instances)
+                                  signals = Signal.instances,
+                                  logger = logger)
                     trigger.triggered = False
+                logging.info(trigger.ref + " triggered and set")
 
         pass # set route
 
@@ -241,31 +289,33 @@ def check_triggers():
     set.set_plungers_clear(Plunger.instances)
 
 
-# TODO apply interlocking doublecheck?
-
 # ---------------
 
-def process():
+def process(logger):
     while True:
-        check_all_ACs()
+        check_all_ACs(logger)
         section_update()
-        interlocking()
-        check_points()
-        maintain_signals()
-        check_all_plungers()
-        check_triggers()
+        interlocking(logger)
+        check_points(logger)
+        maintain_signals(logger)
+        check_all_plungers(logger)
+        check_triggers(logger)
         # iterate through setting routes
         for route in Route.instances.values():
             if route.set == "setting":
-                set.set_route(route, sections = Section.instances, points = Point.instances, signals = Signal.instances)
+                set.set_route(route,
+                              sections = Section.instances,
+                              points = Point.instances,
+                              signals = Signal.instances,
+                              logger = logger)
         # TODO put the MQTT update in here
-        # TODO put MQTT commands in too
+        # TODO put MQTT commands in too: set points, set signals, set routes
 
 
 def main():
-    loaddefault = False
-    loadlayoutjson(loaddefault)
-    process()
+    logger = setup_logger(config["logging_level"])
+    loadlayoutjson(logger)
+    process(logger)
     pass
 
 

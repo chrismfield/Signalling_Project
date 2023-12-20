@@ -1,9 +1,11 @@
 {
+    "axle_tolerance": 2,
     "layoutDB": "default.json",
     "RS485port": "",
     "network_ports":
     {
         "network_1": "COM1",
         "network_2": "COM2"
-    }
+    },
+    "logging_level": 10
 }

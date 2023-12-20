@@ -19,6 +19,7 @@ class AxleCounter:
         #Dynamic variables
         self.upcount = 0
         self.downcount = 0
+        self.comms_status = ""
 
 
 class Signal:
@@ -26,7 +27,8 @@ class Signal:
     instances = {}
     def __init__(self, sigtype, address, ref, description, availableaspects,
                  directionindicator, dangerreg, cautionreg, clearreg, callingonreg,
-                 bannerreg, route1reg, route2reg, route3reg, route4reg, route5reg, route6reg, doublecaution = None, nextsignal = None, board_index=0, slave = None):
+                 bannerreg, route1reg, route2reg, route3reg, route4reg, route5reg, route6reg, doublecaution=None,
+                 nextsignal=None, board_index=0, slave=None, aspect={"danger"}, dynamic_variables = True):
         #static variables
         self.sigtype = sigtype  # mode = Semaphore or coulour light
         self.address = address  # address
@@ -51,8 +53,11 @@ class Signal:
         self.network = "network_1" # TODO set this in json file using infrastructure editor
         self.slave = slave
         # dynamic variables
-        self.illumination = "On"  # night illumination mode
-        self.aspect = []  # list of current aspects
+        if dynamic_variables: # this prevents infrastructure editor from creating these variables. useful as set
+                                # (for aspect) is not supported in json and gets translated into a list
+            self.illumination = "On"  # night illumination mode
+            self.aspect = aspect  # set of current aspects
+            self.comms_status = ""
 
 
 class Section:
@@ -88,6 +93,7 @@ class Plunger:
         self.slave = slave
         #dynamic variables
         self.status = 0
+        self.comms_status = ""
 
 
 class Point:
@@ -115,7 +121,7 @@ class Point:
         self.detection_status = ""  # detection status
         self.detection_boolean = False
         self.unlocked = True
-
+        self.comms_status = ""
 
 class Route:
     """Route object containing static and dynamic variables"""

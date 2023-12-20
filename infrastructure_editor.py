@@ -2,15 +2,12 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import filedialog
-import minimalmodbus
 import jsons
 import json
 import os
-import Comselector
-import serial.tools.list_ports
 from object_definitions import AxleCounter, Signal, Section, Plunger, Point, Route, Trigger
 
-RS485port = ""
+dynamic_variables = False
 
 # ---------Assets, Sections and Route instances --------------
 
@@ -566,7 +563,8 @@ def Addsignal(parent, existingref):
         signaldict[(signalref.get())] = Signal(sigtype, address, ref, description,
                                                0, 0, dangerreg, cautionreg, clearreg,
                                                callingonreg, bannerreg, route1reg, route2reg, route3reg, route4reg,
-                                               route5reg, route6reg, board_index=board_index) # change all to keyword args?
+                                               route5reg, route6reg, board_index=board_index,
+                                               dynamic_variables=dynamic_variables) # change all to keyword args?
         signallist(parent)
         # print(signaldict[ref].dangerreg)
         signalsetupwin.destroy()
@@ -814,7 +812,7 @@ def Addpoint(parent, existingref):
 
     pointref = StringVar()  # TK variable for pointref input
     pointref.set(existingref)  # collect any existing ref for editing
-    pointaddress = StringVar()  # TK variable for point address input
+    pointaddress = IntVar()  # TK variable for point address input
     point_board_index = IntVar()
     point_normal_coil = IntVar()
     point_reverse_coil = IntVar()
@@ -947,7 +945,7 @@ def pointlist(parent):
             if pointdict[key].mode == 1:
                 modedescription = "Without detection"
             ttk.Label(framedict[windowtype], text="point Ref: " + key).grid(column=0, row=posi, padx=10)
-            ttk.Label(framedict[windowtype], text="Address: " + pointdict[key].address).grid(column=1, row=posi,
+            ttk.Label(framedict[windowtype], text="Address: " + str(pointdict[key].address)).grid(column=1, row=posi,
                                                                                              padx=10)
             ttk.Label(framedict[windowtype], text="Mode: " + modedescription).grid(column=2, row=posi, padx=10)
             ttk.Label(framedict[windowtype], text="Description: " + pointdict[key].description).grid(column=3, row=posi,
@@ -1471,116 +1469,10 @@ def trigger_list(parent):
 # ---------------
 
 
-# need to apply inputs, outputs and logic.
-def check_all_ACs():
-    """ get upcount and downcount from all axlecounters and store them in their instance"""
-    for ACkey, ACinstance in ACdict.items():
-        try:
-            slave = minimalmodbus.Instrument(RS485port, ACinstance.address)
-            ACinstance.upcount, ACinstance.downcount = slave.read_registers(13,
-                                                                            2)  # register number, number of registers
-            slave.write_register(13, 0, functioncode=6)  # register number, value
-            slave.write_register(14, 0, functioncode=6)  # register number, value
-            status = "OK"
-
-        except:
-            ACinstance.upcount, ACinstance.downcount = 0, 0  # reset these variables to zero if no comms to avoid double counting
-            status = "Comms failure with " + ACinstance.ref
-
-        finally:
-            if status != "OK":
-                print(status)
-    return
-
-
-def check_all_plungers():
-    """ get status from all plungers and store in their instance"""
-    for plungerkey, plungerinstance in plungerdict.items():
-        try:
-            slave = minimalmodbus.Instrument(RS485port, plungerinstance.address)
-            plungerinstance.status = slave.read_bit(plungerinstance.register, 1)  # register number, number of registers
-            slave.write_bit(plungerinstance.register, 0)  # register number,value
-            status = "OK"
-        except:
-            plungerinstance.status = 0  # reset these variables to zero if no comms to avoid double counting
-            status = "Comms failure with " + plungerinstance.ref
-
-        finally:
-            if status != "OK":
-                print(status)
-    return
-
-    pass  # -----------need to implement -------------
-
-
-def section_update():
-    global occstatustkvar
-    for sectionkey, section in sectiondict.items():  # increment or decrement
-        for trigger in section.inctrig:  # note each trigger consists of a list: axlecounter and direction - "upcount" or "downcount"
-            if trigger[1] == "upcount":
-                section.occstatus += ACdict[trigger[0]].upcount
-                section.occstatus -= ACdict[trigger[0]].downcount
-            if trigger[1] == "downcount":
-                section.occstatus += ACdict[trigger[0]].downcount
-                section.occstatus -= ACdict[trigger[0]].upcount
-        for trigger in section.dectrig:
-            if trigger[1] == "upcount":
-                section.occstatus -= ACdict[trigger[0]].upcount
-                section.occstatus += ACdict[trigger[0]].downcount
-            if trigger[1] == "downcount":
-                section.occstatus -= ACdict[trigger[0]].downcount
-                section.occstatus += ACdict[trigger[0]].upcount
-                # set the TK variable to autoupdate GUI
-        occstatustkvar[sectionkey].set(section.occstatus)
-        # set homesignal to danger if section occupied - might need to repeat after any routesetting and before output. 
-        for homesignal in section.homesignal:
-            if section.occstatus > 0:
-                signaldict[homesignal].aspect = 0
-    return
-
-
-def check_points():
-    pass  # -------------need to implement-----------
-
-
-# Check route triggers
-# Set routes (will need to iterate this to wait for point detection)
-# check conflicting sections
-# apply interlocking doublecheck
-
-# Send outputs to relevant points and all signals
+#
 
 
 # ---------------
-
-def process(root):
-    if runvar == 1:
-        check_all_ACs()
-        check_points()
-        check_all_plungers()
-        section_update()
-        root.after(500, lambda: process(root))
-        return
-
-
-def comm_chooser(master):
-    mycomlist = ([comport.device for comport in serial.tools.list_ports.comports()])
-
-    commwindow = Toplevel(master, takefocus=True)
-    listbox = Listbox(commwindow)
-    listbox.pack()
-
-    for item in mycomlist:
-        listbox.insert(END, item)
-
-    def callback():
-        global RS485port
-        RS485port = listbox.get(listbox.curselection())
-        commwindow.destroy()
-
-    b = Button(commwindow, text="OK", command=callback)
-    b.pack()
-
 
 
 def saveaslayoutjson(root, currentfile, saveas):
@@ -1658,7 +1550,7 @@ def control_frame(root):
         global runvar
         runvar = runvartk.get()
         if runvar == 1:
-            process(root)
+            pass
 
     ControlFrame = ttk.Frame(root)  # create frame for run/stop control
     ControlFrame.grid(column=0, row=0, sticky=W)
@@ -1680,7 +1572,7 @@ def main():
     filemenu.add_command(label="Exit", command=lambda: root.destroy())
     menubar.add_cascade(label="File", menu=filemenu)
     setupmenu = Menu(menubar, tearoff=0)
-    setupmenu.add_command(label="Comm Port", command=lambda: comm_chooser(root))
+    #setupmenu.add_command(label="Comm Port", command=lambda: comm_chooser(root))
     menubar.add_cascade(label="Setup", menu=setupmenu)
     assetmenu = Menu(menubar, tearoff=0)
     assetmenu.add_command(label="Axle counters", command=lambda: AClist(root))
