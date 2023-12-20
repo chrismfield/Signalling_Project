@@ -114,7 +114,7 @@ class Point:
         self.set_direction = ""  # set status
         self.detection_status = ""  # detection status
         self.detection_boolean = False
-        self.unlocked = False
+        self.unlocked = True
 
 
 class Route:
@@ -136,8 +136,8 @@ class Route:
 class Trigger:
     """Trigger object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, ref, description = None, override=False, sections_occupied=None, sections_clear=None, plungers=None, lever=None,
-                 timer=None, MQTT=None, routes_to_set=None, routes_to_cancel=None, priority=10, store_request = False, conditions = True, trigger_expressions = []):
+    def __init__(self, ref, description = None, override=False, sections_occupied=[], sections_clear=[], plungers=[], lever=None,
+                 timer=None, MQTT=None, routes_to_set=[], routes_to_cancel=[], priority=10, store_request = False, conditions = ["True"], trigger_expressions = []):
         #static variables
         self.ref = ref
         self.description = description

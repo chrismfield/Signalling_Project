@@ -3,7 +3,7 @@ import minimalmodbus
 import jsons
 import os
 import operator
-import serial.tools.list_ports
+#import serial.tools.list_ports
 #import serial_ports_list
 import set
 
@@ -51,9 +51,6 @@ def loadlayoutjson(loaddefault):
         Route.instances[x] = jsons.load(jsonroutesdict[x], Route)
     for x in json_trigger_dict.keys():
         Trigger.instances[x] = jsons.load(json_trigger_dict[x], Trigger)
-    #    RS485port =
-    currentfile = os.path.basename(json_in.name)
-    print("loadnow")
     section_update()
     pass
 
@@ -76,7 +73,7 @@ def check_all_ACs():
             status = "Comms failure with " + ACinstance.ref
 
         if status != "OK":
-            print(status)
+            print(status) # TODO implement logging
     return
 
 
@@ -92,7 +89,7 @@ def check_all_plungers():
             status = "Comms failure with " + plungerinstance.ref
 
         if status != "OK":
-            print(status)
+            print(status) #TODO implement logging
     return
 
     pass  # -----------need to implement -------------
@@ -165,7 +162,8 @@ def check_points():
             else:
                 point.detection_boolean = False
                 point.detection_status = ""
-                set.set_signal(Signal.instances[Section.instances[point.section].homesignal], "danger")
+                for home_signal in Section.instances[point.section].homesignal:
+                    set.set_signal(Signal.instances[home_signal], "danger")
 
                 #remove point from list of set points in section
                 #set route status to not available
@@ -173,8 +171,11 @@ def check_points():
 
 def maintain_signals():
     # maintain signals by sending aspect regularly to avoid timeout
-    for signal in Signal.instances():
-        set.set_signal(signal, nextsignal = Signal.instances[signal.nextsignal])
+    for signal in Signal.instances.values():
+        try:
+            set.set_signal(signal, nextsignal = Signal.instances[signal.nextsignal])
+        except KeyError:
+            set.set_signal(signal)
 
 
 def clear_used_routes(): #if required
@@ -182,8 +183,7 @@ def clear_used_routes(): #if required
 
 
 def check_triggers():
-
-    for trigger_key, trigger in (sorted(Trigger.instances.items(), key=operator.attrgetter("priority"))):
+    for trigger in sorted(Trigger.instances.values(), key=lambda x: x.priority):
         #check all conditions are true and continue to next trigger if not
         if not all([eval(condition) for condition in trigger.conditions]):
             continue
@@ -216,7 +216,9 @@ def check_triggers():
             full_route_ok = False
             for route in trigger.routes_to_set:
                 # test if full route can be set
-                if set.check_route_available(Route.instances[route]):
+                if set.check_route_available(Route.instances[route],
+                                             sections = Section.instances,
+                                             points = Point.instances):
                     full_route_ok = True
                 else:
                     full_route_ok = False

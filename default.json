@@ -148,8 +148,8 @@
     },
     "Signals": {
         "47": {
-            "address": "32",
-            "aspect": "0",
+            "address": 32,
+            "aspect": [],
             "availableaspects": 0,
             "bannerreg": 0,
             "board_index": 2,
@@ -159,9 +159,11 @@
             "dangerreg": 0,
             "description": "Platform home signal",
             "directionindicator": 0,
+            "doublecaution": null,
             "illumination": "On",
             "instances": {},
             "network": "network_1",
+            "nextsignal": null,
             "ref": "47",
             "route1reg": 0,
             "route2reg": 0,
@@ -173,8 +175,8 @@
             "slave": null
         },
         "48": {
-            "address": "31",
-            "aspect": "0",
+            "address": 31,
+            "aspect": [],
             "availableaspects": 0,
             "bannerreg": 0,
             "board_index": 0,
@@ -184,9 +186,11 @@
             "dangerreg": 0,
             "description": "Platform home signal",
             "directionindicator": 0,
+            "doublecaution": null,
             "illumination": "On",
             "instances": {},
             "network": "network_1",
+            "nextsignal": null,
             "ref": "48",
             "route1reg": 0,
             "route2reg": 0,
@@ -194,12 +198,12 @@
             "route4reg": 0,
             "route5reg": 0,
             "route6reg": 0,
-            "sigtype": 1,
+            "sigtype": 0,
             "slave": null
         },
         "99": {
-            "address": "98",
-            "aspect": "0",
+            "address": 98,
+            "aspect": [],
             "availableaspects": 0,
             "bannerreg": 0,
             "board_index": 0,
@@ -209,9 +213,11 @@
             "dangerreg": 0,
             "description": "ggggg",
             "directionindicator": 0,
+            "doublecaution": null,
             "illumination": "On",
             "instances": {},
             "network": "network_1",
+            "nextsignal": null,
             "ref": "99",
             "route1reg": 0,
             "route2reg": 0,
@@ -223,8 +229,8 @@
             "slave": null
         },
         "55": {
-            "address": "55",
-            "aspect": "0",
+            "address": 55,
+            "aspect": [],
             "availableaspects": 0,
             "bannerreg": 0,
             "board_index": 0,
@@ -234,9 +240,11 @@
             "dangerreg": 0,
             "description": "55555",
             "directionindicator": 0,
+            "doublecaution": null,
             "illumination": "On",
             "instances": {},
             "network": "network_1",
+            "nextsignal": null,
             "ref": "55",
             "route1reg": 0,
             "route2reg": 0,
@@ -245,6 +253,33 @@
             "route5reg": 0,
             "route6reg": 0,
             "sigtype": 0,
+            "slave": null
+        },
+        "61": {
+            "address": 10,
+            "aspect": [],
+            "availableaspects": 0,
+            "bannerreg": 12,
+            "board_index": 0,
+            "callingonreg": 5,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "dangerreg": 1,
+            "description": "Test2",
+            "directionindicator": 0,
+            "doublecaution": null,
+            "illumination": "On",
+            "instances": {},
+            "network": "network_1",
+            "nextsignal": null,
+            "ref": "61",
+            "route1reg": 201,
+            "route2reg": 202,
+            "route3reg": 203,
+            "route4reg": 204,
+            "route5reg": 205,
+            "route6reg": 206,
+            "sigtype": 1,
             "slave": null
         }
     },
@@ -388,6 +423,7 @@
                 "Q"
             ],
             "set": false,
+            "setting": false,
             "signals": {
                 "47": [
                     "danger",
@@ -404,7 +440,7 @@
     "Triggers": {
         "AA": {
             "MQTT": null,
-            "conditions": true,
+            "conditions": ["True"],
             "description": "Test",
             "instances": {},
             "lever": null,
@@ -418,7 +454,7 @@
             "routes_to_set": [
                 "P4"
             ],
-            "sections_clear": null,
+            "sections_clear": [],
             "sections_occupied": [
                 "R"
             ],
@@ -430,7 +466,7 @@
         },
         "BB": {
             "MQTT": null,
-            "conditions": true,
+            "conditions": ["True"],
             "description": "Test 2 ",
             "instances": {},
             "lever": null,
@@ -438,13 +474,13 @@
             "plungers": [
                 "P1"
             ],
-            "priority": 10,
+            "priority": 9,
             "ref": "BB",
             "routes_to_cancel": [
                 "P4"
             ],
             "routes_to_set": [],
-            "sections_clear": null,
+            "sections_clear": [],
             "sections_occupied": [
                 "S"
             ],

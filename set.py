@@ -27,9 +27,9 @@ def set_signal(signal, aspect=None, nextsignal =None): #arguments are signal obj
         signal.aspect.append(aspect)
     #set aspects through slaves and lookups
 
-    for aspect in signal.aspect:
+    for set_aspect in signal.aspect:
         main_proceed_aspects = ["clear", "caution", "doublecaution"]
-        if aspect == "danger":
+        if set_aspect == "danger":
             try:
                 signal.slave.write_bit(signal.dangerreg, 1)
                 signal.slave.write_bit(signal.cautionreg, 0)
@@ -42,22 +42,22 @@ def set_signal(signal, aspect=None, nextsignal =None): #arguments are signal obj
                 signal.slave.write_bit(signal.route4reg, 0)
                 signal.slave.write_bit(signal.route5reg, 0)
                 signal.slave.write_bit(signal.route6reg, 0)
-            except ValueError:
+            except OSError:
                 status = "Comms failure" # TODO add details and logging
-        if aspect == "caution":
+        if set_aspect == "caution":
             try:
                 signal.slave.write_bit(signal.dangerreg, 0)
                 signal.slave.write_bit(signal.cautionreg, 1)
-            except ValueError:
+            except OSError:
                 status = "Comms failure" # TODO add details and logging
-        if aspect == "doublecaution":
+        if set_aspect == "doublecaution":
             try:
                 signal.slave.write_bit(signal.dangerreg, 0)
                 signal.slave.write_bit(signal.cautionreg, 1)
                 signal.slave.write_bit(signal.doublecautionreg, 1)
-            except ValueError:
+            except OSError:
                 status = "Comms failure" # TODO add details and logging
-        if aspect == "clear":
+        if set_aspect == "clear":
             #test if next aspect is a main proceed aspect
             if [True for MPA in main_proceed_aspects if MPA in nextsignal.aspect]:
                 try:
@@ -65,52 +65,52 @@ def set_signal(signal, aspect=None, nextsignal =None): #arguments are signal obj
                     signal.slave.write_bit(signal.cautionreg, 0)
                     signal.slave.write_bit(signal.doublecautionreg, 0)
                     signal.slave.write_bit(signal.clearreg, 1)
-                except ValueError:
+                except OSError:
                     status = "Comms failure" # TODO add details and logging
             #if not, apply a caution aspect
             else:
                 try:
                     signal.slave.write_bit(signal.dangerreg, 0)
                     signal.slave.write_bit(signal.cautionreg, 1)
-                except ValueError:
+                except OSError:
                     status = "Comms failure"  # TODO add details and logging
-        if aspect == "callingon":
+        if set_aspect == "callingon":
             try:
                 signal.slave.write_bit(signal.dangerreg, 1)
                 signal.slave.write_bit(signal.callingon, 1)
             except ValueError:
                 status = "Comms failure" # TODO add details and logging
-        if aspect == "bannerreg":
+        if set_aspect == "bannerreg":
             try:
                 signal.slave.write_bit(signal.bannerreg, 1)
             except ValueError:
                 status = "Comms failure" # TODO add details and logging
-        if aspect == "route1":
+        if set_aspect == "route1":
             try:
                 signal.slave.write_bit(signal.route1reg, 1)
             except ValueError:
                 status = "Comms failure" # TODO add details and logging
-        if aspect == "route2":
+        if set_aspect == "route2":
             try:
                 signal.slave.write_bit(signal.route2reg, 1)
             except ValueError:
                 status = "Comms failure" # TODO add details and logging
-        if aspect == "route3":
+        if set_aspect == "route3":
             try:
                 signal.slave.write_bit(signal.route3reg, 1)
             except ValueError:
                 status = "Comms failure" # TODO add details and logging
-        if aspect == "route4":
+        if set_aspect == "route4":
             try:
                 signal.slave.write_bit(signal.route4reg, 1)
             except ValueError:
                 status = "Comms failure" # TODO add details and logging
-        if aspect == "route5":
+        if set_aspect == "route5":
             try:
                 signal.slave.write_bit(signal.route5reg, 1)
             except ValueError:
                 status = "Comms failure" # TODO add details and logging
-        if aspect == "route6":
+        if set_aspect == "route6":
             try:
                 signal.slave.write_bit(signal.route6reg, 1)
             except ValueError:
@@ -127,7 +127,7 @@ def check_route_available(route, points, sections):
         if sections[sections[route_section].conflictingsections].occstatus:
             return False
     for point in route.points:
-        if not point.unlocked:
+        if not points[point].unlocked:
             return False
     return True
 def set_route(route, sections, points, signals):

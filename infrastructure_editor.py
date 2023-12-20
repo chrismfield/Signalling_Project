@@ -566,7 +566,7 @@ def Addsignal(parent, existingref):
         signaldict[(signalref.get())] = Signal(sigtype, address, ref, description,
                                                0, 0, dangerreg, cautionreg, clearreg,
                                                callingonreg, bannerreg, route1reg, route2reg, route3reg, route4reg,
-                                               route5reg, route6reg, board_index) # change all to keyword args?
+                                               route5reg, route6reg, board_index=board_index) # change all to keyword args?
         signallist(parent)
         # print(signaldict[ref].dangerreg)
         signalsetupwin.destroy()
@@ -581,7 +581,7 @@ def Addsignal(parent, existingref):
 
     signalref = StringVar()  # TK variable for signalref input
     signalref.set(existingref)  # collect any existing ref for editing
-    signaladdress = StringVar()  # TK variable for signal address input
+    signaladdress = IntVar()  # TK variable for signal address input
     signaldescription = StringVar()  # TK variable for signal description input
     signaltype = IntVar()  # mode is 0 for Axlecount, 1 for non-directional trigger and 2 for directional trigger
     signal_board_index = IntVar()
@@ -758,7 +758,7 @@ def signallist(parent):
             if signaldict[key].sigtype == 1:
                 modedescription = "Colour Light"
             ttk.Label(framedict[windowtype], text="Signal Ref: " + key).grid(column=0, row=posi, padx=10)
-            ttk.Label(framedict[windowtype], text="Address: " + signaldict[key].address).grid(column=1, row=posi,
+            ttk.Label(framedict[windowtype], text="Address: " + str(signaldict[key].address)).grid(column=1, row=posi,
                                                                                               padx=10)
             ttk.Label(framedict[windowtype], text="Mode: " + modedescription).grid(column=2, row=posi, padx=10)
             ttk.Label(framedict[windowtype], text="Description: " + signaldict[key].description).grid(column=3,
