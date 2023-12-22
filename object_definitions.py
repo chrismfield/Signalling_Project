@@ -153,7 +153,6 @@ class Trigger:
         self.plungers = plungers
         self.lever = lever
         self.timer = timer
-        self.MQTT = MQTT
         self.routes_to_set = routes_to_set
         self.routes_to_cancel = routes_to_cancel
         self.priority = priority

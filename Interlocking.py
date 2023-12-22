@@ -7,7 +7,27 @@ from logging.handlers import RotatingFileHandler
 from custom_exceptions import *
 import os
 import time
+import paho.mqtt.client as mqtt
+q=[]
+
 dynamic_variables = True
+
+with open("config.json") as config_file:
+    config = jsons.loads(config_file.read())
+
+def on_message(mqtt_client, userdata, message):
+    q.append(message)
+
+def setup_mqtt():
+    broker_address=config["mqtt_broker_address"]
+    mqtt_client = mqtt.Client("interlocking")  # create new instance
+    mqtt_client.connect(broker_address)  # connect to broker
+    mqtt_client.on_message = on_message
+    mqtt_client.subscribe("set/#")
+    mqtt_client.loop_start()
+    mqtt_client.publish("interlocking", "running2")  # publish
+    return mqtt_client
+
 
 def setup_logger(logging_level):
     logger = logging.getLogger('Interlocking Processor')
@@ -22,11 +42,10 @@ def setup_logger(logging_level):
     return logger
 
 
-with open("config.json") as config_file:
-    config = jsons.loads(config_file.read())
 
 
-def loadlayoutjson(logger):
+
+def loadlayoutjson(logger, mqtt_client):
     """Load the layout database from file into instances of classes as defined in object_defintions"""
     json_in = open(config["layoutDB"])
     logger.info(" loaded " + config["layoutDB"])
@@ -64,14 +83,14 @@ def loadlayoutjson(logger):
         Route.instances[x] = jsons.load(jsonroutesdict[x], Route)
     for x in json_trigger_dict.keys():
         Trigger.instances[x] = jsons.load(json_trigger_dict[x], Trigger)
-    section_update()
+    section_update(logger, mqtt_client)
     pass
 
 # ---------------
 
 
 # need to apply inputs, outputs and logic.
-def check_all_ACs(logger):
+def check_all_ACs(logger, mqtt_client):
     """ get upcount and downcount from all axlecounters and store them in their instance"""
     for ACkey, ACinstance in AxleCounter.instances.items():
         ACinstance.upcount, ACinstance.downcount = 0, 0  # reset these variables to zero prior to read
@@ -88,7 +107,9 @@ def check_all_ACs(logger):
 
         if ACinstance.comms_status != comms_status:
             logger.error(ACinstance.ref + comms_status)
+            mqtt_client.publish("Comms", ACinstance.ref + "/" + comms_status)
             ACinstance.comms_status = comms_status
+
     return
 
 
@@ -114,7 +135,7 @@ def check_all_plungers(logger):
     pass  # -----------need to implement -------------
 
 
-def section_update():
+def section_update(logger, mqtt_client):
     """Update occupancy of sections based on axle-counter readings"""
     axle_tolerance = config["axle_tolerance"]
     for sectionkey, section in Section.instances.items():  # for each section:
@@ -137,9 +158,11 @@ def section_update():
                         section.occstatus = 0
         # TODO add in other detection modes logic i.e. treadle and track circuit
         if section.occstatus != old_occstatus:
-            logging.info(sectionkey + " " + section.occstatus)
+            logger.info(sectionkey + " " + section.occstatus)
+            mqtt_client.publish("Report/Section/Occupancy/"+sectionkey, section.occstatus)
         if section.occstatus:
             section.routeset = False
+            mqtt_client.publish("Report/Section/Route Set/" + sectionkey, section.routeset)
 
 
 def interlocking(logger):
@@ -167,7 +190,7 @@ def interlocking(logger):
                     route.available = True
 
 
-def check_points(logger):
+def check_points(logger, mqtt_client):
     for pointkey, point in Point.instances.items():
         old_detection_status = point.detection_status
         old_detection_boolean = point.detection_boolean
@@ -177,7 +200,7 @@ def check_points(logger):
                 detection_reverse = point.slave.read_bit(point.reverse_coil, 1) # read input corresponding to coil
                 comms_status = " OK"
             except OSError:
-                detection_status = None
+                detection_status = "None"
                 detection_normal = False
                 detection_reverse = False
                 comms_status = " Comms failure"
@@ -186,7 +209,7 @@ def check_points(logger):
             elif detection_reverse:
                 detection_status = "reverse"
             else:
-                detection_status = None
+                detection_status = "None"
             if detection_status == point.set_direction: #need to create get_detection function
                 point.detection_boolean = True
                 point.detection_status = detection_status
@@ -196,7 +219,7 @@ def check_points(logger):
                 point.detection_boolean = False
                 point.detection_status = ""
                 for home_signal in Section.instances[point.section].homesignal:
-                    set.set_signal(Signal.instances[home_signal], Section.instances, logger=logger, aspect="danger")
+                    set.set_signal(Signal.instances[home_signal], Section.instances, Point.instances, logger=logger, aspect="danger")
 
             if point.comms_status != comms_status:
                 logger.error(point.ref + comms_status)
@@ -205,16 +228,17 @@ def check_points(logger):
             point.detection_boolean = True
         if point.detection_status != old_detection_status or point.detection_boolean != old_detection_boolean:
             logging.info(point.ref + " detection direction " + point.detection_status + " boolean " + str(point.detection_boolean))
+            mqtt_client.publish("Report/Point/Detection/" + point.ref, point.detection_status)
 
 
 def maintain_signals(logger):
     # maintain signals by sending aspect regularly to avoid timeout
     for signal in Signal.instances.values():
         try:
-            set.set_signal(signal, Section.instances, logger = logger, nextsignal = Signal.instances[signal.nextsignal])
+            set.set_signal(signal, Section.instances, Point.instances, logger = logger,  nextsignal = Signal.instances[signal.nextsignal])
             comms_status = " OK"
         except KeyError:
-            set.set_signal(signal, Section.instances, logger=logger)
+            set.set_signal(signal, Section.instances, Point.instances, logger=logger)
             comms_status = " Comms failure"
 
         if signal.comms_status != comms_status:
@@ -225,7 +249,7 @@ def clear_used_routes(): #if required
     pass
 
 
-def check_triggers(logger):
+def check_triggers(logger, mqtt_client):
     for trigger in sorted(Trigger.instances.values(), key=lambda x: x.priority):
         #check all conditions are true and continue to next trigger if not
         if not all([eval(condition) for condition in trigger.conditions]):
@@ -251,8 +275,6 @@ def check_triggers(logger):
         for expression in trigger.trigger_expressions:
             if eval(expression):
                 trigger.triggered = True
-        # TODO check if triggered by MQTT
-        pass
 
         # try to set routes if triggered
         if trigger.triggered:
@@ -279,7 +301,8 @@ def check_triggers(logger):
                                   sections = Section.instances,
                                   points = Point.instances,
                                   signals = Signal.instances,
-                                  logger = logger)
+                                  logger = logger,
+                                  mqtt_client = mqtt_client)
                     trigger.triggered = False
                 logging.info(trigger.ref + " triggered and set")
 
@@ -289,17 +312,22 @@ def check_triggers(logger):
     set.set_plungers_clear(Plunger.instances)
 
 
-# ---------------
+def check_mqtt(logger, mqtt_client):
+        while q:
+            set.set_mqtt(command=q.pop(), signals=Signal.instances, sections=Section.instances, points=Point.instances,
+                         routes=Route.instances, triggers=Trigger.instances, logger=logger, mqtt_client=mqtt_client)
+    # put command actions in here
 
-def process(logger):
+
+def process(logger, mqtt_client):
     while True:
-        check_all_ACs(logger)
-        section_update()
+        check_all_ACs(logger, mqtt_client)
+        section_update(logger, mqtt_client)
         interlocking(logger)
-        check_points(logger)
+        check_points(logger, mqtt_client)
         maintain_signals(logger)
         check_all_plungers(logger)
-        check_triggers(logger)
+        check_triggers(logger, mqtt_client)
         # iterate through setting routes
         for route in Route.instances.values():
             if route.set == "setting":
@@ -307,15 +335,18 @@ def process(logger):
                               sections = Section.instances,
                               points = Point.instances,
                               signals = Signal.instances,
-                              logger = logger)
-        # TODO put the MQTT update in here
-        # TODO put MQTT commands in too: set points, set signals, set routes
+                              logger = logger,
+                              mqtt_client = mqtt_client)
+        check_mqtt(logger, mqtt_client)
+        # TODO put the MQTT update in here - better to do here than all over the place?
+        # TODO put MQTT commands in too: set points(done), set signals, set routes, set triggers?
 
 
 def main():
     logger = setup_logger(config["logging_level"])
-    loadlayoutjson(logger)
-    process(logger)
+    mqtt_client = setup_mqtt()
+    loadlayoutjson(logger, mqtt_client)
+    process(logger, mqtt_client)
     pass
 
 

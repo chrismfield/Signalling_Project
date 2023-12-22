@@ -7,5 +7,6 @@
         "network_1": "COM1",
         "network_2": "COM2"
     },
-    "logging_level": 10
+    "logging_level": 10,
+    "mqtt_broker_address": "127.0.0.1"
 }
