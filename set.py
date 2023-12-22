@@ -12,6 +12,7 @@ def set_point(point, direction, sections, logger, mqtt_client):
         # TODO implement point locking
         else:
             comms_status = "no direction set"
+            point.set_direction = direction
             if direction == "normal":
                 try:
                     point.slave.write_bit(point.reverse_coil, 0)
@@ -32,11 +33,12 @@ def set_point(point, direction, sections, logger, mqtt_client):
             if point.comms_status != comms_status:
                 logger.error(point.ref + comms_status)
                 point.comms_status = comms_status
+            logger.info(point.ref + "set direction: " + direction)
 
 def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None): #arguments are signal object and aspect as string
     #don't set signal if section is occupied
     main_proceed_aspects = ["clear", "caution", "doublecaution"]
-    old_aspects = signal.aspect
+    old_aspects = signal.aspect.copy()
     if aspect in main_proceed_aspects:
         for section in sections.values():
             if signal.ref in section.homesignal:
@@ -219,8 +221,6 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
                 for aspect in aspects:
                     set_signal(signals[signal], sections=sections, points=points, logger=logger, aspect=aspect)
             # clear trigger once route fully set
-            for signal in signals.values():
-                print("in set_route2", signal.ref, signal.aspect)
             route.set = True
             route.setting = False
     else:
@@ -253,6 +253,8 @@ def set_from_mqtt(command, signals, sections, points, routes, triggers, logger, 
             clear_route(route=routes[command_l[2]], sections=sections, points=points, signals = signals, logger=logger, mqtt_client=mqtt_client)
     if command_l[1] == "trigger":
         triggers[command_l[2]].triggered = eval(command_payload)
+    if command_l[1] == "section" and command_l[3] == "occstatus":
+        sections[command_l[2]].occstatus = int(command_payload)
 
 
 def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, routes, triggers, logger, mqtt_client):

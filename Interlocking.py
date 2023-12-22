@@ -31,7 +31,7 @@ def setup_mqtt():
 
 def setup_logger(logging_level):
     logger = logging.getLogger('Interlocking Processor')
-    RFH = logging.handlers.RotatingFileHandler('./log.txt', maxBytes=50000, backupCount=3)
+    RFH = logging.handlers.RotatingFileHandler('./log.txt', maxBytes=1000000, backupCount=3)
     RFH.setFormatter(logging.Formatter("%(asctime)s;%(levelname)s;%(message)s"))
     logger.addHandler(RFH)
     CH = logging.StreamHandler()
@@ -172,7 +172,7 @@ def interlocking(logger):
         if section.occstatus > 0:
             # for each homesignal in each section set signal to danger:
             for homesignal in section.homesignal:
-                Signal.instances[homesignal].aspect = "danger"
+                Signal.instances[homesignal].aspect = {"danger"}
         #if section has any axles or route is set through section:
         if section.occstatus > 0 or section.routeset == True:
             #for every point, lock if it is in this occupied/route-set section:
@@ -293,7 +293,7 @@ def check_triggers(logger, mqtt_client):
 
             if full_route_ok:
                 for route in trigger.routes_to_set:
-                    set.set_route(route,
+                    set.set_route(Route.instances[route],
                                   sections = Section.instances,
                                   points = Point.instances,
                                   signals = Signal.instances,
