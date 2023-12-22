@@ -160,10 +160,12 @@
             "callingonreg": 0,
             "cautionreg": 0,
             "clearreg": 1,
+            "comms_status": "",
             "dangerreg": 0,
             "description": "Platform home signal",
             "directionindicator": 0,
             "doublecaution": null,
+            "illumination": "On",
             "instances": {},
             "network": "network_1",
             "nextsignal": null,
@@ -185,10 +187,12 @@
             "callingonreg": 0,
             "cautionreg": 0,
             "clearreg": 0,
+            "comms_status": "",
             "dangerreg": 0,
             "description": "Platform home signal",
             "directionindicator": 0,
             "doublecaution": null,
+            "illumination": "On",
             "instances": {},
             "network": "network_1",
             "nextsignal": null,
@@ -210,10 +214,12 @@
             "callingonreg": 0,
             "cautionreg": 0,
             "clearreg": 0,
+            "comms_status": "",
             "dangerreg": 0,
             "description": "ggggg",
             "directionindicator": 0,
             "doublecaution": null,
+            "illumination": "On",
             "instances": {},
             "network": "network_1",
             "nextsignal": null,
@@ -235,10 +241,12 @@
             "callingonreg": 0,
             "cautionreg": 0,
             "clearreg": 0,
+            "comms_status": "",
             "dangerreg": 0,
             "description": "55555",
             "directionindicator": 0,
             "doublecaution": null,
+            "illumination": "On",
             "instances": {},
             "network": "network_1",
             "nextsignal": null,
@@ -260,10 +268,12 @@
             "callingonreg": 5,
             "cautionreg": 2,
             "clearreg": 4,
+            "comms_status": "",
             "dangerreg": 1,
             "description": "Test2",
             "directionindicator": 0,
             "doublecaution": null,
+            "illumination": "On",
             "instances": {},
             "network": "network_1",
             "nextsignal": null,
@@ -386,7 +396,7 @@
             "normal_coil": 1021,
             "ref": "300",
             "reverse_coil": 1022,
-            "section": "R",
+            "section": "Q",
             "set_direction": "",
             "slave": null,
             "unlocked": false
@@ -439,11 +449,28 @@
                 ]
             },
             "trigger": []
+        },
+        "IntoR": {
+            "available": false,
+            "description": "Into R",
+            "instances": {},
+            "mode": 0,
+            "points": {},
+            "ref": "IntoR",
+            "sections": [
+                "R"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "caution"
+                ]
+            }
         }
     },
     "Triggers": {
         "AA": {
-            "MQTT": null,
             "conditions": [
                 "True"
             ],
@@ -471,7 +498,6 @@
             "triggered": false
         },
         "BB": {
-            "MQTT": null,
             "conditions": [
                 "True"
             ],

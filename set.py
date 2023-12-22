@@ -9,6 +9,7 @@ def set_point(point, direction, sections, logger, mqtt_client):
         if sections[point.section].routeset:
             logger.critical("Cannot set points when route is set through section")
             raise InterlockingError("Cannot set points when route is set through section")
+        # TODO implement point locking
         else:
             comms_status = "no direction set"
             if direction == "normal":
@@ -94,7 +95,13 @@ def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None):
                 comms_status = " Comms failure"
         if set_aspect == "clear":
             #test if next aspect is a main proceed aspect
-            if [True for MPA in main_proceed_aspects if MPA in nextsignal.aspect]:
+            next_signal_MPA = False
+            try:
+                next_signal_MPA = [True for MPA in main_proceed_aspects if MPA in nextsignal.aspect]
+            except AttributeError:
+                if nextsignal == None:
+                    next_signal_MPA = True
+            if next_signal_MPA:
                 try:
                     signal.slave.write_bit(signal.dangerreg, 0)
                     signal.slave.write_bit(signal.cautionreg, 0)
@@ -167,7 +174,6 @@ def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None):
         if signal.aspect != old_aspects:
             logger.info(signal.ref + " aspects requested " + str(signal.aspect))
 
-
 def check_route_available(route, points, sections):
     for route_section in route.sections:
         if sections[route_section].routeset:
@@ -189,6 +195,7 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
     # check route is clear to set
     if check_route_available(route, points, sections):
         route.setting = True
+        route.set = "setting"
         # set points - move to route setting iteration?
         points_detected = False
         for point_ref, direction in route.points.items():
@@ -203,15 +210,18 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
         # set section.routeset when route is setting or set
         for section in route.sections:
             sections[section].routeset = True
-            mqtt_client.publish("Report/Section/Route Set/"+section, sections[section].routeset)
+            #mqtt_client.publish("Report/Section/Route Set/"+section, sections[section].routeset)
             # set signals (check that route is clear already completed):
             # check points for that section are set and detected correctly
-        if points_detected:
+        if points_detected or not route.points.items():
             # set signal for that section in accordance with route signals to set
             for signal, aspects in route.signals.items():
                 for aspect in aspects:
                     set_signal(signals[signal], sections=sections, points=points, logger=logger, aspect=aspect)
             # clear trigger once route fully set
+            for signal in signals.values():
+                print("in set_route2", signal.ref, signal.aspect)
+            route.set = True
             route.setting = False
     else:
         return "route not available"
@@ -226,15 +236,14 @@ def set_plungers_clear(all_plungers_dict):
     for plunger_key, plunger in all_plungers_dict.items():
         plunger.status = 0
 
-def set_mqtt(command, signals, sections, points, routes, triggers, logger, mqtt_client):
+def set_from_mqtt(command, signals, sections, points, routes, triggers, logger, mqtt_client):
     command_l = command.topic.split("/")
     command_payload = str(command.payload.decode("utf-8"))
-    print(command_l)
-    print(command_payload)
     if command_l[0] != "set":
         return
     if command_l[1] == "point":
         set_point(point=points[command_l[2]], direction=command_payload, sections=sections, logger=logger, mqtt_client=mqtt_client)
+    # TODO implement point locking
     if command_l[1] == "signal":
         set_signal(signal=signals[command_l[2]], sections=sections, points=points, logger=logger, aspect=command_payload)
     if command_l[1] == "route":
@@ -246,5 +255,34 @@ def set_mqtt(command, signals, sections, points, routes, triggers, logger, mqtt_
         triggers[command_l[2]].triggered = eval(command_payload)
 
 
-
-
+def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, routes, triggers, logger, mqtt_client):
+    pass
+    # send axlecounter dynamic variables
+    for axlecounter in axlecounters.values():
+        mqtt_client.publish("error/axlecounter/comms/"+ axlecounter.ref, axlecounter.comms_status)
+    # send signal dynamic variables
+    for signal in signals.values():
+        mqtt_client.publish("report/signal/"+ signal.ref +"/aspect", (",".join(signal.aspect)))
+        mqtt_client.publish("error/signal/comms/"+ signal.ref, signal.comms_status)
+    # send section dynamic variables
+    for section in sections.values():
+        mqtt_client.publish("report/section/"+ section.ref+"/occstatus", section.occstatus)
+        mqtt_client.publish("report/section/"+ section.ref+"/routeset", section.routeset)
+    # send plunger dynamic variables
+    for plunger in plungers.values():
+        mqtt_client.publish("error/plunger/comms/" + plunger.ref, plunger.comms_status)
+    # send point dynamic variables
+    for point in points.values():
+        mqtt_client.publish("report/point/"+point.ref+"/set_direction", point.set_direction)
+        mqtt_client.publish("report/point/"+point.ref+"/detection_status", point.detection_status)
+        mqtt_client.publish("report/point/"+point.ref+"/detection_boolean", point.detection_boolean)
+        mqtt_client.publish("report/point/"+point.ref+"/unlocked", point.unlocked)
+        mqtt_client.publish("error/point/comms/" + point.ref, point.comms_status)
+    # send route dynamic variables
+    for route in routes.values():
+        mqtt_client.publish("report/route/"+route.ref+"/available", route.available)
+        mqtt_client.publish("report/route/"+route.ref+"/setting", route.setting)
+    # send trigger dynamic variables
+    for trigger in triggers.values():
+        mqtt_client.publish("report/trigger/"+trigger.ref+"/triggered", trigger.triggered)
+        mqtt_client.publish("report/trigger/"+trigger.ref+"/stored_request", trigger.stored_request)

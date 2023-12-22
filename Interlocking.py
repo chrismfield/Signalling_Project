@@ -25,7 +25,7 @@ def setup_mqtt():
     mqtt_client.on_message = on_message
     mqtt_client.subscribe("set/#")
     mqtt_client.loop_start()
-    mqtt_client.publish("interlocking", "running2")  # publish
+    mqtt_client.publish("interlocking", "running")  # publish
     return mqtt_client
 
 
@@ -107,7 +107,6 @@ def check_all_ACs(logger, mqtt_client):
 
         if ACinstance.comms_status != comms_status:
             logger.error(ACinstance.ref + comms_status)
-            mqtt_client.publish("Comms", ACinstance.ref + "/" + comms_status)
             ACinstance.comms_status = comms_status
 
     return
@@ -159,10 +158,10 @@ def section_update(logger, mqtt_client):
         # TODO add in other detection modes logic i.e. treadle and track circuit
         if section.occstatus != old_occstatus:
             logger.info(sectionkey + " " + section.occstatus)
-            mqtt_client.publish("Report/Section/Occupancy/"+sectionkey, section.occstatus)
+            #mqtt_client.publish("Report/Section/Occupancy/"+sectionkey, section.occstatus)
         if section.occstatus:
             section.routeset = False
-            mqtt_client.publish("Report/Section/Route Set/" + sectionkey, section.routeset)
+            #mqtt_client.publish("Report/Section/Route Set/" + sectionkey, section.routeset)
 
 
 def interlocking(logger):
@@ -227,23 +226,20 @@ def check_points(logger, mqtt_client):
         else:
             point.detection_boolean = True
         if point.detection_status != old_detection_status or point.detection_boolean != old_detection_boolean:
-            logging.info(point.ref + " detection direction " + point.detection_status + " boolean " + str(point.detection_boolean))
-            mqtt_client.publish("Report/Point/Detection/" + point.ref, point.detection_status)
+            logging.info(point.ref + " detection direction " + point.detection_status + " boolean " +
+                         str(point.detection_boolean))
+            #mqtt_client.publish("Report/Point/Detection/" + point.ref, point.detection_status)
 
 
 def maintain_signals(logger):
     # maintain signals by sending aspect regularly to avoid timeout
     for signal in Signal.instances.values():
-        try:
-            set.set_signal(signal, Section.instances, Point.instances, logger = logger,  nextsignal = Signal.instances[signal.nextsignal])
-            comms_status = " OK"
-        except KeyError:
-            set.set_signal(signal, Section.instances, Point.instances, logger=logger)
-            comms_status = " Comms failure"
-
-        if signal.comms_status != comms_status:
-            logger.error(signal.ref + comms_status)
-            signal.comms_status = comms_status
+            try:
+                next_signal = Signal.instances[signal.nextsignal]
+            except KeyError:
+                next_signal = None
+            set.set_signal(signal, Section.instances, Point.instances, logger=logger,
+                           nextsignal=next_signal)
 
 def clear_used_routes(): #if required
     pass
@@ -313,9 +309,9 @@ def check_triggers(logger, mqtt_client):
 
 
 def check_mqtt(logger, mqtt_client):
-        while q:
-            set.set_mqtt(command=q.pop(), signals=Signal.instances, sections=Section.instances, points=Point.instances,
-                         routes=Route.instances, triggers=Trigger.instances, logger=logger, mqtt_client=mqtt_client)
+    while q:
+        set.set_from_mqtt(command=q.pop(), signals=Signal.instances, sections=Section.instances, points=Point.instances,
+                          routes=Route.instances, triggers=Trigger.instances, logger=logger, mqtt_client=mqtt_client)
     # put command actions in here
 
 
@@ -338,8 +334,18 @@ def process(logger, mqtt_client):
                               logger = logger,
                               mqtt_client = mqtt_client)
         check_mqtt(logger, mqtt_client)
-        # TODO put the MQTT update in here - better to do here than all over the place?
-        # TODO put MQTT commands in too: set points(done), set signals, set routes, set triggers?
+        set.send_status_to_mqtt(axlecounters=AxleCounter.instances,
+                                signals=Signal.instances,
+                                sections=Section.instances,
+                                plungers=Plunger.instances,
+                                points = Point.instances,
+                                routes=Route.instances,
+                                triggers=Trigger.instances,
+                                logger = logger,
+                                mqtt_client = mqtt_client)
+
+
+
 
 
 def main():

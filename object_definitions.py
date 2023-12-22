@@ -5,7 +5,7 @@ import minimalmodbus
 class AxleCounter:
     """Axle-counter object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, mode, address, ref, description, slave = None):
+    def __init__(self, mode, address, ref, description, slave):
         #Static variables
         self.mode = mode  # mode = axlecount, simple trigger or directional trigger
         self.address = address  # address
@@ -28,7 +28,7 @@ class Signal:
     def __init__(self, sigtype, address, ref, description, availableaspects,
                  directionindicator, dangerreg, cautionreg, clearreg, callingonreg,
                  bannerreg, route1reg, route2reg, route3reg, route4reg, route5reg, route6reg, doublecaution=None,
-                 nextsignal=None, board_index=0, slave=None, aspect={"danger"}, dynamic_variables = True):
+                 nextsignal=None, board_index=0, slave=None, dynamic_variables = True):
         #static variables
         self.sigtype = sigtype  # mode = Semaphore or coulour light
         self.address = address  # address
@@ -56,7 +56,7 @@ class Signal:
         if dynamic_variables: # this prevents infrastructure editor from creating these variables. useful as set
                                 # (for aspect) is not supported in json and gets translated into a list
             self.illumination = "On"  # night illumination mode
-            self.aspect = aspect  # set of current aspects
+            self.aspect = {"danger"}  # set of current aspects
             self.comms_status = ""
 
 
@@ -82,7 +82,7 @@ class Section:
 class Plunger:
     """Plunger object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, mode, address, ref, description, register, slave = None):
+    def __init__(self, mode, address, ref, description, register, slave):
         #static variables
         self.mode = mode  # mode of operation, request store or no request store.
         self.address = address  # address
@@ -99,7 +99,7 @@ class Plunger:
 class Point:
     """Point object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, mode, address, ref, description, section="", normal_coil=22, reverse_coil=23, board_index=0, slave = None):
+    def __init__(self, mode, address, ref, description, section="", normal_coil=22, reverse_coil=23, board_index=0, slave=None):
         #static variables
         self.mode = mode
         self.address = address  # address
@@ -137,7 +137,6 @@ class Route:
         # dynamic variables
         self.available = False
         self.setting = False
-        self.requested = False
 
 class Trigger:
     """Trigger object containing static and dynamic variables"""

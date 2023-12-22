@@ -1070,10 +1070,12 @@ def Add_route(root, existingref):
 
     for item in pointdict.keys():
         pointlistbox.insert(END, item)
-        if item in routedict[existingref].points.keys():
-            pointlistbox.selection_set(
-                pointlistbox.size() - 1)  #make sure that points remain selected
-
+        try:
+            if item in routedict[existingref].points.keys():
+                pointlistbox.selection_set(
+                    pointlistbox.size() - 1)  #make sure that points remain selected
+        except KeyError:
+            pass
     def choose_direction(point_ref):
 
         direction = StringVar()
@@ -1116,8 +1118,11 @@ def Add_route(root, existingref):
 
     for item in signaldict.keys():
         siglistbox.insert(END, item)
-        if item in routedict[existingref].signals.keys():
-            siglistbox.selection_set(siglistbox.size()-1) # make sure that signals with aspects set remain selected
+        try:
+            if item in routedict[existingref].signals.keys():
+                siglistbox.selection_set(siglistbox.size()-1) # make sure that signals with aspects set remain selected
+        except KeyError:
+            pass
 
 
     ttk.Label(routesetupframe, text="Route priority:").grid(column=0, row=8, sticky=W, pady=4, padx=10)
