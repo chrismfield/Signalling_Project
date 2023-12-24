@@ -548,22 +548,33 @@ def Addsignal(parent, existingref):
         sigtype = signaltype.get()
         address = signaladdress.get()
         board_index = signal_board_index.get()
-        dangerreg = dangeroutput.get()
-        cautionreg = cautionoutput.get()
-        clearreg = clearoutput.get()
-        callingonreg = callingonoutput.get()
-        bannerreg = banneroutput.get()
-        route1reg = route1output.get()
-        route2reg = route2output.get()
-        route3reg = route3output.get()
-        route4reg = route4output.get()
-        route5reg = route5output.get()
-        route6reg = route6output.get()
+        list_of_regs = []
+        checkboxvar_to_registervar_mapping = [
+                [danger, dangeroutput],
+                [caution, cautionoutput],
+                [clear, clearoutput],
+                [callingon, callingonoutput],
+                [banner, banneroutput],
+                [route1, route1output],
+                [route2, route2output],
+                [route3, route3output],
+                [route4, route4output],
+                [route5, route5output],
+                [route6, route6output]]
+        for signal_aspect in checkboxvar_to_registervar_mapping:
+            if signal_aspect[0].get() == 1:
+                print(signal_aspect[1].get())
+                list_of_regs.append(signal_aspect[1].get())
+            else:
+                list_of_regs.append(None)
         # add an instance of an signal to the list, with all the parameters:
         signaldict[(signalref.get())] = Signal(sigtype, address, ref, description,
-                                               0, 0, dangerreg, cautionreg, clearreg,
-                                               callingonreg, bannerreg, route1reg, route2reg, route3reg, route4reg,
-                                               route5reg, route6reg, board_index=board_index,
+                                               0, 0, dangerreg=list_of_regs[0], cautionreg=list_of_regs[1],
+                                               clearreg=list_of_regs[2], callingonreg=list_of_regs[3],
+                                               bannerreg=list_of_regs[4], route1reg=list_of_regs[5],
+                                               route2reg=list_of_regs[6], route3reg=list_of_regs[7],
+                                               route4reg=list_of_regs[8], route5reg=list_of_regs[9],
+                                               route6reg=list_of_regs[10], board_index=board_index,
                                                dynamic_variables=dynamic_variables) # change all to keyword args?
         signallist(parent)
         # print(signaldict[ref].dangerreg)
@@ -658,7 +669,7 @@ def Addsignal(parent, existingref):
 
     # Set the checkboxes if a valid address has been set.
     for checkvar in aspectvariables:
-        if checkvar[4].get() > 0:
+        if checkvar[4]:
             checkvar[0].set(1)
         else:
             checkvar[0].set(0)

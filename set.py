@@ -66,17 +66,28 @@ def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None):
 
         if set_aspect == "danger":
             try:
-                signal.slave.write_bit(signal.dangerreg, 1)
-                signal.slave.write_bit(signal.cautionreg, 0)
-                signal.slave.write_bit(signal.clearreg, 0)
-                signal.slave.write_bit(signal.callingonreg, 0)
-                signal.slave.write_bit(signal.bannerreg, 0)
-                signal.slave.write_bit(signal.route1reg, 0)
-                signal.slave.write_bit(signal.route2reg, 0)
-                signal.slave.write_bit(signal.route3reg, 0)
-                signal.slave.write_bit(signal.route4reg, 0)
-                signal.slave.write_bit(signal.route5reg, 0)
-                signal.slave.write_bit(signal.route6reg, 0)
+                if signal.dangerreg:
+                    signal.slave.write_bit(signal.dangerreg, 1)
+                if signal.cautionreg:
+                    signal.slave.write_bit(signal.cautionreg, 0)
+                if signal.clearreg:
+                    signal.slave.write_bit(signal.clearreg, 0)
+                if signal.callingonreg:
+                    signal.slave.write_bit(signal.callingonreg, 0)
+                if signal.bannerreg:
+                    signal.slave.write_bit(signal.bannerreg, 0)
+                if signal.route1reg:
+                    signal.slave.write_bit(signal.route1reg, 0)
+                if signal.route2reg:
+                    signal.slave.write_bit(signal.route2reg, 0)
+                if signal.route3reg:
+                    signal.slave.write_bit(signal.route3reg, 0)
+                if signal.route4reg:
+                    signal.slave.write_bit(signal.route4reg, 0)
+                if signal.route5reg:
+                    signal.slave.write_bit(signal.route5reg, 0)
+                if signal.route6reg:
+                    signal.slave.write_bit(signal.route6reg, 0)
                 comms_status = " OK"
             except OSError:
                 comms_status = " Comms failure"
@@ -107,7 +118,7 @@ def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None):
                 try:
                     signal.slave.write_bit(signal.dangerreg, 0)
                     signal.slave.write_bit(signal.cautionreg, 0)
-                    signal.slave.write_bit(signal.doublecautionreg, 0)
+                    #signal.slave.write_bit(signal.doublecautionreg, 0) # TODO fix this to work if no register for this
                     signal.slave.write_bit(signal.clearreg, 1)
                     comms_status = " OK"
                 except OSError:
@@ -124,7 +135,7 @@ def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None):
         if set_aspect == "callingon":
             try:
                 signal.slave.write_bit(signal.dangerreg, 1)
-                signal.slave.write_bit(signal.callingon, 1)
+                signal.slave.write_bit(signal.callingonreg, 1)
                 comms_status = " OK"
             except OSError:
                 comms_status = " Comms failure"
