@@ -6,16 +6,16 @@
             ],
             "dectrig": {
                 "A1": "Downcount",
-                "A2": "Upcount"
+                "A3": "Upcount"
             },
             "description": "Between level crossing and 47",
             "homesignal": [],
             "inctrig": {
                 "A1": "Upcount",
-                "A2": "Downcount"
+                "A3": "Downcount"
             },
             "instances": {},
-            "mode": 1,
+            "mode": "axlecounter",
             "occstatus": 0,
             "ref": "Q",
             "routeset": false,
@@ -24,19 +24,19 @@
         "R": {
             "conflictingsections": [],
             "dectrig": {
-                "A1": "Upcount",
+                "A3": "Downcount",
                 "A2": "Upcount"
             },
             "description": "Between 47 and 48",
             "homesignal": [
-                "47"
+                "48"
             ],
             "inctrig": {
-                "A1": "Downcount",
+                "A3": "Upcount",
                 "A2": "Downcount"
             },
             "instances": {},
-            "mode": 0,
+            "mode": "axlecounter",
             "occstatus": 0,
             "ref": "R",
             "routeset": false,
@@ -55,7 +55,7 @@
                 "A5": "Upcount"
             },
             "instances": {},
-            "mode": 0,
+            "mode": "axlecounter",
             "occstatus": 0,
             "ref": "S",
             "routeset": false,
@@ -211,7 +211,7 @@
             "cautionreg": 0,
             "clearreg": 0,
             "comms_status": "",
-            "dangerreg": 0,
+            "dangerreg": 1,
             "description": "55555",
             "directionindicator": 0,
             "doublecaution": null,
@@ -482,10 +482,10 @@
             "routes_to_cancel": [
                 "P4"
             ],
-            "routes_to_set": [],
+            "routes_to_set": ["IntoR"],
             "sections_clear": [],
             "sections_occupied": [
-                "S"
+                "Q"
             ],
             "store_request": false,
             "stored_request": false,

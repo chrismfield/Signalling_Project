@@ -101,9 +101,9 @@ def check_all_ACs(logger, mqtt_client):
             ACinstance.slave.write_register(14, 0, functioncode=6)  # register number, value
             comms_status = " OK"
 
-        except OSError:
+        except (OSError, ValueError) as error:
             ACinstance.upcount, ACinstance.downcount = 0, 0  # reset these variables to zero if no comms to avoid double counting
-            comms_status = " Comms failure"
+            comms_status = (" Comms failure " + str(error))
 
         if ACinstance.comms_status != comms_status:
             logger.error(ACinstance.ref + comms_status)
@@ -121,9 +121,9 @@ def check_all_plungers(logger):
             if plungerinstance.status:
                 logger.info(str(plungerinstance.ref) + " operated")
             comms_status = " OK"
-        except OSError:
+        except (OSError, ValueError) as error:
             plungerinstance.status = 0  # reset these variables to zero if no comms to avoid double counting
-            comms_status = " Comms failure"
+            comms_status = (" Comms failure " + str(error))
 
         if plungerinstance.comms_status != comms_status:
             logger.error(plungerinstance.ref + comms_status)
@@ -157,7 +157,7 @@ def section_update(logger, mqtt_client):
                         section.occstatus = 0
         # TODO add in other detection modes logic i.e. treadle and track circuit
         if section.occstatus != old_occstatus:
-            logger.info(sectionkey + " " + section.occstatus)
+            logger.info(sectionkey + " " + str(section.occstatus))
             #mqtt_client.publish("Report/Section/Occupancy/"+sectionkey, section.occstatus)
         if section.occstatus:
             section.routeset = False
