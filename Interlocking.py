@@ -198,7 +198,7 @@ def check_points(logger, mqtt_client):
                 detection_normal = point.slave.read_bit(point.normal_coil, 1) # read input corresponding to coil
                 detection_reverse = point.slave.read_bit(point.reverse_coil, 1) # read input corresponding to coil
                 comms_status = " OK"
-            except OSError:
+            except (OSError, ValueError) as error:
                 detection_status = "None"
                 detection_normal = False
                 detection_reverse = False

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MQTT Webpage</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.js"></script>
+
+</head>
+<body>
+
+<h1>MQTT Webpage</h1>
+
+<div id="messages"></div>
+
+<button onclick="publishMessage('Hello')">Publish Hello</button>
+<button onclick="publishMessage('World')">Publish World</button>
+
+<script>
+  // MQTT Broker connection details
+  const broker = 'test.mosquitto.org';
+  const clientId = 'webpage-client';
+
+  // MQTT client setup
+  var client = new Paho.Client(broker, Number(8080), clientId);
+
+  client.onConnectionLost = onConnectionLost;
+  client.onMessageArrived = onMessageArrived;
+
+  // Connect to the broker
+  client.connect({ onSuccess: onConnect });
+
+  function onConnect() {
+    console.log('Connected to MQTT broker');
+    // Subscribe to all messages
+    client.subscribe('#');
+  }
+
+  function onConnectionLost(responseObject) {
+    if (responseObject.errorCode !== 0) {
+      console.log('Connection lost: ' + responseObject.errorMessage);
+    }
+  }
+
+  function onMessageArrived(message) {
+    console.log('Received message: ' + message.payloadString);
+    displayMessage(message.payloadString);
+  }
+
+  function displayMessage(message) {
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.innerHTML += '<p>' + message + '</p>';
+  }
+
+  function publishMessage(message) {
+    const messageObject = new Paho.MQTT.Message(message);
+    messageObject.destinationName = 'your/topic'; // Replace with your MQTT topic
+    client.send(messageObject);
+  }
+</script>
+
+</body>
+</html>
