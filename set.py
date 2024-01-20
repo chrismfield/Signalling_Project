@@ -296,6 +296,8 @@ def set_from_mqtt(command, signals, sections, points, routes, triggers, logger, 
         triggers[command_l[2]].triggered = eval(command_payload)
     if command_l[1] == "section" and command_l[3] == "occstatus":
         sections[command_l[2]].occstatus = int(command_payload)
+        logger.info(str(command_l[2]) + " reset")
+
 
 
 def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, routes, triggers, logger, mqtt_client):

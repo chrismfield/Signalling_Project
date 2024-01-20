@@ -82,7 +82,7 @@ class Section:
 class Plunger:
     """Plunger object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, mode, address, ref, description, register, slave):
+    def __init__(self, mode, address, ref, description, register, slave=None):
         #static variables
         self.mode = mode  # mode of operation, request store or no request store.
         self.address = address  # address

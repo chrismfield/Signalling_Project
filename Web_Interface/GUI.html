@@ -11,18 +11,26 @@
 
 <h1>MQTT Webpage</h1>
 
+<button onclick="publishMessage('set/route/IntoR', 'True')">Set Route IntoR</button>
+<button onclick="publishMessage('set/route/IntoR', 'False')">Clear Route IntoR</button>
+<button onclick="publishMessage('set/route/P4', 'True')">Set Route Into P4</button>
+<button onclick="publishMessage('set/route/P4', 'False')">Clear Route Into P4</button>
+
+<button onclick="publishMessage('set/signal/48', 'danger')">Set 48 to Danger</button>
+<button onclick="publishMessage('set/signal/48', 'clear')">Set 48 to Clear</button>
+<button onclick="publishMessage('set/signal/48', 'caution')">Set 48 to Caution</button>
+
+
 <div id="messages"></div>
 
-<button onclick="publishMessage('Hello')">Publish Hello</button>
-<button onclick="publishMessage('World')">Publish World</button>
 
 <script>
   // MQTT Broker connection details
-  const broker = 'test.mosquitto.org';
+  const broker = '127.0.0.1';
   const clientId = 'webpage-client';
 
   // MQTT client setup
-  var client = new Paho.Client(broker, Number(8080), clientId);
+  var client = new Paho.Client(broker, Number(9001), clientId);
 
   client.onConnectionLost = onConnectionLost;
   client.onMessageArrived = onMessageArrived;
@@ -52,9 +60,9 @@
     messagesDiv.innerHTML += '<p>' + message + '</p>';
   }
 
-  function publishMessage(message) {
-    const messageObject = new Paho.MQTT.Message(message);
-    messageObject.destinationName = 'your/topic'; // Replace with your MQTT topic
+  function publishMessage(payload, message) {
+    const messageObject = new Paho.Message(message);
+    messageObject.destinationName = payload; // Replace with your MQTT topic
     client.send(messageObject);
   }
 </script>

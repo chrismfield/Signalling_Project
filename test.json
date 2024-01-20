@@ -1,0 +1,270 @@
+{
+    "Sections": {
+        "Q": {
+            "conflictingsections": [
+                "R"
+            ],
+            "dectrig": {
+                "A1": "Downcount",
+                "A3": "Upcount"
+            },
+            "description": "Between level crossing and 47",
+            "homesignal": [],
+            "inctrig": {
+                "A1": "Upcount",
+                "A3": "Downcount"
+            },
+            "instances": {},
+            "mode": "axlecounter",
+            "occstatus": 0,
+            "ref": "Q",
+            "routeset": false,
+            "routestatus": ""
+        },
+        "R": {
+            "conflictingsections": [],
+            "dectrig": {
+                "A3": "Downcount"
+            },
+            "description": "Between 47 and 48",
+            "homesignal": [
+                "48"
+            ],
+            "inctrig": {
+                "A3": "Upcount"
+            },
+            "instances": {},
+            "mode": "axlecounter",
+            "occstatus": 0,
+            "ref": "R",
+            "routeset": false,
+            "routestatus": ""
+        },
+        "S": {
+            "conflictingsections": [],
+            "dectrig": {},
+            "description": "Temp section for all platforms",
+            "homesignal": [
+                "48"
+            ],
+            "inctrig": {
+
+            },
+            "instances": {},
+            "mode": "axlecounter",
+            "occstatus": 0,
+            "ref": "S",
+            "routeset": false,
+            "routestatus": ""
+        }
+    },
+    "AxleCounters": {
+        "A1": {
+            "address": 1,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "After Level Crossing",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A1",
+            "reverse_coil": 23,
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        },
+        "A3": {
+            "address": 3,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "At 48 Signal",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A3",
+            "reverse_coil": 23,
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        }
+    },
+    "Signals": {
+        "48": {
+            "address": 48,
+            "availableaspects": 0,
+            "bannerreg": null,
+            "board_index": 3,
+            "callingonreg": 3005,
+            "cautionreg": 3002,
+            "clearreg": 3004,
+            "comms_status": "",
+            "dangerreg": 3001,
+            "description": "Platform home signal",
+            "directionindicator": 0,
+            "doublecaution": null,
+            "illumination": "On",
+            "instances": {},
+            "network": "network_1",
+            "nextsignal": null,
+            "ref": "48",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 1,
+            "slave": null
+        }
+    },
+    "Plungers": {
+        "P3": {
+            "address": 23,
+            "comms_status": "",
+            "description": "Shunt from Platform 4",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P3",
+            "register": 2,
+            "slave": null,
+            "status": 0
+        },
+        "P2": {
+            "address": 23,
+            "comms_status": "",
+            "description": "Shunt from Platform 3",
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "ref": "P2",
+            "register": 1,
+            "slave": null,
+            "status": 0
+        },
+        "P1": {
+            "address": 23,
+            "comms_status": "",
+            "description": "Shunt from Platform 2",
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "ref": "P1",
+            "register": 0,
+            "slave": null,
+            "status": 0
+        }
+
+    },
+    "Points": {
+    },
+    "Routes": {
+        "P4": {
+            "available": false,
+            "description": "Into P4",
+            "instances": {},
+            "mode": 0,
+            "points": {
+            },
+            "ref": "P4",
+            "requested": false,
+            "sections": [
+                "Q"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "47": [
+                    "danger",
+                    "caution",
+                    "banner",
+                    "route2",
+                    "route3",
+                    "route4"
+                ]
+            },
+            "trigger": []
+        },
+        "IntoR": {
+            "available": false,
+            "description": "Into R",
+            "instances": {},
+            "mode": 0,
+            "points": {},
+            "ref": "IntoR",
+            "sections": [
+                "R"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "caution"
+                ]
+            }
+        }
+    },
+    "Triggers": {
+        "AA": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Test",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": ["P2"
+            ],
+            "priority": 10,
+            "ref": "AA",
+            "routes_to_cancel": ["IntoR"],
+            "routes_to_set": [
+                "P4"
+            ],
+            "sections_clear": [],
+            "sections_occupied": [
+                "R"
+            ],
+            "store_request": 1,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "triggered": false
+        },
+        "BB": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Test 2 ",
+            "instances": {},
+            "lever": null,
+            "override": null,
+            "plungers": [
+                "P1"
+            ],
+            "priority": 9,
+            "ref": "BB",
+            "routes_to_cancel": [
+                "P4"
+            ],
+            "routes_to_set": [
+                "IntoR"
+            ],
+            "sections_clear": [],
+            "sections_occupied": [
+                "Q"
+            ],
+            "store_request": false,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "triggered": false
+        }
+    }
+}

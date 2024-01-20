@@ -185,10 +185,12 @@
             "callingonreg": 3005,
             "cautionreg": 3002,
             "clearreg": 3004,
+            "comms_status": "",
             "dangerreg": 3001,
             "description": "Platform home signal",
             "directionindicator": 0,
             "doublecaution": null,
+            "illumination": "On",
             "instances": {},
             "network": "network_1",
             "nextsignal": null,
@@ -230,7 +232,7 @@
             "slave": null
         },
         "61": {
-            "address": 23,
+            "address": 77,
             "availableaspects": 0,
             "bannerreg": 12,
             "board_index": 0,
@@ -258,78 +260,79 @@
         }
     },
     "Plungers": {
-        "P1": {
+        "P5": {
             "address": 21,
             "comms_status": "",
             "description": "Select Platform 2",
             "instances": {},
             "mode": 1,
             "network": "network_1",
-            "ref": "P1",
-            "register": 0,
-            "slave": null,
-            "status": 0
-        },
-        "P2": {
-            "address": 21,
-            "comms_status": "",
-            "description": "Select Platform 3",
-            "instances": {},
-            "mode": 1,
-            "network": "network_1",
-            "ref": "P2",
-            "register": 1,
-            "slave": null,
-            "status": 0
-        },
-        "P5": {
-            "address": 21,
-            "comms_status": "",
-            "description": "Select Platform 4",
-            "instances": {},
-            "mode": 1,
-            "network": "network_1",
             "ref": "P5",
-            "register": 3,
+            "register": 0,
             "slave": null,
             "status": 0
         },
         "P3": {
             "address": 23,
             "comms_status": "",
-            "description": "Exit Platform 4",
+            "description": "Shunt from Platform 4",
             "instances": {},
             "mode": 1,
             "network": "network_1",
             "ref": "P3",
-            "register": 0,
-            "slave": null,
-            "status": 0
-        },
-        "P4": {
-            "address": 22,
-            "comms_status": "",
-            "description": "Cycle Route",
-            "instances": {},
-            "mode": 1,
-            "network": "network_1",
-            "ref": "P4",
-            "register": 0,
+            "register": 2,
             "slave": null,
             "status": 0
         },
         "P6": {
             "address": 21,
             "comms_status": "",
-            "description": "Exit Yard",
+            "description": "Select Platform 3",
             "instances": {},
             "mode": 1,
             "network": "network_1",
             "ref": "P6",
+            "register": 1,
+            "slave": null,
+            "status": 0
+        },
+        "P7": {
+            "address": 21,
+            "comms_status": "",
+            "description": "Select Platform 4",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P7",
             "register": 7,
             "slave": null,
             "status": 0
+        },
+        "P2": {
+            "address": 23,
+            "comms_status": "",
+            "description": "Shunt from Platform 3",
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "ref": "P2",
+            "register": 1,
+            "slave": null,
+            "status": 0
+        },
+        "P1": {
+            "address": 23,
+            "comms_status": "",
+            "description": "Shunt from Platform 2",
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "ref": "P1",
+            "register": 0,
+            "slave": null,
+            "status": 0
         }
+
     },
     "Points": {
         "100": {
@@ -482,7 +485,9 @@
             "routes_to_cancel": [
                 "P4"
             ],
-            "routes_to_set": ["IntoR"],
+            "routes_to_set": [
+                "IntoR"
+            ],
             "sections_clear": [],
             "sections_occupied": [
                 "Q"

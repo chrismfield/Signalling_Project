@@ -1,13 +1,13 @@
-from object_definitions import AxleCounter, Signal, Point, Plunger, Section, Route, Trigger
-import minimalmodbus
-import jsons
-import set
 import logging
 from logging.handlers import RotatingFileHandler
-from custom_exceptions import *
-import os
-import time
+
+import jsons
+import minimalmodbus
 import paho.mqtt.client as mqtt
+
+import set
+from object_definitions import AxleCounter, Signal, Point, Plunger, Section, Route, Trigger
+
 q=[]
 
 dynamic_variables = True
@@ -116,7 +116,7 @@ def check_all_plungers(logger):
     """ get status from all plungers and store in their instance"""
     for plungerkey, plungerinstance in Plunger.instances.items():
         try:
-            plungerinstance.status = plungerinstance.slave.read_bit(plungerinstance.register, 1)  # register number, number of registers
+            plungerinstance.status = plungerinstance.slave.read_bit(plungerinstance.register, functioncode=1)  # register number, number of registers
             plungerinstance.slave.write_bit(plungerinstance.register, 0)  # register number,value
             if plungerinstance.status:
                 logger.info(str(plungerinstance.ref) + " operated")
@@ -271,6 +271,9 @@ def check_triggers(logger, mqtt_client):
         for expression in trigger.trigger_expressions:
             if eval(expression):
                 trigger.triggered = True
+
+        #TODO Clear Routes
+
 
         # try to set routes if triggered
         if trigger.triggered:

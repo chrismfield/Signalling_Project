@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.js"></script>
+
+</head>
+<body>
+
+
+<script>
+ // MQTT Broker connection details
+  const broker = '192.168.1.112';
+  const clientId = 'webpage-client';
+
+  // MQTT client setup
+  var client = new Paho.Client(broker, Number(9001), clientId);
+
+  client.onConnectionLost = onConnectionLost;
+  client.onMessageArrived = onMessageArrived;
+
+  // Connect to the broker
+  client.connect({ onSuccess: onConnect });
+
+  function onConnect() {
+    console.log('Connected to MQTT broker');
+    // Subscribe to all messages
+    client.subscribe('#');
+  }
+
+  function onConnectionLost(responseObject) {
+    if (responseObject.errorCode !== 0) {
+      console.log('Connection lost: ' + responseObject.errorMessage);
+    }
+  }
+
+  function onMessageArrived(message) {
+    console.log('Received message: ' + message.payloadString);
+    //displayMessage(message.payloadString); //commented out as displayMessage doesn't work. 
+  }
+
+  function displayMessage(message) { //this doesn't work as the element does not exist
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.innerHTML += '<p>' + message + '</p>';
+  }
+
+  function publishMessage(payload, message) {
+    console.log(payload, message)
+    const messageObject = new Paho.Message(message);
+    messageObject.destinationName = payload; // Replace with your MQTT topic
+    client.send(messageObject);
+  }
+ 
+ </script>
+  
+ //<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+//<script>	
+	// create buttons etc
+
+  async function getJSON() {
+      const response = await fetch("default.json");
+      const json = await response.json();
+    console.log(json);
+    return json;
+  }
+
+
+
+const jsonData = getJSON();
+console.log(jsonData)
+
+
+// Function to create buttons dynamically within a group
+function createButtonsInSection(sectionName, data) {
+  const section = document.createElement('section');
+  const heading = document.createElement('h2');
+  heading.textContent = sectionName;
+  section.appendChild(heading);
+  console.log(data);
+
+  for (const [key, value] of Object.entries(data)) {
+
+    if (sectionName == "Routes") {
+      const setButton = document.createElement('button');
+      const clearButton = document.createElement('button');
+      setButton.textContent = ("Set "+key);
+      setButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
+      clearButton.textContent = ("Clear "+key);
+      clearButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
+      setButton.addEventListener("click", function() {publishMessage('set/route/'+key, 'True');});
+      clearButton.addEventListener("click", function() {publishMessage('set/route/'+key, 'False');});
+      section.appendChild(setButton);
+      section.appendChild(clearButton);
+    } else if (sectionName == "Points"){
+      const normalButton = document.createElement('button');
+      const reverseButton = document.createElement('button');
+      normalButton.textContent = ("Normal "+key);
+      normalButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
+      reverseButton.textContent = ("Reverse "+key);
+      reverseButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
+      normalButton.addEventListener("click", function() {publishMessage('set/point/'+key, 'normal');});
+      reverseButton.addEventListener("click", function() {publishMessage('set/point/'+key, 'reverse');});
+      section.appendChild(normalButton);
+      section.appendChild(reverseButton);
+    } else if (sectionName == "Sections"){
+      const clearButton = document.createElement('button');
+      clearButton.textContent = ("Clear "+key);
+      clearButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
+      clearButton.addEventListener("click", function() {publishMessage('set/section/'+key+'/occstatus', '0');});
+      section.appendChild(clearButton);
+    } else if (sectionName == "Signals"){
+        console.log(value);
+        if (value.clearreg) {
+        const clearButton = document.createElement('button');
+        clearButton.textContent = (key+" Clear");
+        clearButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
+        clearButton.addEventListener("click", function() {publishMessage('set/signal/'+key, 'clear');});
+        section.appendChild(clearButton);
+        } 
+        if (value.dangerreg) {
+        const dangerButton = document.createElement('button');
+        dangerButton.textContent = (key+" Danger");
+        dangerButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
+        dangerButton.addEventListener("click", function() {publishMessage('set/signal/'+key, 'danger');});
+        section.appendChild(dangerButton);
+        }
+        if (value.cautionreg) {
+        const cautionButton = document.createElement('button');
+        cautionButton.textContent = (key+" Caution");
+        cautionButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
+        cautionButton.addEventListener("click", function() {publishMessage('set/signal/'+key, 'caution');});
+        section.appendChild(cautionButton);
+        }
+        if (value.callingonreg) {
+        const callingonButton = document.createElement('button');
+        callingonButton.textContent = (key+" callingon");
+        callingonButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
+        callingonButton.addEventListener("click", function() {publishMessage('set/signal/'+key, 'callingon');});
+        section.appendChild(callingonButton);
+        }
+    }
+
+    //button.onclick = "publishMessage('set/route/IntoR', 'True')";
+	  //console.log(setButton.id);
+    // You can add event listeners or other custom logic here
+
+    section.appendChild(document.createElement('br')); // Add line break after each button
+  }
+
+  document.body.appendChild(section);
+}
+
+function gotJSON(jsonData){
+
+	// Create buttons for Signals, Points, and Routes in separate sections
+	createButtonsInSection('Signals', jsonData.Signals);
+	createButtonsInSection('Points', jsonData.Points);
+	createButtonsInSection('Routes', jsonData.Routes);
+  createButtonsInSection('Sections', jsonData.Sections);
+	}
+
+$.getJSON("default.json", function(json) {
+    console.log(json); // this will show the info it in firebug console
+    gotJSON(json);
+	})
+
+</script>
+
+</body>
+</html>
