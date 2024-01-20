@@ -152,6 +152,9 @@
     "Signals": {
         "47": {
             "address": 47,
+            "aspect": [
+                "danger"
+            ],
             "availableaspects": 0,
             "bannerreg": 0,
             "board_index": 2,
@@ -179,6 +182,9 @@
         },
         "48": {
             "address": 48,
+            "aspect": [
+                "danger"
+            ],
             "availableaspects": 0,
             "bannerreg": null,
             "board_index": 3,
@@ -206,6 +212,9 @@
         },
         "55": {
             "address": 55,
+            "aspect": [
+                "danger"
+            ],
             "availableaspects": 0,
             "bannerreg": 0,
             "board_index": 0,
@@ -233,6 +242,9 @@
         },
         "61": {
             "address": 77,
+            "aspect": [
+                "danger"
+            ],
             "availableaspects": 0,
             "bannerreg": 12,
             "board_index": 0,
@@ -332,7 +344,6 @@
             "slave": null,
             "status": 0
         }
-
     },
     "Points": {
         "100": {
@@ -442,57 +453,53 @@
         }
     },
     "Triggers": {
-        "AA": {
-            "conditions": [
-                "True"
-            ],
-            "description": "Test",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P5"
-            ],
-            "priority": 10,
-            "ref": "AA",
-            "routes_to_cancel": [],
-            "routes_to_set": [
-                "P4"
-            ],
-            "sections_clear": [],
-            "sections_occupied": [
-                "R"
-            ],
-            "store_request": 1,
-            "stored_request": false,
-            "timer": null,
-            "trigger_expressions": [],
-            "triggered": false
-        },
         "BB": {
             "conditions": [
                 "True"
             ],
-            "description": "Test 2 ",
+            "description": "Trigger Into R",
             "instances": {},
             "lever": null,
-            "override": null,
+            "override": false,
             "plungers": [
                 "P1"
             ],
             "priority": 9,
             "ref": "BB",
-            "routes_to_cancel": [
-                "P4"
-            ],
+            "routes_to_cancel": [],
             "routes_to_set": [
                 "IntoR"
             ],
-            "sections_clear": [],
+            "sections_clear": null,
             "sections_occupied": [
                 "Q"
             ],
-            "store_request": false,
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "triggered": false
+        },
+        "CC": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Cancel Into R",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P3"
+            ],
+            "priority": 0,
+            "ref": "CC",
+            "routes_to_cancel": [
+                "IntoR"
+            ],
+            "routes_to_set": [],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],

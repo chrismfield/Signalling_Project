@@ -70,6 +70,7 @@ def loadlayoutjson(logger, mqtt_client):
         Signal.instances[x] = jsons.load(jsonsignaldict[x], Signal)
         Signal.instances[x].slave = minimalmodbus.Instrument(
             config["network_ports"][Signal.instances[x].network], Signal.instances[x].address)
+        Signal.instances[x].aspect = {"danger"} #convert aspect from dictionary to set following deserialisation.
     for x in jsonplungerdict.keys():
         Plunger.instances[x] = jsons.load(jsonplungerdict[x], Plunger)
         Plunger.instances[x].slave = minimalmodbus.Instrument(
@@ -255,13 +256,15 @@ def check_triggers(logger, mqtt_client):
             if Plunger.instances[plunger].status:
                 trigger.triggered = True
         # check if triggered by section occupancy:
-        for trigger_section in trigger.sections_occupied:
-            if Section.instances[trigger_section].occstatus > 0:
-                trigger.triggered = True
+        if trigger.sections_occupied:
+            for trigger_section in trigger.sections_occupied:
+                if Section.instances[trigger_section].occstatus > 0:
+                    trigger.triggered = True
         # check if triggered by section vacancy:
-        for trigger_section_clear in trigger.sections_clear:
-            if Section.instances[trigger_section_clear].occstatus == 0:
-                trigger.triggered = True
+        if trigger.sections_clear:
+            for trigger_section_clear in trigger.sections_clear:
+                if Section.instances[trigger_section_clear].occstatus == 0:
+                    trigger.triggered = True
         # check if triggered by stored request:
         if trigger.stored_request:
             trigger.triggered = True
@@ -272,29 +275,41 @@ def check_triggers(logger, mqtt_client):
             if eval(expression):
                 trigger.triggered = True
 
-        #TODO Clear Routes
-
 
         # try to set routes if triggered
         if trigger.triggered:
             logging.debug(trigger.ref + " triggered")
             full_route_ok = False
-            for route in trigger.routes_to_set:
-                # test if full route can be set
-                if set.check_route_available(Route.instances[route],
-                                             sections = Section.instances,
-                                             points = Point.instances):
-                    full_route_ok = True
-                else:
-                    full_route_ok = False
-                    # store trigger if not possible to execute:
-                    if trigger.store_request:
-                        if not trigger.stored_request:
-                            trigger.stored_request = True
-                            logging.info(trigger.ref + " trigger stored")
-                    break
+
+            if trigger.routes_to_set:
+                for route in trigger.routes_to_set:
+                    # test if full route can be set
+                    if set.check_route_available(Route.instances[route],
+                                                 sections = Section.instances,
+                                                 points = Point.instances):
+                        full_route_ok = True
+                    else:
+                        full_route_ok = False
+                        # store trigger if not possible to execute:
+                        if trigger.store_request:
+                            if not trigger.stored_request:
+                                trigger.stored_request = True
+                                logging.info(trigger.ref + " trigger stored")
+                        else:
+                            trigger.triggered = False
+                        break
+            else:
+                full_route_ok = True
 
             if full_route_ok:
+                for route in trigger.routes_to_cancel:
+                    set.clear_route(Route.instances[route],
+                                    sections=Section.instances,
+                                    points=Point.instances,
+                                    signals=Signal.instances,
+                                    logger=logger,
+                                    mqtt_client=mqtt_client)
+
                 for route in trigger.routes_to_set:
                     set.set_route(Route.instances[route],
                                   sections = Section.instances,
@@ -302,7 +317,7 @@ def check_triggers(logger, mqtt_client):
                                   signals = Signal.instances,
                                   logger = logger,
                                   mqtt_client = mqtt_client)
-                    trigger.triggered = False
+                trigger.triggered = False
                 logging.info(trigger.ref + " triggered and set")
 
         pass # set route
