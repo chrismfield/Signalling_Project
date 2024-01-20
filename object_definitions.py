@@ -137,6 +137,7 @@ class Route:
         # dynamic variables
         self.available = False
         self.setting = False
+        self.set = False
 
 class Trigger:
     """Trigger object containing static and dynamic variables"""

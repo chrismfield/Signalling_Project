@@ -256,6 +256,7 @@ def check_triggers(logger, mqtt_client):
             if Plunger.instances[plunger].status:
                 trigger.triggered = True
         # check if triggered by section occupancy:
+        # TODO Put in ARS switch
         if trigger.sections_occupied:
             for trigger_section in trigger.sections_occupied:
                 if Section.instances[trigger_section].occstatus > 0:

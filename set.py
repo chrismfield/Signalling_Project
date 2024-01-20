@@ -260,7 +260,7 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
             # set signal for that section in accordance with route signals to set
             for signal, aspects in route.signals.items():
                 for aspect in aspects:
-                    set_signal(signals[signal], sections=sections, points=points, logger=logger, aspect=aspect)
+                    set_signal(signals[signal], sections=sections, points=points, logger=logger, aspect=aspect, send_commands = False)
             # clear trigger once route fully set
             route.set = True
             route.setting = False
