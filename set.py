@@ -5,35 +5,36 @@ def set_point(point, direction, sections, logger, mqtt_client):
     if sections[point.section].occstatus:
         logger.critical("Cannot set points when section is occupied")
         raise InterlockingError("Cannot set points when section is occupied")
+    elif sections[point.section].routeset:
+        logger.critical("Cannot set points when route is set through section")
+        raise InterlockingError("Cannot set points when route is set through section")
+    elif not point.unlocked:
+        logger.error("Trying to set points when locked")
     else:
-        if sections[point.section].routeset:
-            logger.critical("Cannot set points when route is set through section")
-            raise InterlockingError("Cannot set points when route is set through section")
-        # TODO implement point locking
-        else:
-            comms_status = "no direction set"
-            point.set_direction = direction
-            if direction == "normal":
-                try:
-                    point.slave.write_bit(point.reverse_coil, 0)
-                    point.slave.write_bit(point.normal_coil, 1)
-                    comms_status = " OK"
-                    logger.info(point.ref + " set normal")
-                except (OSError, ValueError) as error:
-                    comms_status = (" Comms failure " + str(error))
-            if direction == "reverse":
-                try:
-                    point.slave.write_bit(point.normal_coil, 0)
-                    point.slave.write_bit(point.reverse_coil, 1)
-                    comms_status = " OK"
-                    logger.info(point.ref + " set reverse")
-                except (OSError, ValueError) as error:
-                    comms_status = (" Comms failure " + str(error))
+        comms_status = "no direction set"
+        point.set_direction = direction
+        if direction == "normal":
+            try:
+                point.slave.write_bit(point.reverse_coil, 0)
+                point.slave.write_bit(point.normal_coil, 1)
+                comms_status = " OK"
+                #logger.info(point.ref + " set normal")
+            except (OSError, ValueError) as error:
+                comms_status = (" Comms failure " + str(error))
+        if direction == "reverse":
+            try:
+                point.slave.write_bit(point.normal_coil, 0)
+                point.slave.write_bit(point.reverse_coil, 1)
+                comms_status = " OK"
+                #logger.info(point.ref + " set reverse")
+            except (OSError, ValueError) as error:
+                comms_status = (" Comms failure " + str(error))
 
-            if point.comms_status != comms_status:
-                logger.error(point.ref + comms_status)
-                point.comms_status = comms_status
-            logger.info(point.ref + "set direction: " + direction)
+        if point.comms_status != comms_status:
+            logger.error(point.ref + comms_status)
+            point.comms_status = comms_status
+        else:
+            logger.info(point.ref + " set direction: " + direction)
 
 def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None, send_commands = True): #arguments are signal object and aspect as string
     main_proceed_aspects = ["clear", "caution", "doublecaution"]

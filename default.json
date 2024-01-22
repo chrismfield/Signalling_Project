@@ -342,7 +342,7 @@
     },
     "Points": {
         "100": {
-            "address": 50,
+            "address": 100,
             "board_index": 0,
             "comms_status": "",
             "description": "Points Platform 2/3",
@@ -361,7 +361,7 @@
             "unlocked": true
         },
         "300": {
-            "address": 52,
+            "address": 100,
             "board_index": 1,
             "comms_status": "",
             "description": "Points Platform 3/4",
@@ -377,7 +377,7 @@
             "section": "Q",
             "set_direction": "",
             "slave": null,
-            "unlocked": false
+            "unlocked": true
         },
         "150": {
             "address": 44,

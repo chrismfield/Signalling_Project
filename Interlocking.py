@@ -159,10 +159,8 @@ def section_update(logger, mqtt_client):
         # TODO add in other detection modes logic i.e. treadle and track circuit
         if section.occstatus != old_occstatus:
             logger.info(sectionkey + " " + str(section.occstatus))
-            #mqtt_client.publish("Report/Section/Occupancy/"+sectionkey, section.occstatus)
         if section.occstatus:
             section.routeset = False
-            #mqtt_client.publish("Report/Section/Route Set/" + sectionkey, section.routeset)
 
 
 def interlocking(logger):
@@ -196,8 +194,8 @@ def check_points(logger, mqtt_client):
         old_detection_boolean = point.detection_boolean
         if point.detection_mode:
             try:
-                detection_normal = point.slave.read_bit(point.normal_coil, 1) # read input corresponding to coil
-                detection_reverse = point.slave.read_bit(point.reverse_coil, 1) # read input corresponding to coil
+                detection_normal = point.slave.read_bit(point.normal_coil, 2) # read input corresponding to coil
+                detection_reverse = point.slave.read_bit(point.reverse_coil, 2) # read input corresponding to coil
                 comms_status = " OK"
             except (OSError, ValueError) as error:
                 detection_status = "None"
@@ -217,7 +215,7 @@ def check_points(logger, mqtt_client):
 
             else:
                 point.detection_boolean = False
-                point.detection_status = ""
+                point.detection_status = "None"
                 for home_signal in Section.instances[point.section].homesignal:
                     set.set_signal(Signal.instances[home_signal], Section.instances, Point.instances, logger=logger, aspect="danger")
 
@@ -226,10 +224,9 @@ def check_points(logger, mqtt_client):
                 point.comms_status = comms_status
         else:
             point.detection_boolean = True
-        if point.detection_status != old_detection_status or point.detection_boolean != old_detection_boolean:
-            logging.info(point.ref + " detection direction " + point.detection_status + " boolean " +
+        if (point.detection_status != old_detection_status) or (point.detection_boolean != old_detection_boolean):
+            logger.info(point.ref + " detection direction " + point.detection_status + " boolean " +
                          str(point.detection_boolean))
-            #mqtt_client.publish("Report/Point/Detection/" + point.ref, point.detection_status)
 
 
 def maintain_signals(logger):
