@@ -61,6 +61,7 @@ def loadlayoutjson(logger, mqtt_client):
     # those assets
     for x in jsonsectiondict.keys():
         Section.instances[x] = jsons.load(jsonsectiondict[x], Section)
+        Section.instances[x].previousoccstatus = 0
     for x in jsonACdict.keys():
         AxleCounter.instances[x] = jsons.load(jsonACdict[x], AxleCounter)
         # create modbus slave object for each Axlecounter instance:
@@ -165,13 +166,23 @@ def section_update(logger, mqtt_client):
 
 def interlocking(logger):
     """Set all protecting signals to danger and secure points and routes as required"""
+    def set_protecting_signals(section):
+        # for each homesignal in each section set signal to danger:
+        for homesignal in section.homesignal:
+            if Signal.instances[homesignal].aspect != {"callingon"}:
+                Signal.instances[homesignal].aspect = {"danger"}
+    def clear_calling_on(section):
+        for homesignal in section.homesignal:
+            Signal.instances[homesignal].aspect = {"danger"}
     # for each section:
     for sectionkey, section in Section.instances.items():
         # if section has any axles:
         if section.occstatus > 0:
-            # for each homesignal in each section set signal to danger:
-            for homesignal in section.homesignal:
-                Signal.instances[homesignal].aspect = {"danger"}
+            set_protecting_signals(section)
+        # if section count has increased, clear callingon signal
+        if section.occcstatus > section.previousoccstatus:
+            clear_calling_on(section)
+        section.previousoccstatus = section.occstatus
         #if section has any axles or route is set through section:
         if section.occstatus > 0 or section.routeset == True:
             #for every point, lock if it is in this occupied/route-set section:
@@ -239,8 +250,9 @@ def maintain_signals(logger):
             set.set_signal(signal, Section.instances, Point.instances, logger=logger,
                            nextsignal=next_signal)
 
-def clear_used_routes(): #if required
-    pass
+def clear_used_routes(): # only required for calling on signals
+    for section in Section.instances:
+        pass
 
 
 def check_triggers(logger, mqtt_client):
@@ -342,7 +354,7 @@ def process(logger, mqtt_client):
         check_triggers(logger, mqtt_client)
         # iterate through setting routes
         for route in Route.instances.values():
-            if route.set == "setting":
+            if route.setting:
                 set.set_route(route,
                               sections = Section.instances,
                               points = Point.instances,
