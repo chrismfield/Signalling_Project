@@ -239,7 +239,7 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
     # check route is clear to set
     if check_route_available(route, points, sections):
         route.setting = True
-        route.set = "setting"
+        #route.set = "setting" # not required?
         # set points - move to route setting iteration?
         points_detected = False
         for point_ref, direction in route.points.items():
@@ -263,7 +263,7 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
                 for aspect in aspects:
                     set_signal(signals[signal], sections=sections, points=points, logger=logger, aspect=aspect, send_commands = False)
             # clear trigger once route fully set
-            route.set = True
+            #route.set = True # not required?
             route.setting = False
     else:
         return "route not available"

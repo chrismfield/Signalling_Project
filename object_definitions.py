@@ -5,7 +5,7 @@ import minimalmodbus
 class AxleCounter:
     """Axle-counter object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, mode, address, ref, description, slave):
+    def __init__(self, mode, address, ref, description, slave=None):
         #Static variables
         self.mode = mode  # mode = axlecount, simple trigger or directional trigger
         self.address = address  # address
@@ -77,6 +77,7 @@ class Section:
         self.occstatus = 0  # occupation status
         self.routeset = False #set to true if route is set through this section
         self.routestatus = ""  # availability status
+        self.previousoccstatus = 0
 
 
 class Plunger:
