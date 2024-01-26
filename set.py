@@ -218,14 +218,15 @@ def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None, 
     if send_commands:
         send_aspect_commands()
 
-def check_route_available(route, points, sections):
+def check_route_available(route, points, sections, sections_to_cancel = []):
     for route_section in route.sections:
-        if sections[route_section].routeset:
+        # exclude sections_to_cancel from routeset sections
+        if sections[route_section].routeset and (sections[route_section].ref not in sections_to_cancel):
             return False
         if sections[route_section].occstatus:
             return False # don't set if route is occupied
         for section in sections[route_section].conflictingsections:
-            if sections[section].routeset:
+            if sections[section].routeset and (sections[route_section] not in sections_to_cancel):
                 return False
         for section in sections[route_section].conflictingsections:
             if sections[section].occstatus:
@@ -238,19 +239,21 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
 
     # check route is clear to set
     if check_route_available(route, points, sections) or route.setting:
-        route.setting = True
+
         #route.set = "setting" # not required?
         # set points - move to route setting iteration?
         points_detected = False
-        for point_ref, direction in route.points.items():
-            set_point(points[point_ref], direction, sections, logger, mqtt_client)
-            #check if all points are set
-            if points[point_ref].detection_boolean:
-                points_detected = True
-            else:
-                points_detected = False
-                #this also prevents next points setting until previous points detected
-                break
+        if not route.setting: #don't try to set the points once the section has been routeset
+            for point_ref, direction in route.points.items():
+                set_point(points[point_ref], direction, sections, logger, mqtt_client)
+                #check if all points are set
+                if points[point_ref].detection_boolean:
+                    points_detected = True
+                else:
+                    points_detected = False
+                    #this also prevents next points setting until previous points detected
+                    break
+        route.setting = True
         # set section.routeset when route is setting or set
         for section in route.sections:
             sections[section].routeset = True

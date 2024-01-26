@@ -256,6 +256,14 @@ def clear_used_routes(): # only required for calling on signals
 
 
 def check_triggers(logger, mqtt_client):
+    def sections_to_cancel(trigger):
+        """function to return a list of sections to cancel from a trigger with routes to cancel"""
+        sections_to_cancel_list = []
+        for route in trigger.routes_to_cancel:
+            for section in Route.instances[route].sections:
+                sections_to_cancel_list.append(section)
+        return sections_to_cancel_list
+
     for trigger in sorted(Trigger.instances.values(), key=lambda x: x.priority):
         #check all conditions are true and continue to next trigger if not
         if not all([eval(condition) for condition in trigger.conditions]):
@@ -296,7 +304,8 @@ def check_triggers(logger, mqtt_client):
                     # test if full route can be set
                     if set.check_route_available(Route.instances[route],
                                                  sections = Section.instances,
-                                                 points = Point.instances):
+                                                 points = Point.instances,
+                                                 sections_to_cancel = sections_to_cancel(trigger)):
                         full_route_ok = True
                     else:
                         full_route_ok = False
@@ -329,8 +338,6 @@ def check_triggers(logger, mqtt_client):
                                   mqtt_client = mqtt_client)
                 trigger.triggered = False
                 logging.info(trigger.ref + " triggered and set")
-
-        pass # set route
 
     # clear all plungers requests after checking all triggers:
     set.set_plungers_clear(Plunger.instances)

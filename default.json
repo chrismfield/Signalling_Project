@@ -511,7 +511,7 @@
             "normal_coil": 21,
             "ref": "100",
             "reverse_coil": 22,
-            "section": "Q",
+            "section": "S",
             "set_direction": "",
             "slave": null,
             "unlocked": true
@@ -530,7 +530,7 @@
             "normal_coil": 1021,
             "ref": "300",
             "reverse_coil": 1022,
-            "section": "Q",
+            "section": "S",
             "set_direction": "",
             "slave": null,
             "unlocked": true
@@ -629,7 +629,11 @@
             ],
             "set": false,
             "setting": false,
-            "signals": {}
+            "signals": {
+                "46": [
+                    "clear"
+                ]
+            }
         },
         "48intoP2unocc": {
             "available": false,
@@ -1098,31 +1102,6 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
-            "store_request": 0,
-            "stored_request": false,
-            "timer": null,
-            "trigger_expressions": [],
-            "triggered": false
-        },
-        "Temp": {
-            "conditions": [
-                "True"
-            ],
-            "description": "Temp",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [],
-            "priority": 20,
-            "ref": "Temp",
-            "routes_to_cancel": [],
-            "routes_to_set": [
-                "47IntoR"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [
-                "Q"
-            ],
             "store_request": 0,
             "stored_request": false,
             "timer": null,
