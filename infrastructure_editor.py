@@ -84,7 +84,7 @@ def AddSection(root, existingref):
 
     sectionref = StringVar()  # variable for section reference
     description = StringVar()  # variable for description
-    mode = IntVar()
+    mode = StringVar()
     sectionref.set(existingref)
 
     try:
@@ -102,10 +102,10 @@ def AddSection(root, existingref):
                                                                         pady=4)  # sectionref entry
 
     ttk.Label(sectionsetupframe, text="Section mode:").grid(column=0, row=2, sticky=W, padx=10, pady=10)
-    Radiobutton(sectionsetupframe, text="Track Circuit", variable=mode, value=0).grid(column=1, row=2, sticky=W)
-    Radiobutton(sectionsetupframe, text="Axle Counter", variable=mode, value=1).grid(column=2, row=2, sticky=W)
-    Radiobutton(sectionsetupframe, text="Latching", variable=mode, value=2).grid(column=3, row=2, sticky=W)
-    Radiobutton(sectionsetupframe, text="RFID Tracking", variable=mode, value=3).grid(column=4, row=2, sticky=W)
+    Radiobutton(sectionsetupframe, text="Track Circuit", variable=mode, value="track circuit").grid(column=1, row=2, sticky=W)
+    Radiobutton(sectionsetupframe, text="Axle Counter", variable=mode, value="axlecounter").grid(column=2, row=2, sticky=W)
+    Radiobutton(sectionsetupframe, text="Latching", variable=mode, value="latching").grid(column=3, row=2, sticky=W)
+    Radiobutton(sectionsetupframe, text="RFID Tracking", variable=mode, value="RFID tracking").grid(column=4, row=2, sticky=W)
 
     ttk.Label(sectionsetupframe, text="Arrival triggers:").grid(column=0, row=3, sticky=W, pady=4, padx=10)
     incframe = ttk.Frame(sectionsetupframe)

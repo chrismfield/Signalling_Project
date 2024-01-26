@@ -237,7 +237,7 @@ def check_route_available(route, points, sections):
 def set_route(route, sections, points, signals, logger, mqtt_client):
 
     # check route is clear to set
-    if check_route_available(route, points, sections):
+    if check_route_available(route, points, sections) or route.setting:
         route.setting = True
         #route.set = "setting" # not required?
         # set points - move to route setting iteration?

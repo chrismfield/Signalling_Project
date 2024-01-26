@@ -1,22 +1,21 @@
 {
     "Sections": {
         "Q": {
-            "conflictingsections": [
-                "R"
-            ],
+            "conflictingsections": [],
             "dectrig": {
                 "A1": "Downcount",
-                "A3": "Upcount"
+                "A2": "Upcount"
             },
             "description": "Between level crossing and 47",
             "homesignal": [],
             "inctrig": {
                 "A1": "Upcount",
-                "A3": "Downcount"
+                "A2": "Downcount"
             },
             "instances": {},
             "mode": "axlecounter",
             "occstatus": 0,
+            "previousoccstatus": 0,
             "ref": "Q",
             "routeset": false,
             "routestatus": ""
@@ -24,20 +23,28 @@
         "R": {
             "conflictingsections": [],
             "dectrig": {
-                "A3": "Downcount",
-                "A2": "Upcount"
+                "A2": "Downcount",
+                "A3": "Upcount",
+                "A4": "Downcount"
             },
             "description": "Between 47 and 48",
             "homesignal": [
-                "48"
+                "47",
+                "42",
+                "43",
+                "44",
+                "45",
+                "46"
             ],
             "inctrig": {
-                "A3": "Upcount",
-                "A2": "Downcount"
+                "A2": "Upcount",
+                "A3": "Downcount",
+                "A4": "Upcount"
             },
             "instances": {},
             "mode": "axlecounter",
             "occstatus": 0,
+            "previousoccstatus": 0,
             "ref": "R",
             "routeset": false,
             "routestatus": ""
@@ -45,18 +52,19 @@
         "S": {
             "conflictingsections": [],
             "dectrig": {
-                "A6": "Downcount"
+                "A3": "Downcount"
             },
             "description": "Temp section for all platforms",
             "homesignal": [
                 "48"
             ],
             "inctrig": {
-                "A5": "Upcount"
+                "A3": "Upcount"
             },
             "instances": {},
             "mode": "axlecounter",
             "occstatus": 0,
+            "previousoccstatus": 0,
             "ref": "S",
             "routeset": false,
             "routestatus": ""
@@ -150,7 +158,7 @@
             "illumination": "On",
             "instances": {},
             "network": "network_1",
-            "nextsignal": null,
+            "nextsignal": "48",
             "ref": "47",
             "route1reg": null,
             "route2reg": null,
@@ -180,12 +188,12 @@
             "illumination": "On",
             "instances": {},
             "network": "network_1",
-            "nextsignal": "47",
+            "nextsignal": null,
             "ref": "48",
             "route1reg": null,
-            "route2reg": null,
-            "route3reg": null,
-            "route4reg": null,
+            "route2reg": 3007,
+            "route3reg": 3008,
+            "route4reg": 3009,
             "route5reg": null,
             "route6reg": null,
             "sigtype": 1,
@@ -300,7 +308,7 @@
             "illumination": "On",
             "instances": {},
             "network": "network_1",
-            "nextsignal": null,
+            "nextsignal": "48",
             "ref": "45",
             "route1reg": null,
             "route2reg": null,
@@ -318,19 +326,19 @@
             ],
             "availableaspects": 0,
             "bannerreg": null,
-            "board_index": 0,
+            "board_index": 1,
             "callingonreg": null,
-            "cautionreg": 2,
-            "clearreg": 4,
+            "cautionreg": 1002,
+            "clearreg": 1004,
             "comms_status": "",
-            "dangerreg": 1,
+            "dangerreg": 1001,
             "description": "46 Yard Exit",
             "directionindicator": 0,
             "doublecaution": null,
             "illumination": "On",
             "instances": {},
             "network": "network_1",
-            "nextsignal": null,
+            "nextsignal": "48",
             "ref": "46",
             "route1reg": null,
             "route2reg": null,
@@ -448,6 +456,42 @@
             "network": "network_1",
             "ref": "P12",
             "register": 42,
+            "slave": null,
+            "status": 0
+        },
+        "P8": {
+            "address": 22,
+            "comms_status": "",
+            "description": "Select Platform 2",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P8",
+            "register": 0,
+            "slave": null,
+            "status": 0
+        },
+        "P9": {
+            "address": 22,
+            "comms_status": "",
+            "description": "Select Platform 3",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P9",
+            "register": 1,
+            "slave": null,
+            "status": 0
+        },
+        "P10": {
+            "address": 22,
+            "comms_status": "",
+            "description": "Select Platform 4",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P10",
+            "register": 7,
             "slave": null,
             "status": 0
         }
@@ -767,8 +811,7 @@
         },
         "47toP3": {
             "conditions": [
-                "Point.instances[\"300\"].detection_status == \"Reverse\"",
-                "Point.instances[\"300\"].detection_status == \"Normal\""
+                "True"
             ],
             "description": "47 to Plat 2 based on Q occupancy",
             "instances": {},
@@ -796,8 +839,7 @@
         },
         "47toP4": {
             "conditions": [
-                "Point.instances[\"100\"].detection_status == \"Reverse\"",
-                "Point.instances[\"300\"].detection_status == \"Reverse\""
+                "True"
             ],
             "description": "47 to Plat 4 based on Q occupancy",
             "instances": {},
@@ -881,11 +923,23 @@
             "lever": null,
             "override": false,
             "plungers": [
-                "P5"
+                "P5",
+                "P8"
             ],
             "priority": 5,
             "ref": "RintoP2",
-            "routes_to_cancel": [],
+            "routes_to_cancel": [
+                "P4occ",
+                "47IntoR",
+                "48intoP4unocc",
+                "45intoR",
+                "46intoR",
+                "48intoP2unocc",
+                "48intoP3(unocc)",
+                "P2shunt",
+                "P3shunt",
+                "P4shunt"
+            ],
             "routes_to_set": [
                 "48intoP2occ"
             ],
@@ -906,13 +960,27 @@
             "lever": null,
             "override": false,
             "plungers": [
-                "P6"
+                "P6",
+                "P9"
             ],
             "priority": 5,
             "ref": "RintoP3",
-            "routes_to_cancel": [],
+            "routes_to_cancel": [
+                "P4occ",
+                "47IntoR",
+                "48intoP4unocc",
+                "45intoR",
+                "46intoR",
+                "48intoP2unocc",
+                "48intoP2occ",
+                "48intoP3occ",
+                "48intoP3(unocc)",
+                "P2shunt",
+                "P3shunt",
+                "P4shunt"
+            ],
             "routes_to_set": [
-                "48intoP2occ"
+                "48intoP3occ"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -931,11 +999,25 @@
             "lever": null,
             "override": false,
             "plungers": [
-                "P7"
+                "P7",
+                "P10"
             ],
             "priority": 5,
             "ref": "RintoP4",
-            "routes_to_cancel": [],
+            "routes_to_cancel": [
+                "P4occ",
+                "47IntoR",
+                "48intoP4unocc",
+                "45intoR",
+                "46intoR",
+                "48intoP2unocc",
+                "48intoP2occ",
+                "48intoP3occ",
+                "48intoP3(unocc)",
+                "P2shunt",
+                "P3shunt",
+                "P4shunt"
+            ],
             "routes_to_set": [
                 "48intoP4unocc"
             ],
@@ -985,11 +1067,9 @@
             ],
             "priority": 5,
             "ref": "ShuntP3",
-            "routes_to_cancel": [
-                "P3shunt"
-            ],
+            "routes_to_cancel": [],
             "routes_to_set": [
-                "P4shunt"
+                "P3shunt"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1018,6 +1098,31 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "triggered": false
+        },
+        "Temp": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Temp",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [],
+            "priority": 20,
+            "ref": "Temp",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "47IntoR"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [
+                "Q"
+            ],
             "store_request": 0,
             "stored_request": false,
             "timer": null,

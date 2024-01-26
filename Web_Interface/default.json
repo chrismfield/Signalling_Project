@@ -1,22 +1,21 @@
 {
     "Sections": {
         "Q": {
-            "conflictingsections": [
-                "R"
-            ],
+            "conflictingsections": [],
             "dectrig": {
                 "A1": "Downcount",
-                "A3": "Upcount"
+                "A2": "Upcount"
             },
             "description": "Between level crossing and 47",
             "homesignal": [],
             "inctrig": {
                 "A1": "Upcount",
-                "A3": "Downcount"
+                "A2": "Downcount"
             },
             "instances": {},
-            "mode": "axlecounter",
+            "mode": 1,
             "occstatus": 0,
+            "previousoccstatus": 0,
             "ref": "Q",
             "routeset": false,
             "routestatus": ""
@@ -24,20 +23,28 @@
         "R": {
             "conflictingsections": [],
             "dectrig": {
-                "A3": "Downcount",
-                "A2": "Upcount"
+                "A2": "Downcount",
+                "A3": "Upcount",
+                "A4": "Downcount"
             },
             "description": "Between 47 and 48",
             "homesignal": [
-                "48"
+                "47",
+                "42",
+                "43",
+                "44",
+                "45",
+                "46"
             ],
             "inctrig": {
-                "A3": "Upcount",
-                "A2": "Downcount"
+                "A2": "Upcount",
+                "A3": "Downcount",
+                "A4": "Upcount"
             },
             "instances": {},
-            "mode": "axlecounter",
+            "mode": 1,
             "occstatus": 0,
+            "previousoccstatus": 0,
             "ref": "R",
             "routeset": false,
             "routestatus": ""
@@ -45,18 +52,19 @@
         "S": {
             "conflictingsections": [],
             "dectrig": {
-                "A6": "Downcount"
+                "A3": "Downcount"
             },
             "description": "Temp section for all platforms",
             "homesignal": [
                 "48"
             ],
             "inctrig": {
-                "A5": "Upcount"
+                "A3": "Upcount"
             },
             "instances": {},
-            "mode": "axlecounter",
+            "mode": 1,
             "occstatus": 0,
+            "previousoccstatus": 0,
             "ref": "S",
             "routeset": false,
             "routestatus": ""
@@ -114,36 +122,17 @@
             "upcount": 0,
             "upcount_reg": 13
         },
-        "A5": {
-            "address": 5,
+        "A4": {
+            "address": 4,
             "board_index": 0,
             "comms_status": "",
-            "description": "Additional",
+            "description": "Yard Exit",
             "downcount": 0,
             "downcount_reg": 14,
             "instances": {},
             "mode": 0,
             "network": "network_1",
-            "normal_coil": 22,
-            "ref": "A5",
-            "reverse_coil": 23,
-            "slave": null,
-            "upcount": 0,
-            "upcount_reg": 13
-        },
-        "A6": {
-            "address": 6,
-            "board_index": 0,
-            "comms_status": "",
-            "description": "Additional 22",
-            "downcount": 0,
-            "downcount_reg": 14,
-            "instances": {},
-            "mode": 1,
-            "network": "network_1",
-            "normal_coil": 22,
-            "ref": "A6",
-            "reverse_coil": 23,
+            "ref": "A4",
             "slave": null,
             "upcount": 0,
             "upcount_reg": 13
@@ -169,7 +158,7 @@
             "illumination": "On",
             "instances": {},
             "network": "network_1",
-            "nextsignal": null,
+            "nextsignal": "48",
             "ref": "47",
             "route1reg": null,
             "route2reg": null,
@@ -182,92 +171,27 @@
         },
         "48": {
             "address": 48,
-            "aspect": [
-                "danger"
-            ],
             "availableaspects": 0,
             "bannerreg": null,
             "board_index": 3,
             "callingonreg": 3005,
             "cautionreg": 3002,
             "clearreg": 3004,
-            "comms_status": "",
             "dangerreg": 3001,
             "description": "Platform home signal",
             "directionindicator": 0,
             "doublecaution": null,
-            "illumination": "On",
             "instances": {},
             "network": "network_1",
-            "nextsignal": "47",
+            "nextsignal": null,
             "ref": "48",
             "route1reg": null,
-            "route2reg": null,
-            "route3reg": null,
-            "route4reg": null,
+            "route2reg": 3202,
+            "route3reg": 3203,
+            "route4reg": 3204,
             "route5reg": null,
             "route6reg": null,
             "sigtype": 1,
-            "slave": null
-        },
-        "55": {
-            "address": 55,
-            "aspect": [
-                "danger"
-            ],
-            "availableaspects": 0,
-            "bannerreg": 0,
-            "board_index": 0,
-            "callingonreg": 0,
-            "cautionreg": 0,
-            "clearreg": 0,
-            "comms_status": "",
-            "dangerreg": 1,
-            "description": "55555",
-            "directionindicator": 0,
-            "doublecaution": null,
-            "illumination": "On",
-            "instances": {},
-            "network": "network_1",
-            "nextsignal": null,
-            "ref": "55",
-            "route1reg": 0,
-            "route2reg": 0,
-            "route3reg": 0,
-            "route4reg": 0,
-            "route5reg": 0,
-            "route6reg": 0,
-            "sigtype": 0,
-            "slave": null
-        },
-        "61": {
-            "address": 77,
-            "aspect": [
-                "danger"
-            ],
-            "availableaspects": 0,
-            "bannerreg": 12,
-            "board_index": 0,
-            "callingonreg": 5,
-            "cautionreg": 2,
-            "clearreg": 4,
-            "comms_status": "",
-            "dangerreg": 1,
-            "description": "Test2",
-            "directionindicator": 0,
-            "doublecaution": null,
-            "illumination": "On",
-            "instances": {},
-            "network": "network_1",
-            "nextsignal": null,
-            "ref": "61",
-            "route1reg": 201,
-            "route2reg": 202,
-            "route3reg": 203,
-            "route4reg": 204,
-            "route5reg": 205,
-            "route6reg": 206,
-            "sigtype": 0,
             "slave": null
         },
         "42": {
@@ -379,7 +303,7 @@
             "illumination": "On",
             "instances": {},
             "network": "network_1",
-            "nextsignal": null,
+            "nextsignal": "48",
             "ref": "45",
             "route1reg": null,
             "route2reg": null,
@@ -392,19 +316,24 @@
         },
         "46": {
             "address": 45,
+            "aspect": [
+                "danger"
+            ],
             "availableaspects": 0,
             "bannerreg": null,
             "board_index": 1,
             "callingonreg": null,
             "cautionreg": 1002,
             "clearreg": 1004,
+            "comms_status": "",
             "dangerreg": 1001,
             "description": "46 Yard Exit",
             "directionindicator": 0,
             "doublecaution": null,
+            "illumination": "On",
             "instances": {},
             "network": "network_1",
-            "nextsignal": null,
+            "nextsignal": "48",
             "ref": "46",
             "route1reg": null,
             "route2reg": null,
@@ -412,7 +341,7 @@
             "route4reg": null,
             "route5reg": null,
             "route6reg": null,
-            "sigtype": 0,
+            "sigtype": 1,
             "slave": null
         }
     },
@@ -524,6 +453,42 @@
             "register": 42,
             "slave": null,
             "status": 0
+        },
+        "P8": {
+            "address": 22,
+            "comms_status": "",
+            "description": "Select Platform 2",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P8",
+            "register": 0,
+            "slave": null,
+            "status": 0
+        },
+        "P9": {
+            "address": 22,
+            "comms_status": "",
+            "description": "Select Platform 3",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P9",
+            "register": 1,
+            "slave": null,
+            "status": 0
+        },
+        "P10": {
+            "address": 22,
+            "comms_status": "",
+            "description": "Select Platform 4",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P10",
+            "register": 7,
+            "slave": null,
+            "status": 0
         }
     },
     "Points": {
@@ -564,110 +529,270 @@
             "set_direction": "",
             "slave": null,
             "unlocked": true
-        },
-        "150": {
-            "address": 44,
-            "board_index": 3,
-            "comms_status": "",
-            "description": "Fictional",
-            "detection_boolean": false,
-            "detection_mode": 0,
-            "detection_status": "",
-            "instances": {},
-            "mode": 0,
-            "network": "network_1",
-            "normal_coil": 3021,
-            "ref": "150",
-            "reverse_coil": 3022,
-            "section": "S",
-            "set_direction": "",
-            "slave": null,
-            "unlocked": false
         }
     },
     "Routes": {
-        "P4": {
+        "P4occ": {
             "available": false,
-            "description": "Into P4",
+            "description": "R Into P4 (occupied)",
             "instances": {},
             "mode": 0,
             "points": {
-                "100": "normal",
+                "100": "reverse",
                 "300": "reverse"
             },
-            "ref": "P4",
-            "requested": false,
+            "ref": "P4occ",
             "sections": [
-                "Q"
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "callingon",
+                    "route4"
+                ]
+            }
+        },
+        "47IntoR": {
+            "available": false,
+            "description": "47 Into R",
+            "instances": {},
+            "mode": 0,
+            "points": {},
+            "ref": "47IntoR",
+            "sections": [
+                "R"
             ],
             "set": false,
             "setting": false,
             "signals": {
                 "47": [
-                    "danger",
+                    "clear"
+                ]
+            }
+        },
+        "48intoP4unocc": {
+            "available": false,
+            "description": "48 into P4 (unoccupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "reverse",
+                "300": "reverse"
+            },
+            "ref": "48intoP4unocc",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
                     "caution",
-                    "banner",
-                    "route2",
-                    "route3",
                     "route4"
                 ]
-            },
-            "trigger": []
+            }
         },
-        "IntoR": {
+        "45intoR": {
             "available": false,
-            "description": "Into R",
+            "description": "Yard 45 Signal into R",
             "instances": {},
             "mode": 0,
             "points": {},
-            "ref": "IntoR",
+            "ref": "45intoR",
             "sections": [
                 "R"
             ],
             "set": false,
             "setting": false,
             "signals": {
+                "45": [
+                    "clear"
+                ]
+            }
+        },
+        "46intoR": {
+            "available": false,
+            "description": "Yard 46 Signal into R",
+            "instances": {},
+            "mode": 0,
+            "points": {},
+            "ref": "46intoR",
+            "sections": [
+                "R"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {}
+        },
+        "48intoP2unocc": {
+            "available": false,
+            "description": "48 into Platform 2 (unoccupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "normal"
+            },
+            "ref": "48intoP2unocc",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
                 "48": [
+                    "clear",
+                    "route2"
+                ]
+            }
+        },
+        "48intoP2occ": {
+            "available": false,
+            "description": "48 into Platform 2 (occupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "normal"
+            },
+            "ref": "48intoP2occ",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "callingon",
+                    "route2"
+                ]
+            }
+        },
+        "48intoP3occ": {
+            "available": false,
+            "description": "48 into Platform 3 (occupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "reverse",
+                "300": "normal"
+            },
+            "ref": "48intoP3occ",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "callingon",
+                    "route3"
+                ]
+            }
+        },
+        "48intoP3(unocc)": {
+            "available": false,
+            "description": "48 into Platform 3 (unoccupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "reverse",
+                "300": "normal"
+            },
+            "ref": "48intoP3(unocc)",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "caution",
+                    "route3"
+                ]
+            }
+        },
+        "P2shunt": {
+            "available": false,
+            "description": "Shunt from Platform 2",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "normal"
+            },
+            "ref": "P2shunt",
+            "sections": [
+                "R"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "42": [
                     "caution"
                 ]
             }
         },
-        "IntoRClear": {
+        "P3shunt": {
             "available": false,
-            "description": "Into R on Green",
+            "description": "Shunt from Platform 3",
             "instances": {},
             "mode": 0,
-            "points": {},
-            "ref": "IntoRClear",
+            "points": {
+                "100": "reverse",
+                "300": "normal"
+            },
+            "ref": "P3shunt",
             "sections": [
                 "R"
             ],
             "set": false,
             "setting": false,
             "signals": {
-                "48": [
-                    "clear"
+                "43": [
+                    "caution"
+                ]
+            }
+        },
+        "P4shunt": {
+            "available": false,
+            "description": "Shunt from Platform 4",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "reverse",
+                "300": "reverse"
+            },
+            "ref": "P4shunt",
+            "sections": [
+                "R"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "44": [
+                    "caution"
                 ]
             }
         }
     },
     "Triggers": {
-        "BB": {
+        "47toP2": {
             "conditions": [
-                "True"
+                "Point.instances[\"100\"].detection_status == \"Normal\""
             ],
-            "description": "Trigger Into R",
+            "description": "47 to Plat 2 based on Q occupancy",
             "instances": {},
             "lever": null,
             "override": false,
             "plungers": [
-                "P1"
+                "P13"
             ],
             "priority": 5,
-            "ref": "BB",
+            "ref": "47toP2",
             "routes_to_cancel": [],
             "routes_to_set": [
-                "IntoR"
+                "47IntoR",
+                "48intoP2occ"
             ],
             "sections_clear": null,
             "sections_occupied": [
@@ -679,58 +804,64 @@
             "trigger_expressions": [],
             "triggered": false
         },
-        "CC": {
+        "47toP3": {
             "conditions": [
                 "True"
             ],
-            "description": "Cancel Into R",
+            "description": "47 to Plat 2 based on Q occupancy",
             "instances": {},
             "lever": null,
             "override": false,
             "plungers": [
-                "P3"
+                "P13",
+                "P9"
             ],
-            "priority": 0,
-            "ref": "CC",
-            "routes_to_cancel": [
-                "IntoR",
-                "IntoRClear"
+            "priority": 5,
+            "ref": "47toP3",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "47IntoR",
+                "48intoP3occ"
             ],
-            "routes_to_set": [],
             "sections_clear": null,
-            "sections_occupied": [],
+            "sections_occupied": [
+                "Q"
+            ],
             "store_request": 0,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
             "triggered": false
         },
-        "DD": {
+        "47toP4": {
             "conditions": [
                 "True"
             ],
-            "description": "IntoRClear",
+            "description": "47 to Plat 4 based on Q occupancy",
             "instances": {},
             "lever": null,
             "override": false,
             "plungers": [
-                "P2"
+                "P13",
+                "P10"
             ],
-            "priority": 10,
-            "ref": "DD",
+            "priority": 5,
+            "ref": "47toP4",
             "routes_to_cancel": [],
             "routes_to_set": [
-                "IntoRClear"
+                "48intoP4unocc"
             ],
             "sections_clear": null,
-            "sections_occupied": [],
-            "store_request": 5,
+            "sections_occupied": [
+                "Q"
+            ],
+            "store_request": 0,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
             "triggered": false
         },
-        "EE": {
+        "46to48": {
             "conditions": [
                 "True"
             ],
@@ -739,16 +870,192 @@
             "lever": null,
             "override": false,
             "plungers": [
-                "P2",
+                "P12"
+            ],
+            "priority": 5,
+            "ref": "46to48",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "46intoR"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "triggered": false
+        },
+        "45to48": {
+            "conditions": [
+                "True"
+            ],
+            "description": "",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P11"
+            ],
+            "priority": 5,
+            "ref": "45to48",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "45intoR"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "triggered": false
+        },
+        "RintoP2": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Plunger P5 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P5",
+                "P8"
+            ],
+            "priority": 5,
+            "ref": "RintoP2",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "48intoP2occ"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "triggered": false
+        },
+        "RintoP3": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Plunger P6 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P6"
+            ],
+            "priority": 5,
+            "ref": "RintoP3",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "48intoP2occ"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "triggered": false
+        },
+        "RintoP4": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Plunger P6 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P7"
+            ],
+            "priority": 5,
+            "ref": "RintoP4",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "48intoP4unocc"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "triggered": false
+        },
+        "ShuntP4": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Shunt from P4",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P3"
+            ],
+            "priority": 5,
+            "ref": "ShuntP4",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "P4shunt"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "triggered": false
+        },
+        "ShuntP3": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Shunt from P3",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P2"
+            ],
+            "priority": 5,
+            "ref": "ShuntP3",
+            "routes_to_cancel": [
+                "P3shunt"
+            ],
+            "routes_to_set": [
+                "P4shunt"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "triggered": false
+        },
+        "ShuntP2": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Shunt from P2",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
                 "P1"
             ],
-            "priority": 1,
-            "ref": "EE",
-            "routes_to_cancel": [
-                "IntoR",
-                "IntoRClear"
+            "priority": 5,
+            "ref": "ShuntP2",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "P2shunt"
             ],
-            "routes_to_set": [],
             "sections_clear": null,
             "sections_occupied": [],
             "store_request": 0,

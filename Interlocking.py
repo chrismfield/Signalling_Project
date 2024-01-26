@@ -180,7 +180,7 @@ def interlocking(logger):
         if section.occstatus > 0:
             set_protecting_signals(section)
         # if section count has increased, clear callingon signal
-        if section.occcstatus > section.previousoccstatus:
+        if section.occstatus > section.previousoccstatus:
             clear_calling_on(section)
         section.previousoccstatus = section.occstatus
         #if section has any axles or route is set through section:
