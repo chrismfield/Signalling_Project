@@ -162,6 +162,7 @@ def section_update(logger, mqtt_client):
             logger.info(sectionkey + " " + str(section.occstatus))
         if section.occstatus:
             section.routeset = False
+            section.routestatus = "not set"
 
 
 def interlocking(logger):
@@ -184,8 +185,9 @@ def interlocking(logger):
             clear_calling_on(section)
         section.previousoccstatus = section.occstatus
         #if section has any axles or route is set through section:
-        if section.occstatus > 0 or section.routeset == True:
+        if section.occstatus > 0:
             #for every point, lock if it is in this occupied/route-set section:
+            # TODO ought to also check for section.routeset to lock points. But makes cancel and set new route harder.
             for pointkey, point in Point.instances.items():
                 if point.section == sectionkey:
                     point.unlocked = False

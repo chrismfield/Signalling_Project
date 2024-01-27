@@ -223,15 +223,19 @@ def check_route_available(route, points, sections, sections_to_cancel = []):
         # exclude sections_to_cancel from routeset sections
         if sections[route_section].routeset and (sections[route_section].ref not in sections_to_cancel):
             return False
+        if sections[route_section].routestatus == "setting" and (sections[route_section].ref not in sections_to_cancel):
+            return False
         if sections[route_section].occstatus:
             return False # don't set if route is occupied
         for section in sections[route_section].conflictingsections:
             if sections[section].routeset and (sections[route_section] not in sections_to_cancel):
                 return False
+            if sections[section].routestatus == "setting" and (sections[route_section] not in sections_to_cancel):
+                return False
         for section in sections[route_section].conflictingsections:
             if sections[section].occstatus:
                 return False
-    for point in route.points:
+    for point in route.points: # does this need to account for points in sections to cancel?
         if not points[point].unlocked:
             return False
     return True
@@ -243,20 +247,20 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
         #route.set = "setting" # not required?
         # set points - move to route setting iteration?
         points_detected = False
-        if not route.setting: #don't try to set the points once the section has been routeset
-            for point_ref, direction in route.points.items():
-                set_point(points[point_ref], direction, sections, logger, mqtt_client)
-                #check if all points are set
-                if points[point_ref].detection_boolean:
-                    points_detected = True
-                else:
-                    points_detected = False
-                    #this also prevents next points setting until previous points detected
-                    break
         route.setting = True
+        for point_ref, direction in route.points.items():
+            set_point(points[point_ref], direction, sections, logger, mqtt_client)
+            #check if all points are set
+            if points[point_ref].detection_boolean:
+                points_detected = True
+            else:
+                points_detected = False
+                #this also prevents next points setting until previous points detected
+                break
+
         # set section.routeset when route is setting or set
         for section in route.sections:
-            sections[section].routeset = True
+            sections[section].routestatus = "setting"
             #mqtt_client.publish("Report/Section/Route Set/"+section, sections[section].routeset)
             # set signals (check that route is clear already completed):
             # check points for that section are set and detected correctly
@@ -268,12 +272,15 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
             # clear trigger once route fully set
             #route.set = True # not required?
             route.setting = False
+            sections[section].routestatus = "set"
+            sections[section].routeset = True
     else:
         return "route not available"
 
 def clear_route(route, sections, points, signals, logger, mqtt_client):
     for section in route.sections:
         sections[section].routeset = False
+        sections[section].routestatus = "not set"
     for signal, aspects in route.signals.items():
             set_signal(signals[signal], sections=sections, points=points, logger=logger, aspect="danger")
 
