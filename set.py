@@ -5,7 +5,7 @@ def set_point(point, direction, sections, logger, mqtt_client):
     if sections[point.section].occstatus:
         logger.critical("Cannot set points when section is occupied")
         raise InterlockingError("Cannot set points when section is occupied")
-    elif sections[point.section].routeset:
+    elif sections[point.section].routeset and sections[point.section].routestatus != "setting":
         logger.critical("Cannot set points when route is set through section")
         raise InterlockingError("Cannot set points when route is set through section")
     elif not point.unlocked:
@@ -13,6 +13,8 @@ def set_point(point, direction, sections, logger, mqtt_client):
     else:
         comms_status = "no direction set"
         point.set_direction = direction
+        point.detection_boolean = False
+        point.detection_status = "None"
         if direction == "normal":
             try:
                 point.slave.write_bit(point.reverse_coil, 0)
@@ -33,8 +35,6 @@ def set_point(point, direction, sections, logger, mqtt_client):
         if point.comms_status != comms_status:
             logger.error(point.ref + comms_status)
             point.comms_status = comms_status
-        else:
-            logger.info(point.ref + " set direction: " + direction)
 
 def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None, send_commands = True): #arguments are signal object and aspect as string
     main_proceed_aspects = ["clear", "caution", "doublecaution"]
@@ -249,12 +249,12 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
         points_detected = False
         route.setting = True
         for point_ref, direction in route.points.items():
-            set_point(points[point_ref], direction, sections, logger, mqtt_client)
             #check if all points are set
-            if points[point_ref].detection_boolean:
+            if points[point_ref].detection_boolean and points[point_ref].detection_status == direction:
                 points_detected = True
             else:
                 points_detected = False
+                set_point(points[point_ref], direction, sections, logger, mqtt_client)
                 #this also prevents next points setting until previous points detected
                 break
 

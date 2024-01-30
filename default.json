@@ -56,7 +56,10 @@
             },
             "description": "Temp section for all platforms",
             "homesignal": [
-                "48"
+                "48",
+                "42",
+                "43",
+                "44"
             ],
             "inctrig": {
                 "A3": "Upcount"
@@ -787,7 +790,7 @@
     "Triggers": {
         "47toP2": {
             "conditions": [
-                "Point.instances[\"100\"].detection_status == \"Normal\""
+                "Point.instances[\"100\"].detection_status == \"normal\""
             ],
             "description": "47 to Plat 2 based on Q occupancy",
             "instances": {},
@@ -815,7 +818,8 @@
         },
         "47toP3": {
             "conditions": [
-                "True"
+                "Point.instances[\"100\"].detection_status == \"reverse\"",
+                "Point.instances[\"300\"].detection_status == \"normal\""
             ],
             "description": "47 to Plat 2 based on Q occupancy",
             "instances": {},
@@ -843,7 +847,8 @@
         },
         "47toP4": {
             "conditions": [
-                "True"
+                "Point.instances[\"100\"].detection_status == \"reverse\"",
+                "Point.instances[\"300\"].detection_status == \"reverse\""
             ],
             "description": "47 to Plat 4 based on Q occupancy",
             "instances": {},
@@ -856,6 +861,7 @@
             "ref": "47toP4",
             "routes_to_cancel": [],
             "routes_to_set": [
+                "47IntoR",
                 "48intoP4unocc"
             ],
             "sections_clear": null,
@@ -1046,7 +1052,11 @@
             ],
             "priority": 5,
             "ref": "ShuntP4",
-            "routes_to_cancel": [],
+            "routes_to_cancel": [
+                "P2shunt",
+                "P3shunt",
+                "P4shunt"
+            ],
             "routes_to_set": [
                 "P4shunt"
             ],
@@ -1071,7 +1081,11 @@
             ],
             "priority": 5,
             "ref": "ShuntP3",
-            "routes_to_cancel": [],
+            "routes_to_cancel": [
+                "P2shunt",
+                "P3shunt",
+                "P4shunt"
+            ],
             "routes_to_set": [
                 "P3shunt"
             ],
@@ -1096,7 +1110,11 @@
             ],
             "priority": 5,
             "ref": "ShuntP2",
-            "routes_to_cancel": [],
+            "routes_to_cancel": [
+                "P2shunt",
+                "P3shunt",
+                "P4shunt"
+            ],
             "routes_to_set": [
                 "P2shunt"
             ],
