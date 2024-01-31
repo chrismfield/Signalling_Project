@@ -51,15 +51,31 @@
         },
         "S": {
             "conflictingsections": [],
-            "dectrig": {
-                "A3": "Downcount"
-            },
-            "description": "Temp section for all platforms",
+            "dectrig": {},
+            "description": "Points Section",
             "homesignal": [
                 "48",
                 "42",
                 "43",
                 "44"
+            ],
+            "inctrig": {},
+            "instances": {},
+            "mode": "axlecounter",
+            "occstatus": 0,
+            "previousoccstatus": 0,
+            "ref": "S",
+            "routeset": false,
+            "routestatus": ""
+        },
+        "T": {
+            "conflictingsections": [],
+            "dectrig": {
+                "A4": "Downcount"
+            },
+            "description": "Platform Sections",
+            "homesignal": [
+                "48"
             ],
             "inctrig": {
                 "A3": "Upcount"
@@ -68,7 +84,7 @@
             "mode": "axlecounter",
             "occstatus": 0,
             "previousoccstatus": 0,
-            "ref": "S",
+            "ref": "T",
             "routeset": false,
             "routestatus": ""
         }
@@ -734,7 +750,8 @@
             },
             "ref": "P2shunt",
             "sections": [
-                "R"
+                "R",
+                "S"
             ],
             "set": false,
             "setting": false,
@@ -755,7 +772,8 @@
             },
             "ref": "P3shunt",
             "sections": [
-                "R"
+                "R",
+                "S"
             ],
             "set": false,
             "setting": false,
@@ -776,7 +794,8 @@
             },
             "ref": "P4shunt",
             "sections": [
-                "R"
+                "R",
+                "S"
             ],
             "set": false,
             "setting": false,
@@ -785,6 +804,20 @@
                     "caution"
                 ]
             }
+        },
+        "S only": {
+            "available": false,
+            "description": "Dummy to clear S",
+            "instances": {},
+            "mode": 0,
+            "points": {},
+            "ref": "S only",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {}
         }
     },
     "Triggers": {
@@ -801,7 +834,9 @@
             ],
             "priority": 5,
             "ref": "47toP2",
-            "routes_to_cancel": [],
+            "routes_to_cancel": [
+                "S only"
+            ],
             "routes_to_set": [
                 "47IntoR",
                 "48intoP2occ"
@@ -821,7 +856,7 @@
                 "Point.instances[\"100\"].detection_status == \"reverse\"",
                 "Point.instances[\"300\"].detection_status == \"normal\""
             ],
-            "description": "47 to Plat 2 based on Q occupancy",
+            "description": "47 to Plat 3 based on Q occupancy",
             "instances": {},
             "lever": null,
             "override": false,
@@ -830,7 +865,9 @@
             ],
             "priority": 5,
             "ref": "47toP3",
-            "routes_to_cancel": [],
+            "routes_to_cancel": [
+                "S only"
+            ],
             "routes_to_set": [
                 "47IntoR",
                 "48intoP3occ"
@@ -859,7 +896,9 @@
             ],
             "priority": 5,
             "ref": "47toP4",
-            "routes_to_cancel": [],
+            "routes_to_cancel": [
+                "S only"
+            ],
             "routes_to_set": [
                 "47IntoR",
                 "48intoP4unocc"

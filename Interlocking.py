@@ -170,7 +170,7 @@ def interlocking(logger):
     def set_protecting_signals(section):
         # for each homesignal in each section set signal to danger:
         for homesignal in section.homesignal:
-            if Signal.instances[homesignal].aspect != {"callingon"}:
+            if "callingon" not in Signal.instances[homesignal].aspect:
                 Signal.instances[homesignal].aspect = {"danger"}
     def clear_calling_on(section):
         for homesignal in section.homesignal:
@@ -270,6 +270,8 @@ def check_triggers(logger, mqtt_client):
         #check all conditions are true and continue to next trigger if not
         if not all([eval(condition) for condition in trigger.conditions]):
             continue
+        else:
+            pass
         # check if triggered by plunger:
         for plunger in trigger.plungers:
             if Plunger.instances[plunger].status:
