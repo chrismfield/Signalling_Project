@@ -148,6 +148,9 @@ def section_update(logger, mqtt_client):
                     section.occstatus += AxleCounter.instances[AC].upcount
                 if direction == "Downcount":
                     section.occstatus += AxleCounter.instances[AC].downcount
+            if section.occstatus > 0: # these three lines in here to help clear virtual section
+                section.routeset = False
+                section.routestatus = "not set"
             for AC, direction in section.dectrig.items(): #for each decrement trigger (which is in form "A1":"Upcount", "A2":"Downcount")
                 if direction == "Upcount":
                     section.occstatus -= AxleCounter.instances[AC].upcount
@@ -186,7 +189,7 @@ def interlocking(logger):
         section.previousoccstatus = section.occstatus
         #if section has any axles or route is set through section:
         if section.occstatus > 0:
-            #for every point, lock if it is in this occupied/route-set section:
+            #for every point, lock if it is in this occupied:
             # TODO ought to also check for section.routeset to lock points. But makes cancel and set new route harder.
             for pointkey, point in Point.instances.items():
                 if point.section == sectionkey:
@@ -309,7 +312,7 @@ def check_triggers(logger, mqtt_client):
                     if set.check_route_available(Route.instances[route],
                                                  sections = Section.instances,
                                                  points = Point.instances,
-                                                 sections_to_cancel = sections_to_cancel(trigger)):
+                                                 routes_to_cancel = trigger.routes_to_cancel):
                         full_route_ok = True
                     else:
                         full_route_ok = False
@@ -326,12 +329,12 @@ def check_triggers(logger, mqtt_client):
 
             if full_route_ok:
                 for route in trigger.routes_to_cancel:
-                    set.clear_route(Route.instances[route],
-                                    sections=Section.instances,
-                                    points=Point.instances,
-                                    signals=Signal.instances,
-                                    logger=logger,
-                                    mqtt_client=mqtt_client)
+                    set.cancel_route(Route.instances[route],
+                                     sections=Section.instances,
+                                     points=Point.instances,
+                                     signals=Signal.instances,
+                                     logger=logger,
+                                     mqtt_client=mqtt_client)
 
                 for route in trigger.routes_to_set:
                     set.set_route(Route.instances[route],
@@ -341,6 +344,7 @@ def check_triggers(logger, mqtt_client):
                                   logger = logger,
                                   mqtt_client = mqtt_client)
                 trigger.triggered = False
+                trigger.stored_request = False
                 logging.info(trigger.ref + " triggered and set")
 
     # clear all plungers requests after checking all triggers:

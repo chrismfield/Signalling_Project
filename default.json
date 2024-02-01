@@ -51,7 +51,9 @@
         },
         "S": {
             "conflictingsections": [],
-            "dectrig": {},
+            "dectrig": {
+                "A3": "Upcount"
+            },
             "description": "Points Section",
             "homesignal": [
                 "48",
@@ -59,7 +61,9 @@
                 "43",
                 "44"
             ],
-            "inctrig": {},
+            "inctrig": {
+                "A3": "Upcount"
+            },
             "instances": {},
             "mode": "axlecounter",
             "occstatus": 0,
@@ -660,7 +664,8 @@
             "instances": {},
             "mode": 0,
             "points": {
-                "100": "normal"
+                "100": "normal",
+                "300": "normal"
             },
             "ref": "48intoP2unocc",
             "sections": [
@@ -681,7 +686,8 @@
             "instances": {},
             "mode": 0,
             "points": {
-                "100": "normal"
+                "100": "normal",
+                "300": "normal"
             },
             "ref": "48intoP2occ",
             "sections": [
@@ -746,12 +752,12 @@
             "instances": {},
             "mode": 0,
             "points": {
-                "100": "normal"
+                "100": "normal",
+                "300": "normal"
             },
             "ref": "P2shunt",
             "sections": [
-                "R",
-                "S"
+                "R"
             ],
             "set": false,
             "setting": false,
@@ -772,8 +778,7 @@
             },
             "ref": "P3shunt",
             "sections": [
-                "R",
-                "S"
+                "R"
             ],
             "set": false,
             "setting": false,
@@ -794,8 +799,7 @@
             },
             "ref": "P4shunt",
             "sections": [
-                "R",
-                "S"
+                "R"
             ],
             "set": false,
             "setting": false,
@@ -932,7 +936,7 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
-            "store_request": 0,
+            "store_request": true,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
@@ -957,7 +961,7 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
-            "store_request": 0,
+            "store_request": true,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
@@ -985,6 +989,7 @@
                 "46intoR",
                 "48intoP2unocc",
                 "48intoP3(unocc)",
+                "48intoP3occ",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt"
@@ -1092,16 +1097,16 @@
             "priority": 5,
             "ref": "ShuntP4",
             "routes_to_cancel": [
-                "P2shunt",
                 "P3shunt",
-                "P4shunt"
+                "P4shunt",
+                "P2shunt"
             ],
             "routes_to_set": [
                 "P4shunt"
             ],
             "sections_clear": null,
             "sections_occupied": [],
-            "store_request": 0,
+            "store_request": false,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
@@ -1121,16 +1126,16 @@
             "priority": 5,
             "ref": "ShuntP3",
             "routes_to_cancel": [
-                "P2shunt",
                 "P3shunt",
-                "P4shunt"
+                "P4shunt",
+                "P2shunt"
             ],
             "routes_to_set": [
                 "P3shunt"
             ],
             "sections_clear": null,
             "sections_occupied": [],
-            "store_request": 0,
+            "store_request": false,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
@@ -1150,16 +1155,16 @@
             "priority": 5,
             "ref": "ShuntP2",
             "routes_to_cancel": [
-                "P2shunt",
                 "P3shunt",
-                "P4shunt"
+                "P4shunt",
+                "P2shunt"
             ],
             "routes_to_set": [
                 "P2shunt"
             ],
             "sections_clear": null,
             "sections_occupied": [],
-            "store_request": 0,
+            "store_request": false,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],

@@ -58,6 +58,7 @@ class Signal:
             self.illumination = "On"  # night illumination mode
             self.aspect = {"danger"}  # set of current aspects
             self.comms_status = ""
+            self.routeset = None # set to the route ref when signal set
 
 
 class Section:
@@ -75,7 +76,7 @@ class Section:
         self.conflictingsections = conflictingsections
         #dynamic variables
         self.occstatus = 0  # occupation status
-        self.routeset = False #set to true if route is set through this section
+        self.routeset = None #set to the route when set through this section
         self.routestatus = ""  # availability status
         self.previousoccstatus = 0
 
@@ -123,6 +124,7 @@ class Point:
         self.detection_boolean = False
         self.unlocked = True
         self.comms_status = ""
+        self.routeset = None # set to the route when point set
 
 class Route:
     """Route object containing static and dynamic variables"""

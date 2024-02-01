@@ -1,6 +1,6 @@
 from custom_exceptions import *
 
-def set_point(point, direction, sections, logger, mqtt_client):
+def set_point(point, direction, sections, logger, mqtt_client, route = None):
     # don't move points if section is occupied
     if sections[point.section].occstatus:
         logger.critical("Cannot set points when section is occupied")
@@ -15,6 +15,7 @@ def set_point(point, direction, sections, logger, mqtt_client):
         point.set_direction = direction
         point.detection_boolean = False
         point.detection_status = "None"
+        point.routeset = route
         if direction == "normal":
             try:
                 point.slave.write_bit(point.reverse_coil, 0)
@@ -36,7 +37,7 @@ def set_point(point, direction, sections, logger, mqtt_client):
             logger.error(point.ref + comms_status)
             point.comms_status = comms_status
 
-def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None, send_commands = True): #arguments are signal object and aspect as string
+def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None, send_commands = True, route = None): #arguments are signal object and aspect as string
     main_proceed_aspects = ["clear", "caution", "doublecaution"]
     proceed_aspects = ["clear", "caution", "doublecaution", "callingon"]
     old_aspects = signal.aspect.copy()
@@ -67,6 +68,7 @@ def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None, 
                 for PA in proceed_aspects:
                     signal.aspect.discard(PA)
             signal.aspect.add(aspect)
+            signal.routeset = route
         if signal.aspect != old_aspects:
             logger.info(signal.ref + " aspects requested " + str(signal.aspect))
 
@@ -218,24 +220,24 @@ def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None, 
     if send_commands:
         send_aspect_commands()
 
-def check_route_available(route, points, sections, sections_to_cancel = []):
+def check_route_available(route, points, sections, routes_to_cancel = []):
     for route_section in route.sections:
         # exclude sections_to_cancel from routeset sections
-        if sections[route_section].routeset and (sections[route_section].ref not in sections_to_cancel):
+        if sections[route_section].routeset and (sections[route_section].routeset not in routes_to_cancel):
             return False
-        if sections[route_section].routestatus == "setting" and (sections[route_section].ref not in sections_to_cancel):
+        if sections[route_section].routestatus == "setting" and (sections[route_section].routeset not in routes_to_cancel):
             return False
         if sections[route_section].occstatus:
             return False # don't set if route is occupied
         for section in sections[route_section].conflictingsections:
-            if sections[section].routeset and (sections[route_section] not in sections_to_cancel):
+            if sections[section].routeset and (sections[section].routeset not in routes_to_cancel):
                 return False
-            if sections[section].routestatus == "setting" and (sections[route_section] not in sections_to_cancel):
+            if sections[section].routestatus == "setting" and (sections[section].routeset not in routes_to_cancel):
                 return False
         for section in sections[route_section].conflictingsections:
             if sections[section].occstatus:
                 return False
-    for point in route.points: # does this need to account for points in sections to cancel?
+    for point in route.points:
         if not points[point].unlocked:
             return False
     return True
@@ -254,35 +256,43 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
                 points_detected = True
             else:
                 points_detected = False
-                set_point(points[point_ref], direction, sections, logger, mqtt_client)
+                set_point(points[point_ref], direction, sections, logger, mqtt_client, route = route.ref)
                 #this also prevents next points setting until previous points detected
                 break
 
         # set section.routeset when route is setting or set
         for section in route.sections:
             sections[section].routestatus = "setting"
-            #mqtt_client.publish("Report/Section/Route Set/"+section, sections[section].routeset)
             # set signals (check that route is clear already completed):
             # check points for that section are set and detected correctly
         if points_detected or not route.points.items():
             # set signal for that section in accordance with route signals to set
             for signal, aspects in route.signals.items():
                 for aspect in aspects:
-                    set_signal(signals[signal], sections=sections, points=points, logger=logger, aspect=aspect, send_commands = False)
+                    set_signal(signals[signal], sections=sections, points=points, logger=logger, aspect=aspect, send_commands = False, route=route.ref)
             # clear trigger once route fully set
             #route.set = True # not required?
             route.setting = False
-            sections[section].routestatus = "set"
-            sections[section].routeset = True
+            for section in route.sections:
+                sections[section].routestatus = "set"
+                sections[section].routeset = route.ref
     else:
         return "route not available"
 
-def clear_route(route, sections, points, signals, logger, mqtt_client):
+def cancel_route(route, sections, points, signals, logger, mqtt_client):
     for section in route.sections:
-        sections[section].routeset = False
-        sections[section].routestatus = "not set"
-    for signal, aspects in route.signals.items():
-            set_signal(signals[signal], sections=sections, points=points, logger=logger, aspect="danger")
+        if sections[section].routeset == route.ref:
+            sections[section].routeset = False
+            sections[section].routestatus = "not set"
+    for signal_ref, aspects in route.signals.items():
+        if signals[signal_ref].routeset == route.ref:
+            set_signal(signals[signal_ref], sections=sections, points=points, logger=logger, aspect="danger")
+    for point_ref, direction in route.points.items():
+        if points[point_ref].routeset == route.ref:
+            points[point_ref].routeset = None
+            # unlock points if section not occupied
+            if sections[points[point_ref].section].occstatus == 0:
+                points[point_ref].unlocked = True
 
 def set_plungers_clear(all_plungers_dict):
     for plunger_key, plunger in all_plungers_dict.items():
@@ -302,7 +312,7 @@ def set_from_mqtt(command, signals, sections, points, routes, triggers, logger, 
         if eval(command_payload):
             set_route(route=routes[command_l[2]], sections=sections, points=points, signals = signals, logger=logger, mqtt_client=mqtt_client)
         if not eval(command_payload):
-            clear_route(route=routes[command_l[2]], sections=sections, points=points, signals = signals, logger=logger, mqtt_client=mqtt_client)
+            cancel_route(route=routes[command_l[2]], sections=sections, points=points, signals = signals, logger=logger, mqtt_client=mqtt_client)
     if command_l[1] == "trigger":
         triggers[command_l[2]].triggered = eval(command_payload)
     if command_l[1] == "section" and command_l[3] == "occstatus":
@@ -324,6 +334,7 @@ def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, route
     for section in sections.values():
         mqtt_client.publish("report/section/"+ section.ref+"/occstatus", section.occstatus)
         mqtt_client.publish("report/section/"+ section.ref+"/routeset", section.routeset)
+        mqtt_client.publish("report/section/" + section.ref + "/routestatus", section.routestatus)
     # send plunger dynamic variables
     for plunger in plungers.values():
         mqtt_client.publish("error/plunger/comms/" + plunger.ref, plunger.comms_status)
@@ -340,5 +351,5 @@ def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, route
         mqtt_client.publish("report/route/"+route.ref+"/setting", route.setting)
     # send trigger dynamic variables
     for trigger in triggers.values():
-        mqtt_client.publish("report/trigger/"+trigger.ref+"/triggered", trigger.triggered)
+        #mqtt_client.publish("report/trigger/"+trigger.ref+"/triggered", trigger.triggered) # not req- never true here.
         mqtt_client.publish("report/trigger/"+trigger.ref+"/stored_request", trigger.stored_request)
