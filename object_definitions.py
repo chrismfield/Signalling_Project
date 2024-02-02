@@ -125,6 +125,7 @@ class Point:
         self.unlocked = True
         self.comms_status = ""
         self.routeset = None # set to the route when point set
+        self.last_comms_time = 0
 
 class Route:
     """Route object containing static and dynamic variables"""
@@ -146,7 +147,7 @@ class Trigger:
     """Trigger object containing static and dynamic variables"""
     instances = {}
     def __init__(self, ref, description = None, override=False, sections_occupied=[], sections_clear=[], plungers=[], lever=None,
-                 timer=None, MQTT=None, routes_to_set=[], routes_to_cancel=[], priority=10, store_request = False, conditions = ["True"], trigger_expressions = []):
+                 timer=None, MQTT=None, routes_to_set=[], routes_to_cancel=[], priority=10, store_request = False, conditions = ["True"], trigger_expressions = [], trigger_special_actions = []):
         #static variables
         self.ref = ref
         self.description = description
@@ -162,6 +163,7 @@ class Trigger:
         self.store_request = store_request
         self.conditions = conditions
         self.trigger_expressions = trigger_expressions
+        self.trigger_special_actions = trigger_special_actions
         #dyanamic variables
         self.triggered = False
         self.stored_request = False

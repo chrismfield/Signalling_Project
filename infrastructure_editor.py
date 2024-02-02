@@ -1290,7 +1290,9 @@ def add_trigger(parent, existing_ref):
             routes_to_set= routes_to_set,
             routes_to_cancel = routes_to_clear,
             store_request = store_request.get(),
-            priority = priority.get()
+            priority = priority.get(),
+            conditions = trigger_conditions,
+            trigger_special_actions = trigger_special_actions
         )
         trigger_list(parent)
         trigger_setup_win.destroy()
@@ -1318,6 +1320,15 @@ def add_trigger(parent, existing_ref):
         priority.set(trigger_dict[existing_ref].priority)
     except KeyError:
         priority.set(0)
+    try:
+        trigger_conditions = trigger_dict[existing_ref].conditions
+    except:
+        trigger_conditions = ["True"]
+    try:
+        trigger_special_actions = trigger_dict[existing_ref].trigger_special_actions
+    except:
+        trigger_special_actions = []
+    #TODO add condition editor
 
 
     ttk.Label(trigger_setup_frame, text="Trigger Ref:").grid(column=0, row=0, sticky=W)

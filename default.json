@@ -189,6 +189,7 @@
             "route4reg": null,
             "route5reg": null,
             "route6reg": null,
+            "routeset": null,
             "sigtype": 1,
             "slave": null
         },
@@ -219,6 +220,7 @@
             "route4reg": 3009,
             "route5reg": null,
             "route6reg": null,
+            "routeset": null,
             "sigtype": 1,
             "slave": null
         },
@@ -249,6 +251,7 @@
             "route4reg": null,
             "route5reg": null,
             "route6reg": null,
+            "routeset": null,
             "sigtype": 0,
             "slave": null
         },
@@ -279,6 +282,7 @@
             "route4reg": null,
             "route5reg": null,
             "route6reg": null,
+            "routeset": null,
             "sigtype": 0,
             "slave": null
         },
@@ -309,6 +313,7 @@
             "route4reg": null,
             "route5reg": null,
             "route6reg": null,
+            "routeset": null,
             "sigtype": 0,
             "slave": null
         },
@@ -339,6 +344,7 @@
             "route4reg": null,
             "route5reg": null,
             "route6reg": null,
+            "routeset": null,
             "sigtype": 1,
             "slave": null
         },
@@ -369,6 +375,7 @@
             "route4reg": null,
             "route5reg": null,
             "route6reg": null,
+            "routeset": null,
             "sigtype": 1,
             "slave": null
         }
@@ -534,6 +541,7 @@
             "normal_coil": 21,
             "ref": "100",
             "reverse_coil": 22,
+            "routeset": null,
             "section": "S",
             "set_direction": "",
             "slave": null,
@@ -553,6 +561,7 @@
             "normal_coil": 1021,
             "ref": "300",
             "reverse_coil": 1022,
+            "routeset": null,
             "section": "S",
             "set_direction": "",
             "slave": null,
@@ -822,6 +831,20 @@
             "set": false,
             "setting": false,
             "signals": {}
+        },
+        "R_only": {
+            "available": false,
+            "description": "Route R only to reserve route",
+            "instances": {},
+            "mode": 0,
+            "points": {},
+            "ref": "R_only",
+            "sections": [
+                "R"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {}
         }
     },
     "Triggers": {
@@ -853,6 +876,7 @@
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
+            "trigger_special_actions": [],
             "triggered": false
         },
         "47toP3": {
@@ -884,6 +908,7 @@
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
+            "trigger_special_actions": [],
             "triggered": false
         },
         "47toP4": {
@@ -915,6 +940,7 @@
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
+            "trigger_special_actions": [],
             "triggered": false
         },
         "46to48": {
@@ -940,6 +966,7 @@
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
+            "trigger_special_actions": [],
             "triggered": false
         },
         "45to48": {
@@ -965,6 +992,7 @@
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
+            "trigger_special_actions": [],
             "triggered": false
         },
         "RintoP2": {
@@ -992,7 +1020,8 @@
                 "48intoP3occ",
                 "P2shunt",
                 "P3shunt",
-                "P4shunt"
+                "P4shunt",
+                "R_only"
             ],
             "routes_to_set": [
                 "48intoP2occ"
@@ -1003,6 +1032,7 @@
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
+            "trigger_special_actions": [],
             "triggered": false
         },
         "RintoP3": {
@@ -1031,7 +1061,8 @@
                 "48intoP3(unocc)",
                 "P2shunt",
                 "P3shunt",
-                "P4shunt"
+                "P4shunt",
+                "R_only"
             ],
             "routes_to_set": [
                 "48intoP3occ"
@@ -1042,6 +1073,7 @@
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
+            "trigger_special_actions": [],
             "triggered": false
         },
         "RintoP4": {
@@ -1070,7 +1102,8 @@
                 "48intoP3(unocc)",
                 "P2shunt",
                 "P3shunt",
-                "P4shunt"
+                "P4shunt",
+                "R_only"
             ],
             "routes_to_set": [
                 "48intoP4unocc"
@@ -1081,6 +1114,7 @@
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
+            "trigger_special_actions": [],
             "triggered": false
         },
         "ShuntP4": {
@@ -1097,8 +1131,8 @@
             "priority": 5,
             "ref": "ShuntP4",
             "routes_to_cancel": [
+                "R_only",
                 "P3shunt",
-                "P4shunt",
                 "P2shunt"
             ],
             "routes_to_set": [
@@ -1106,10 +1140,11 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
-            "store_request": false,
+            "store_request": 0,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
+            "trigger_special_actions": [],
             "triggered": false
         },
         "ShuntP3": {
@@ -1126,7 +1161,7 @@
             "priority": 5,
             "ref": "ShuntP3",
             "routes_to_cancel": [
-                "P3shunt",
+                "R_only",
                 "P4shunt",
                 "P2shunt"
             ],
@@ -1135,10 +1170,11 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
-            "store_request": false,
+            "store_request": 0,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
+            "trigger_special_actions": [],
             "triggered": false
         },
         "ShuntP2": {
@@ -1155,19 +1191,87 @@
             "priority": 5,
             "ref": "ShuntP2",
             "routes_to_cancel": [
+                "R_only",
                 "P3shunt",
-                "P4shunt",
-                "P2shunt"
+                "P4shunt"
             ],
             "routes_to_set": [
                 "P2shunt"
             ],
             "sections_clear": null,
             "sections_occupied": [],
-            "store_request": false,
+            "store_request": 0,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "R_only": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Set route R only with no points or signals to reserve route",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P3",
+                "P2",
+                "P1"
+            ],
+            "priority": 10,
+            "ref": "R_only",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "R_only"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 1,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "47toR": {
+            "conditions": [
+                "True"
+            ],
+            "description": "47 into R only",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P13"
+            ],
+            "priority": 10,
+            "ref": "47toR",
+            "routes_to_cancel": [
+                "P4occ",
+                "47IntoR",
+                "48intoP4unocc",
+                "45intoR",
+                "46intoR",
+                "48intoP2unocc",
+                "48intoP2occ",
+                "48intoP3occ",
+                "48intoP3(unocc)",
+                "P2shunt",
+                "P3shunt",
+                "P4shunt",
+                "S only",
+                "R_only"
+            ],
+            "routes_to_set": [],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": ["Section.instances[\"R\"].occstatus = 0"],
             "triggered": false
         }
     }

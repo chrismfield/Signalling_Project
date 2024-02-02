@@ -4,6 +4,7 @@ from logging.handlers import RotatingFileHandler
 import jsons
 import minimalmodbus
 import paho.mqtt.client as mqtt
+import time
 
 import set
 from object_definitions import AxleCounter, Signal, Point, Plunger, Section, Route, Trigger
@@ -213,11 +214,18 @@ def check_points(logger, mqtt_client):
                 detection_normal = point.slave.read_bit(point.normal_coil, 2) # read input corresponding to coil
                 detection_reverse = point.slave.read_bit(point.reverse_coil, 2) # read input corresponding to coil
                 comms_status = " OK"
+                point.last_comms_time = time.time()
             except (OSError, ValueError) as error:
                 detection_status = "None"
                 detection_normal = False
                 detection_reverse = False
                 comms_status = " Comms failure"
+                if point.comms_status != comms_status:
+                    logger.error(point.ref + comms_status)
+                    point.comms_status = comms_status
+                # don't loose detection if comms timeout is not reached.
+                if time.time() - point.last_comms_time < config["point_interlock_timeout"]:
+                    continue
             if detection_normal:
                 detection_status = "normal"
             elif detection_reverse:
@@ -328,6 +336,10 @@ def check_triggers(logger, mqtt_client):
                 full_route_ok = True
 
             if full_route_ok:
+                # execute special trigger actions
+                for action in trigger.trigger_special_actions:
+                    eval(action)
+                # cancel routes first
                 for route in trigger.routes_to_cancel:
                     set.cancel_route(Route.instances[route],
                                      sections=Section.instances,
@@ -335,7 +347,7 @@ def check_triggers(logger, mqtt_client):
                                      signals=Signal.instances,
                                      logger=logger,
                                      mqtt_client=mqtt_client)
-
+                # then set routes
                 for route in trigger.routes_to_set:
                     set.set_route(Route.instances[route],
                                   sections = Section.instances,
