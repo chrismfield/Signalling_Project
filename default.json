@@ -232,8 +232,8 @@
             "availableaspects": 0,
             "bannerreg": null,
             "board_index": 0,
-            "callingonreg": null,
-            "cautionreg": 2,
+            "callingonreg": 5,
+            "cautionreg": null,
             "clearreg": null,
             "comms_status": "",
             "dangerreg": 1,
@@ -252,7 +252,7 @@
             "route5reg": null,
             "route6reg": null,
             "routeset": null,
-            "sigtype": 0,
+            "sigtype": 1,
             "slave": null
         },
         "43": {
@@ -263,8 +263,8 @@
             "availableaspects": 0,
             "bannerreg": null,
             "board_index": 1,
-            "callingonreg": null,
-            "cautionreg": 1002,
+            "callingonreg": 1005,
+            "cautionreg": null,
             "clearreg": null,
             "comms_status": "",
             "dangerreg": 1001,
@@ -294,8 +294,8 @@
             "availableaspects": 0,
             "bannerreg": null,
             "board_index": 2,
-            "callingonreg": null,
-            "cautionreg": 2002,
+            "callingonreg": 2005,
+            "cautionreg": null,
             "clearreg": null,
             "comms_status": "",
             "dangerreg": 2001,
@@ -536,6 +536,7 @@
             "detection_mode": 1,
             "detection_status": "",
             "instances": {},
+            "last_comms_time": 0,
             "mode": 1,
             "network": "network_1",
             "normal_coil": 21,
@@ -556,6 +557,7 @@
             "detection_mode": 1,
             "detection_status": "",
             "instances": {},
+            "last_comms_time": 0,
             "mode": 1,
             "network": "network_1",
             "normal_coil": 1021,
@@ -569,7 +571,7 @@
         }
     },
     "Routes": {
-        "P4occ": {
+        "48intoP4occ": {
             "available": false,
             "description": "R Into P4 (occupied)",
             "instances": {},
@@ -578,7 +580,7 @@
                 "100": "reverse",
                 "300": "reverse"
             },
-            "ref": "P4occ",
+            "ref": "48intoP4occ",
             "sections": [
                 "S"
             ],
@@ -684,7 +686,7 @@
             "setting": false,
             "signals": {
                 "48": [
-                    "clear",
+                    "caution",
                     "route2"
                 ]
             }
@@ -772,7 +774,7 @@
             "setting": false,
             "signals": {
                 "42": [
-                    "caution"
+                    "position_light"
                 ]
             }
         },
@@ -793,7 +795,7 @@
             "setting": false,
             "signals": {
                 "43": [
-                    "caution"
+                    "position_light"
                 ]
             }
         },
@@ -814,7 +816,7 @@
             "setting": false,
             "signals": {
                 "44": [
-                    "caution"
+                    "position_light"
                 ]
             }
         },
@@ -845,6 +847,24 @@
             "set": false,
             "setting": false,
             "signals": {}
+        },
+        "Startup": {
+            "available": false,
+            "description": "",
+            "instances": {},
+            "mode": 0,
+            "points": {},
+            "ref": "Startup",
+            "sections": [
+                "R"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "47": [
+                    "caution"
+                ]
+            }
         }
     },
     "Triggers": {
@@ -856,10 +876,8 @@
             "instances": {},
             "lever": null,
             "override": false,
-            "plungers": [
-                "P13"
-            ],
-            "priority": 5,
+            "plungers": [],
+            "priority": 2,
             "ref": "47toP2",
             "routes_to_cancel": [
                 "S only"
@@ -888,10 +906,8 @@
             "instances": {},
             "lever": null,
             "override": false,
-            "plungers": [
-                "P13"
-            ],
-            "priority": 5,
+            "plungers": [],
+            "priority": 2,
             "ref": "47toP3",
             "routes_to_cancel": [
                 "S only"
@@ -920,17 +936,15 @@
             "instances": {},
             "lever": null,
             "override": false,
-            "plungers": [
-                "P13"
-            ],
-            "priority": 5,
+            "plungers": [],
+            "priority": 2,
             "ref": "47toP4",
             "routes_to_cancel": [
                 "S only"
             ],
             "routes_to_set": [
                 "47IntoR",
-                "48intoP4unocc"
+                "48intoP4occ"
             ],
             "sections_clear": null,
             "sections_occupied": [
@@ -1010,17 +1024,19 @@
             "priority": 5,
             "ref": "RintoP2",
             "routes_to_cancel": [
-                "P4occ",
+                "48intoP4occ",
                 "47IntoR",
                 "48intoP4unocc",
                 "45intoR",
                 "46intoR",
                 "48intoP2unocc",
-                "48intoP3(unocc)",
+                "48intoP2occ",
                 "48intoP3occ",
+                "48intoP3(unocc)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
+                "S only",
                 "R_only"
             ],
             "routes_to_set": [
@@ -1050,7 +1066,7 @@
             "priority": 5,
             "ref": "RintoP3",
             "routes_to_cancel": [
-                "P4occ",
+                "48intoP4occ",
                 "47IntoR",
                 "48intoP4unocc",
                 "45intoR",
@@ -1062,6 +1078,7 @@
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
+                "S only",
                 "R_only"
             ],
             "routes_to_set": [
@@ -1091,7 +1108,7 @@
             "priority": 5,
             "ref": "RintoP4",
             "routes_to_cancel": [
-                "P4occ",
+                "48intoP4occ",
                 "47IntoR",
                 "48intoP4unocc",
                 "45intoR",
@@ -1103,6 +1120,7 @@
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
+                "S only",
                 "R_only"
             ],
             "routes_to_set": [
@@ -1131,9 +1149,16 @@
             "priority": 5,
             "ref": "ShuntP4",
             "routes_to_cancel": [
-                "R_only",
+                "48intoP4occ",
+                "48intoP4unocc",
+                "48intoP2unocc",
+                "48intoP2occ",
+                "48intoP3occ",
+                "48intoP3(unocc)",
+                "P2shunt",
                 "P3shunt",
-                "P2shunt"
+                "P4shunt",
+                "R_only"
             ],
             "routes_to_set": [
                 "P4shunt"
@@ -1161,9 +1186,16 @@
             "priority": 5,
             "ref": "ShuntP3",
             "routes_to_cancel": [
-                "R_only",
+                "48intoP4occ",
+                "48intoP4unocc",
+                "48intoP2unocc",
+                "48intoP2occ",
+                "48intoP3occ",
+                "48intoP3(unocc)",
+                "P2shunt",
+                "P3shunt",
                 "P4shunt",
-                "P2shunt"
+                "R_only"
             ],
             "routes_to_set": [
                 "P3shunt"
@@ -1191,9 +1223,16 @@
             "priority": 5,
             "ref": "ShuntP2",
             "routes_to_cancel": [
-                "R_only",
+                "48intoP4occ",
+                "48intoP4unocc",
+                "48intoP2unocc",
+                "48intoP2occ",
+                "48intoP3occ",
+                "48intoP3(unocc)",
+                "P2shunt",
                 "P3shunt",
-                "P4shunt"
+                "P4shunt",
+                "R_only"
             ],
             "routes_to_set": [
                 "P2shunt"
@@ -1209,7 +1248,10 @@
         },
         "R_only": {
             "conditions": [
-                "True"
+                "Section.instances[\"R\"].routeset != \"P2shunt\"",
+                "Section.instances[\"R\"].routeset != \"P3shunt\"",
+                "Section.instances[\"R\"].routeset != \"P4shunt\"",
+                "Section.instances[\"R\"].routestatus != \"setting\""
             ],
             "description": "Set route R only with no points or signals to reserve route",
             "instances": {},
@@ -1220,7 +1262,7 @@
                 "P2",
                 "P1"
             ],
-            "priority": 10,
+            "priority": 3,
             "ref": "R_only",
             "routes_to_cancel": [],
             "routes_to_set": [
@@ -1246,10 +1288,10 @@
             "plungers": [
                 "P13"
             ],
-            "priority": 10,
+            "priority": 0,
             "ref": "47toR",
             "routes_to_cancel": [
-                "P4occ",
+                "48intoP4occ",
                 "47IntoR",
                 "48intoP4unocc",
                 "45intoR",
@@ -1262,7 +1304,8 @@
                 "P3shunt",
                 "P4shunt",
                 "S only",
-                "R_only"
+                "R_only",
+                "Startup"
             ],
             "routes_to_set": [],
             "sections_clear": null,
@@ -1271,7 +1314,35 @@
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
-            "trigger_special_actions": ["Section.instances[\"R\"].occstatus = 0"],
+            "trigger_special_actions": [
+                "Section.instances[\"R\"].occstatus = 0"
+            ],
+            "triggered": false
+        },
+        "Startup": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Trigger to start when no detection on points",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [],
+            "priority": 0,
+            "ref": "Startup",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "Startup"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [
+                "Q"
+            ],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
             "triggered": false
         }
     }

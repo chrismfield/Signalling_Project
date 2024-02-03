@@ -227,12 +227,12 @@ def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None, 
     if send_commands:
         send_aspect_commands()
 
-def check_route_available(route, points, sections, routes_to_cancel = []):
+def check_route_available(route, points, sections, routes_to_cancel = [], sections_to_cancel = []):
     for route_section in route.sections:
         # exclude sections_to_cancel from routeset sections
         if sections[route_section].routeset and (sections[route_section].routeset not in routes_to_cancel):
             return False
-        if sections[route_section].routestatus == "setting" and (sections[route_section].routeset not in routes_to_cancel):
+        if sections[route_section].routestatus == "setting" and (route_section not in sections_to_cancel):
             return False
         if sections[route_section].occstatus:
             return False # don't set if route is occupied
@@ -286,7 +286,7 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
     else:
         return "route not available"
 
-def cancel_route(route, sections, points, signals, logger, mqtt_client):
+def cancel_route(route, sections, points, signals, triggers, logger, mqtt_client):
     for section in route.sections:
         if sections[section].routeset == route.ref:
             sections[section].routeset = False
@@ -300,6 +300,10 @@ def cancel_route(route, sections, points, signals, logger, mqtt_client):
             # unlock points if section not occupied
             if sections[points[point_ref].section].occstatus == 0:
                 points[point_ref].unlocked = True
+    for trigger_ref, trigger in triggers.items():
+        if route.ref in trigger.routes_to_set:
+            trigger.stored_request = False
+    route.setting = False
 
 def set_plungers_clear(all_plungers_dict):
     for plunger_key, plunger in all_plungers_dict.items():
@@ -319,7 +323,7 @@ def set_from_mqtt(command, signals, sections, points, routes, triggers, logger, 
         if eval(command_payload):
             set_route(route=routes[command_l[2]], sections=sections, points=points, signals = signals, logger=logger, mqtt_client=mqtt_client)
         if not eval(command_payload):
-            cancel_route(route=routes[command_l[2]], sections=sections, points=points, signals = signals, logger=logger, mqtt_client=mqtt_client)
+            cancel_route(route=routes[command_l[2]], sections=sections, points=points, signals = signals, triggers = triggers, logger=logger, mqtt_client=mqtt_client)
     if command_l[1] == "trigger":
         triggers[command_l[2]].triggered = eval(command_payload)
     if command_l[1] == "section" and command_l[3] == "occstatus":

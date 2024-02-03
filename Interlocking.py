@@ -274,7 +274,7 @@ def check_triggers(logger, mqtt_client):
                 sections_to_cancel_list.append(section)
         return sections_to_cancel_list
 
-    for trigger in sorted(Trigger.instances.values(), key=lambda x: x.priority):
+    for trigger in sorted(Trigger.instances.values(), key=lambda x: x.priority, reverse=True):
         #check all conditions are true and continue to next trigger if not
         if not all([eval(condition) for condition in trigger.conditions]):
             continue
@@ -317,7 +317,8 @@ def check_triggers(logger, mqtt_client):
                     if set.check_route_available(Route.instances[route],
                                                  sections = Section.instances,
                                                  points = Point.instances,
-                                                 routes_to_cancel = trigger.routes_to_cancel):
+                                                 routes_to_cancel = trigger.routes_to_cancel,
+                                                 sections_to_cancel = sections_to_cancel(trigger)):
                         full_route_ok = True
                     else:
                         full_route_ok = False
@@ -335,13 +336,14 @@ def check_triggers(logger, mqtt_client):
             if full_route_ok:
                 # execute special trigger actions
                 for action in trigger.trigger_special_actions:
-                    eval(action)
+                    exec(action)
                 # cancel routes first
                 for route in trigger.routes_to_cancel:
                     set.cancel_route(Route.instances[route],
                                      sections=Section.instances,
                                      points=Point.instances,
                                      signals=Signal.instances,
+                                     triggers=Trigger.instances,
                                      logger=logger,
                                      mqtt_client=mqtt_client)
                 # then set routes
