@@ -232,7 +232,7 @@ def check_route_available(route, points, sections, routes_to_cancel = [], sectio
         # exclude sections_to_cancel from routeset sections
         if sections[route_section].routeset and (sections[route_section].routeset not in routes_to_cancel):
             return False
-        if sections[route_section].routestatus == "setting" and (route_section not in sections_to_cancel):
+        if sections[route_section].routestatus == "setting" and (sections[route_section].routeset not in routes_to_cancel):
             return False
         if sections[route_section].occstatus:
             return False # don't set if route is occupied
@@ -270,6 +270,7 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
         # set section.routeset when route is setting or set
         for section in route.sections:
             sections[section].routestatus = "setting"
+            sections[section].routeset = route.ref
             # set signals (check that route is clear already completed):
             # check points for that section are set and detected correctly
         if points_detected or not route.points.items():
