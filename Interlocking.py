@@ -174,9 +174,10 @@ def interlocking(logger):
     def set_protecting_signals(section):
         # for each homesignal in each section set signal to danger:
         for homesignal in section.homesignal:
-            if "callingon" not in Signal.instances[homesignal].aspect:
+            if ("associated_position_light" not in Signal.instances[homesignal].aspect) and \
+            ("position_light" not in Signal.instances[homesignal].aspect):
                 Signal.instances[homesignal].aspect = {"danger"}
-    def clear_calling_on(section):
+    def cancel_position_light(section):
         for homesignal in section.homesignal:
             Signal.instances[homesignal].aspect = {"danger"}
     # for each section:
@@ -184,9 +185,9 @@ def interlocking(logger):
         # if section has any axles:
         if section.occstatus > 0:
             set_protecting_signals(section)
-        # if section count has increased, clear callingon signal
+        # if section count has increased, clear position light signal
         if section.occstatus > section.previousoccstatus:
-            clear_calling_on(section)
+            cancel_position_light(section)
         section.previousoccstatus = section.occstatus
         #if section has any axles or route is set through section:
         if section.occstatus > 0:
@@ -262,10 +263,6 @@ def maintain_signals(logger):
                 next_signal = None
             set.set_signal(signal, Section.instances, Point.instances, logger=logger,
                            nextsignal=next_signal)
-
-def clear_used_routes(): # only required for calling on signals
-    for section in Section.instances:
-        pass
 
 
 def check_triggers(logger, mqtt_client):

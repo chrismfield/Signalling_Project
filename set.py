@@ -39,7 +39,7 @@ def set_point(point, direction, sections, logger, mqtt_client, route = None):
 
 def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None, send_commands = True, route = None): #arguments are signal object and aspect as string
     main_proceed_aspects = ["clear", "caution", "doublecaution"]
-    proceed_aspects = ["clear", "caution", "doublecaution", "callingon"]
+    proceed_aspects = ["clear", "caution", "doublecaution", "associated_position_light", "position_light"]
     old_aspects = signal.aspect.copy()
     def set_aspect():
         #don't set signal if section is occupied
@@ -156,7 +156,7 @@ def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None, 
                         comms_status = " OK"
                     except (OSError, ValueError) as error:
                         comms_status = (" Comms failure " + str(error))
-            if set_aspect == "callingon":
+            if set_aspect == "associated_position_light":  # used where main danger aspect not to be turned off
                 try:
                     signal.slave.write_bit(signal.dangerreg, 1)
                     signal.slave.write_bit(signal.callingonreg, 1)
@@ -164,6 +164,13 @@ def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None, 
                         signal.slave.write_bit(signal.cautionreg, 0)
                     if signal.clearreg:
                         signal.slave.write_bit(signal.clearreg, 0)
+                    comms_status = " OK"
+                except (OSError, ValueError) as error:
+                    comms_status = (" Comms failure " + str(error))
+            if set_aspect == "position_light": # used where main danger aspect to be turned off
+                try:
+                    signal.slave.write_bit(signal.dangerreg, 0)
+                    signal.slave.write_bit(signal.callingonreg, 1)
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))

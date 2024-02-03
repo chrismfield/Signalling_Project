@@ -622,7 +622,7 @@ def Addsignal(parent, existingref):
     aspectvariables = [[danger, None, "Danger", 5, dangeroutput, "danger_aspect"],
                        [caution, None, "Caution", 6, cautionoutput,"caution_aspect"],
                        [clear, None, "Clear", 7, clearoutput,"clear_aspect"],
-                       [callingon, None, "Calling-on", 8, callingonoutput,"calling_on"],
+                       [callingon, None, "Position Light", 8, callingonoutput,"calling_on"],
                        [banner, None, "Banner repeater", 9, banneroutput,"banner_repeater"],
                        [route1, None, "Route 1", 10, route1output,"route_1"],
                        [route2, None, "Route 2", 11, route2output,"route_2"],
@@ -1146,7 +1146,8 @@ def Add_route(root, existingref):
         danger = IntVar()
         caution = IntVar()
         clear = IntVar()
-        callingon = IntVar()
+        position_light = IntVar()
+        associated_position_light = IntVar()
         banner = IntVar()
         route1 = IntVar()
         route2 = IntVar()
@@ -1158,14 +1159,15 @@ def Add_route(root, existingref):
         aspectvariables = [[danger, None, "Danger", 4, "danger"],
                            [caution, None, "Caution", 5, "caution"],
                            [clear, None, "Clear", 6, "clear"],
-                           [callingon, None, "Calling-on", 7, "callingon"],
-                           [banner, None, "Banner repeater", 8, "banner"],
-                           [route1, None, "Route 1", 9, "route1"],
-                           [route2, None, "Route 2", 10, "route2"],
-                           [route3, None, "Route 3", 11, "route3"],
-                           [route4, None, "Route 4", 12, "route4"],
-                           [route5, None, "Route 5", 13, "route5"],
-                           [route6, None, "Route 6", 14, "route6"]]
+                           [position_light, None, "Position light", 7, "position_light"],
+                           [associated_position_light, None, "Associated position light", 8, "associated_position_light"],
+                           [banner, None, "Banner repeater", 9, "banner"],
+                           [route1, None, "Route 1", 10, "route1"],
+                           [route2, None, "Route 2", 11, "route2"],
+                           [route3, None, "Route 3", 12, "route3"],
+                           [route4, None, "Route 4", 13, "route4"],
+                           [route5, None, "Route 5", 14, "route5"],
+                           [route6, None, "Route 6", 15, "route6"]]
 
         def write_aspects(sig_ref):
             # write the selected aspects into setpoints

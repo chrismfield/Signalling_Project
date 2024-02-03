@@ -586,7 +586,7 @@
             "setting": false,
             "signals": {
                 "48": [
-                    "callingon",
+                    "associated_position_light",
                     "route4"
                 ]
             }
@@ -706,7 +706,7 @@
             "setting": false,
             "signals": {
                 "48": [
-                    "callingon",
+                    "associated_position_light",
                     "route2"
                 ]
             }
@@ -728,7 +728,7 @@
             "setting": false,
             "signals": {
                 "48": [
-                    "callingon",
+                    "associated_position_light",
                     "route3"
                 ]
             }
