@@ -334,53 +334,38 @@ def set_from_mqtt(command, signals, sections, points, routes, triggers, logger, 
 
 
 def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, routes, triggers, logger, mqtt_client, mqtt_dict):
-    mqtt_dict_old = mqtt_dict
-    # send axlecounter dynamic variables
+    mqtt_dict_old = mqtt_dict.copy()
+    # set axlecounter dynamic variables
     for axlecounter in axlecounters.values():
-        #mqtt_client.publish("error/axlecounter/comms/"+ axlecounter.ref, axlecounter.comms_status)
         mqtt_dict[("error/axlecounter/comms/"+ axlecounter.ref)] = axlecounter.comms_status
-    # send signal dynamic variables
+    # set signal dynamic variables
     for signal in signals.values():
-        #mqtt_client.publish("report/signal/"+ signal.ref +"/aspect", (",".join(signal.aspect)))
         mqtt_dict[("report/signal/"+ signal.ref +"/aspect")] = (",".join(signal.aspect))
-        #mqtt_client.publish("error/signal/comms/"+ signal.ref, signal.comms_status)
         mqtt_dict[("error/signal/comms/"+ signal.ref)] = signal.comms_status
-    # send section dynamic variables
+    # set section dynamic variables
     for section in sections.values():
-        #mqtt_client.publish("report/section/"+ section.ref+"/occstatus", section.occstatus)
         mqtt_dict[("report/section/"+ section.ref+"/occstatus")] = section.occstatus
-        #mqtt_client.publish("report/section/"+ section.ref+"/routeset", section.routeset)
         mqtt_dict[("report/section/"+ section.ref+"/routeset")] = section.routeset
-        #mqtt_client.publish("report/section/" + section.ref + "/routestatus", section.routestatus)
         mqtt_dict[("report/section/" + section.ref + "/routestatus")] = section.routestatus
-    # send plunger dynamic variables
+    # set plunger dynamic variables
     for plunger in plungers.values():
-        #mqtt_client.publish("error/plunger/comms/" + plunger.ref, plunger.comms_status)
         mqtt_dict[("error/plunger/comms/" + plunger.ref)] = plunger.comms_status
-    # send point dynamic variables
+    # set point dynamic variables
     for point in points.values():
-        #mqtt_client.publish("report/point/"+point.ref+"/set_direction", point.set_direction)
         mqtt_dict[("report/point/"+point.ref+"/set_direction")] = point.set_direction
-        #mqtt_client.publish("report/point/"+point.ref+"/detection_status", point.detection_status)
         mqtt_dict[("report/point/"+point.ref+"/detection_status")] = point.detection_status
-        #mqtt_client.publish("report/point/"+point.ref+"/detection_boolean", point.detection_boolean)
         mqtt_dict[("report/point/"+point.ref+"/detection_boolean")] = point.detection_boolean
-        #mqtt_client.publish("report/point/"+point.ref+"/unlocked", point.unlocked)
         mqtt_dict[("report/point/"+point.ref+"/unlocked")] = point.unlocked
-        #mqtt_client.publish("error/point/comms/" + point.ref, point.comms_status)
         mqtt_dict[("error/point/comms/" + point.ref)] = point.comms_status
-    # send route dynamic variables
+    # set route dynamic variables
     for route in routes.values():
-        #mqtt_client.publish("report/route/"+route.ref+"/available", route.available)
         mqtt_dict[("report/route/"+route.ref+"/available")] = route.available
-        #mqtt_client.publish("report/route/"+route.ref+"/setting", route.setting)
         mqtt_dict[("report/route/"+route.ref+"/setting")] = route.setting
-    # send trigger dynamic variables
+    # set trigger dynamic variables
     for trigger in triggers.values():
-        #mqtt_client.publish("report/trigger/"+trigger.ref+"/triggered", trigger.triggered) # not req- never true here.
-        #mqtt_client.publish("report/trigger/"+trigger.ref+"/stored_request", trigger.stored_request)
         mqtt_dict[("report/trigger/"+trigger.ref+"/stored_request")] = trigger.stored_request
 
+    #send everythink, only if anything has changed
     if mqtt_dict != mqtt_dict_old:
         for key, val in mqtt_dict.items():
             mqtt_client.publish(key, val)

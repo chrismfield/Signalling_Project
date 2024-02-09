@@ -3,7 +3,7 @@
     "layoutDB": "default.json",
     "network_ports":
     {
-        "network_1": "COM3",
+        "network_1": "COM10",
         "network_2": "COM2"
     },
     "logging_level": 10,

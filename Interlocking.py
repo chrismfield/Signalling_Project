@@ -399,7 +399,6 @@ def process(logger, mqtt_client):
                                 logger = logger,
                                 mqtt_client = mqtt_client,
                                 mqtt_dict = mqtt_dict)
-    print(mqtt_dict)
 
 
 

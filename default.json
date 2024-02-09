@@ -937,7 +937,7 @@
             "lever": null,
             "override": false,
             "plungers": [],
-            "priority": 2,
+            "priority": 1,
             "ref": "47toP4",
             "routes_to_cancel": [
                 "S only"
@@ -968,7 +968,7 @@
             "plungers": [
                 "P12"
             ],
-            "priority": 5,
+            "priority": 1,
             "ref": "46to48",
             "routes_to_cancel": [],
             "routes_to_set": [
