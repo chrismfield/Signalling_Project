@@ -10,6 +10,7 @@ import set
 from object_definitions import AxleCounter, Signal, Point, Plunger, Section, Route, Trigger
 
 q=[]
+mqtt_dict = {}
 
 dynamic_variables = True
 
@@ -396,8 +397,9 @@ def process(logger, mqtt_client):
                                 routes=Route.instances,
                                 triggers=Trigger.instances,
                                 logger = logger,
-                                mqtt_client = mqtt_client)
-
+                                mqtt_client = mqtt_client,
+                                mqtt_dict = mqtt_dict)
+    print(mqtt_dict)
 
 
 
