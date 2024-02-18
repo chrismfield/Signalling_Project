@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.js"></script>
+    <title>Merley Arrivals Control</title>
+    <script src="paho-mqtt.js"></script>
 
 </head>
 <body>
@@ -11,7 +11,7 @@
 
 <script>
  // MQTT Broker connection details
-  const broker = '127.0.0.1';
+  const broker = '192.168.1.242';
   const clientId = 'webpage-client';
 
   // MQTT client setup
@@ -35,8 +35,20 @@
     }
   }
 
+  function updateDynamicValue(DynamicCellId, DynamicValue) {
+  const DynamicCell = document.getElementById(DynamicCellId);
+  if (DynamicCell) {
+    DynamicCell.textContent = `Status: ${DynamicValue}`;
+  }
+}
+
   function onMessageArrived(message) {
-    console.log('Received message: ' + message.payloadString);
+    //console.log('Received message: ' + message.payloadString);
+    const topicParts = message.destinationName.split('/');
+    const currentAttributeKey = topicParts[topicParts.length - 1];
+    const currentAssetKey = topicParts[topicParts.length - 2];
+    console.log(currentAssetKey+"_"+currentAttributeKey, message.payloadString)
+    updateDynamicValue(currentAssetKey+"_"+currentAttributeKey, message.payloadString);
     //displayMessage(message.payloadString); //commented out as displayMessage doesn't work. 
   }
 
@@ -54,8 +66,8 @@
  
  </script>
   
- //<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-//<script>	
+ <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>	
 	// create buttons etc
 
   async function getJSON() {
@@ -77,79 +89,89 @@ function createButtonsInSection(sectionName, data) {
   const heading = document.createElement('h2');
   heading.textContent = sectionName;
   section.appendChild(heading);
-  console.log(data);
+
+  const table = document.createElement('table');
 
   for (const [key, value] of Object.entries(data)) {
+    const row = table.insertRow();
 
-    if (sectionName == "Routes") {
-      const setButton = document.createElement('button');
-      const clearButton = document.createElement('button');
-      setButton.textContent = ("Set "+key);
-      setButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
-      clearButton.textContent = ("Clear "+key);
-      clearButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
-      setButton.addEventListener("click", function() {publishMessage('set/route/'+key, 'True');});
-      clearButton.addEventListener("click", function() {publishMessage('set/route/'+key, 'False');});
-      section.appendChild(setButton);
-      section.appendChild(clearButton);
-    } else if (sectionName == "Points"){
-      const normalButton = document.createElement('button');
-      const reverseButton = document.createElement('button');
-      normalButton.textContent = ("Normal "+key);
-      normalButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
-      reverseButton.textContent = ("Reverse "+key);
-      reverseButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
-      normalButton.addEventListener("click", function() {publishMessage('set/point/'+key, 'normal');});
-      reverseButton.addEventListener("click", function() {publishMessage('set/point/'+key, 'reverse');});
-      section.appendChild(normalButton);
-      section.appendChild(reverseButton);
-    } else if (sectionName == "Sections"){
-      const clearButton = document.createElement('button');
-      clearButton.textContent = ("Clear "+key);
-      clearButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
-      clearButton.addEventListener("click", function() {publishMessage('set/section/'+key+'/occstatus', '0');});
-      section.appendChild(clearButton);
-    } else if (sectionName == "Signals"){
-        console.log(value);
-        if (value.clearreg) {
-        const clearButton = document.createElement('button');
-        clearButton.textContent = (key+" Clear");
-        clearButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
-        clearButton.addEventListener("click", function() {publishMessage('set/signal/'+key, 'clear');});
-        section.appendChild(clearButton);
-        } 
-        if (value.dangerreg) {
-        const dangerButton = document.createElement('button');
-        dangerButton.textContent = (key+" Danger");
-        dangerButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
-        dangerButton.addEventListener("click", function() {publishMessage('set/signal/'+key, 'danger');});
-        section.appendChild(dangerButton);
-        }
-        if (value.cautionreg) {
-        const cautionButton = document.createElement('button');
-        cautionButton.textContent = (key+" Caution");
-        cautionButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
-        cautionButton.addEventListener("click", function() {publishMessage('set/signal/'+key, 'caution');});
-        section.appendChild(cautionButton);
-        }
-        if (value.callingonreg) {
-        const callingonButton = document.createElement('button');
-        callingonButton.textContent = (key+" callingon");
-        callingonButton.id = `${sectionName.toLowerCase()}_${key.toLowerCase()}`;
-        callingonButton.addEventListener("click", function() {publishMessage('set/signal/'+key, 'callingon');});
-        section.appendChild(callingonButton);
-        }
+    // Column for the asset identifier (signal number, route name, etc.)
+    const labelCell = row.insertCell(0);
+    labelCell.textContent = key;
+
+
+
+    // Buttons based on the section type
+    if (sectionName == "Signals") {
+      // Cell for displaying the occupancy value
+      const aspectCell = row.insertCell(1);
+      const aspectCellId = key+"_aspect";
+      aspectCell.id = aspectCellId;
+      aspectCell.textContent = `Aspect: Loading...`; // Initial loading state 
+      addButtonCell(row, "Danger", `${sectionName.toLowerCase()}_${key.toLowerCase()}_danger`, () => publishMessage(`set/signal/${key}`, 'danger'), value.dangerreg);
+      addButtonCell(row, "Clear", `${sectionName.toLowerCase()}_${key.toLowerCase()}_clear`, () => publishMessage(`set/signal/${key}`, 'clear'), value.clearreg);
+      addButtonCell(row, "Caution", `${sectionName.toLowerCase()}_${key.toLowerCase()}_caution`, () => publishMessage(`set/signal/${key}`, 'caution'), value.cautionreg);
+      addButtonCell(row, "Calling On", `${sectionName.toLowerCase()}_${key.toLowerCase()}_callingon`, () => publishMessage(`set/signal/${key}`, 'callingon'), value.callingonreg);
+    } else if (sectionName == "Points") {
+      // Buttons for Normal and Reverse for Points
+      const setDirectionCell = row.insertCell(1);
+      const setDirectionCellId = key+"_set_direction";
+      setDirectionCell.id = setDirectionCellId;
+      setDirectionCell.textContent = `Set direction: Loading...`; // Initial loading state 
+      const detectionCell = row.insertCell(1);
+      const detectionCellId = key+"_detection_status";
+      detectionCell.id = detectionCellId;
+      detectionCell.textContent = `Detection: Loading...`; // Initial loading state 
+      addButtonCell(row, "Normal", `${sectionName.toLowerCase()}_${key.toLowerCase()}_normal`, () => publishMessage(`set/point/${key}`, 'normal'));
+      addButtonCell(row, "Reverse", `${sectionName.toLowerCase()}_${key.toLowerCase()}_reverse`, () => publishMessage(`set/point/${key}`, 'reverse'));
+    } else if (sectionName == "Routes") {
+      // Buttons for Set and Clear for Routes
+      addButtonCell(row, "Set", `${sectionName.toLowerCase()}_${key.toLowerCase()}_set`, () => publishMessage(`set/route/${key}`, 'True'));
+      addButtonCell(row, "Clear", `${sectionName.toLowerCase()}_${key.toLowerCase()}_clear`, () => publishMessage(`set/route/${key}`, 'False'));
+    } else if (sectionName == "Sections") {
+      // Cell for displaying the occupancy value
+      const occupancyCell = row.insertCell(1);
+      const occupancyCellId = key+"_occstatus";
+      occupancyCell.id = occupancyCellId;
+      occupancyCell.textContent = `Occupancy: Loading...`; // Initial loading state
+      const setStatusCell = row.insertCell(1);
+      const setStatusCellId = key+"_routeset";
+      setStatusCell.id = setStatusCellId;
+      setStatusCell.textContent = `Occupancy: Loading...`; // Initial loading state
+      // Only a Clear button for Sections
+      addButtonCell(row, "Clear", `${sectionName.toLowerCase()}_${key.toLowerCase()}_clear`, () => publishMessage(`set/section/${key}/occstatus`, '0'));
     }
-
-    //button.onclick = "publishMessage('set/route/IntoR', 'True')";
-	  //console.log(setButton.id);
-    // You can add event listeners or other custom logic here
-
-    section.appendChild(document.createElement('br')); // Add line break after each button
   }
 
+  section.appendChild(table);
   document.body.appendChild(section);
 }
+
+function addButtonCell(row, text, id, clickHandler, isVisible) {
+  const cell = row.insertCell();
+  
+  if (isVisible !== undefined) { // Check if isVisible is defined
+    if (isVisible) {
+      const button = document.createElement('button');
+      button.textContent = text;
+      button.id = id;
+      button.addEventListener("click", clickHandler);
+      cell.appendChild(button);
+    } else {
+      cell.style.visibility = 'hidden';
+    }
+  } else {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.id = id;
+    button.addEventListener("click", clickHandler);
+    cell.appendChild(button);
+  }
+}
+
+
+
+
 
 function gotJSON(jsonData){
 

@@ -1018,8 +1018,7 @@
             "lever": null,
             "override": false,
             "plungers": [
-                "P5",
-                "P8"
+                "P5"
             ],
             "priority": 5,
             "ref": "RintoP2",
@@ -1037,7 +1036,8 @@
                 "P3shunt",
                 "P4shunt",
                 "S only",
-                "R_only"
+                "R_only",
+                "Startup"
             ],
             "routes_to_set": [
                 "48intoP2occ"
@@ -1060,8 +1060,7 @@
             "lever": null,
             "override": false,
             "plungers": [
-                "P6",
-                "P9"
+                "P6"
             ],
             "priority": 5,
             "ref": "RintoP3",
@@ -1079,7 +1078,8 @@
                 "P3shunt",
                 "P4shunt",
                 "S only",
-                "R_only"
+                "R_only",
+                "Startup"
             ],
             "routes_to_set": [
                 "48intoP3occ"
@@ -1097,13 +1097,12 @@
             "conditions": [
                 "True"
             ],
-            "description": "Plunger P6 Trigger",
+            "description": "Plunger P7 Trigger",
             "instances": {},
             "lever": null,
             "override": false,
             "plungers": [
-                "P7",
-                "P10"
+                "P7"
             ],
             "priority": 5,
             "ref": "RintoP4",
@@ -1121,7 +1120,8 @@
                 "P3shunt",
                 "P4shunt",
                 "S only",
-                "R_only"
+                "R_only",
+                "Startup"
             ],
             "routes_to_set": [
                 "48intoP4unocc"
@@ -1338,6 +1338,109 @@
             "sections_occupied": [
                 "Q"
             ],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "P8trig": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Plunger P8 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P5",
+                "P8"
+            ],
+            "priority": 5,
+            "ref": "P8trig",
+            "routes_to_cancel": [
+                "48intoP4occ",
+                "48intoP4unocc",
+                "48intoP2unocc",
+                "48intoP2occ",
+                "48intoP3occ",
+                "48intoP3(unocc)",
+                "Startup"
+            ],
+            "routes_to_set": [
+                "48intoP2occ"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "P9trig": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Plunger P9 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P9"
+            ],
+            "priority": 5,
+            "ref": "P9trig",
+            "routes_to_cancel": [
+                "48intoP4occ",
+                "48intoP4unocc",
+                "48intoP2unocc",
+                "48intoP2occ",
+                "48intoP3occ",
+                "48intoP3(unocc)",
+                "Startup"
+            ],
+            "routes_to_set": [
+                "48intoP3occ"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "P10trig": {
+            "conditions": [
+                "True"
+            ],
+            "description": "Plunger P10 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P10"
+            ],
+            "priority": 5,
+            "ref": "P10trig",
+            "routes_to_cancel": [
+                "48intoP4occ",
+                "48intoP4unocc",
+                "48intoP2unocc",
+                "48intoP2occ",
+                "48intoP3occ",
+                "48intoP3(unocc)",
+                "Startup"
+            ],
+            "routes_to_set": [
+                "48intoP4occ"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
             "store_request": 0,
             "stored_request": false,
             "timer": null,
