@@ -28,7 +28,7 @@ class Signal:
     def __init__(self, sigtype, address, ref, description, availableaspects,
                  directionindicator, dangerreg, cautionreg, clearreg, callingonreg,
                  bannerreg, route1reg, route2reg, route3reg, route4reg, route5reg, route6reg, doublecaution=None,
-                 nextsignal=None, board_index=0, slave=None, dynamic_variables = True, conflicting_signals = []):
+                 nextsignal=None, board_index=0, slave=None, dynamic_variables=True, conflicting_signals=[]):
         #static variables
         self.sigtype = sigtype  # mode = Semaphore or coulour light
         self.address = address  # address
