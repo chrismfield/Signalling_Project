@@ -7,6 +7,10 @@ import json
 import os
 from object_definitions import AxleCounter, Signal, Section, Plunger, Point, Route, Trigger
 
+#TODO add conflicting signals editor
+#TODO add protecting points editor
+#TODO add Trigger conditions, special actions and expressions to editor
+
 dynamic_variables = False
 
 # ---------Assets, Sections and Route instances --------------

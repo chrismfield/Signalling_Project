@@ -1,5 +1,8 @@
 from custom_exceptions import *
 
+main_proceed_aspects = ["clear", "caution", "doublecaution"]
+proceed_aspects = ["clear", "caution", "doublecaution", "associated_position_light", "position_light"]
+
 def set_point(point, direction, sections, logger, mqtt_client, route = None):
     # don't move points if section is occupied
     if sections[point.section].occstatus:
@@ -37,25 +40,38 @@ def set_point(point, direction, sections, logger, mqtt_client, route = None):
             logger.error(point.ref + comms_status)
             point.comms_status = comms_status
 
-def set_signal(signal, sections, points, logger, aspect=None, nextsignal =None, send_commands = True, route = None): #arguments are signal object and aspect as string
+def set_signal(signal, signals, sections, points, logger, aspect=None, nextsignal =None, send_commands = True, route = None): #arguments are signal object and aspect as string
     main_proceed_aspects = ["clear", "caution", "doublecaution"]
     proceed_aspects = ["clear", "caution", "doublecaution", "associated_position_light", "position_light"]
     old_aspects = signal.aspect.copy()
+
+    def check_protecting_points(protecting_points):
+        """returns true if points are set to protect section"""
+        if protecting_points and (signal.ref in protecting_points):
+            section_protecting_points = protecting_points[signal.ref]
+            for point, direction in section_protecting_points.items():
+                if direction != points.instances[point].set_direction:
+                    return True
+        return False
+
     def set_aspect():
         #don't set signal if section is occupied
+        for section in sections.values():
+            if signal.ref in section.homesignal and not check_protecting_points(section.protecting_points):
+                if section.occstatus and (aspect in main_proceed_aspects):
+                    logger.critical("Cannot clear signal when section is occupied")
+                    raise InterlockingError("Cannot clear signal when section is occupied")
+                for point in points.values():
+                    if point.section == section.ref:
+                        if not point.detection_boolean:
+                            logger.critical("Cannot clear signal when section points not detected")
+                            raise InterlockingError("Cannot clear signal when section points not detected")
+        # TODO test don't set signal if a conflicting signal is set
+        for conflicting_signal in signal.conflicting_signals:
+            if signals[conflicting_signal].aspect != "danger":
+                logger.critical("Cannot clear signal when conflicting signal set")
+                raise InterlockingError("Cannot clear signal when conflicting signal set")
 
-
-        if aspect in main_proceed_aspects:
-            for section in sections.values():
-                if signal.ref in section.homesignal:
-                    if section.occstatus:
-                        logger.critical("Cannot clear signal when section is occupied")
-                        raise InterlockingError("Cannot clear signal when section is occupied")
-                    for point in points.values():
-                        if point.section == section.ref:
-                            if not point.detection_boolean:
-                                logger.critical("Cannot clear signal when section points not detected")
-                                raise InterlockingError("Cannot clear signal when section points not detected")
         comms_status = ""
         #clear other aspects if set to danger
         if aspect == "danger":
@@ -234,8 +250,13 @@ def check_route_available(route, points, sections, routes_to_cancel = [], sectio
             return False
         if sections[route_section].routestatus == "setting" and (sections[route_section].routeset not in routes_to_cancel):
             return False
-        if sections[route_section].occstatus:
-            return False # don't set if route is occupied
+        # don't set route if section is occupied and signal aspect is a main proceed aspect
+        section_signal = sections[route_section].homesignal
+        signal_aspects = route.signals[section_signal]
+        if sections[route_section].occstatus and \
+                [aspect for aspect in signal_aspects if aspect in main_proceed_aspects]:
+            return False
+        # don't set route if there is a conflicting section set or occupied
         for section in sections[route_section].conflictingsections:
             if sections[section].routeset and (sections[section].routeset not in routes_to_cancel):
                 return False
@@ -244,9 +265,12 @@ def check_route_available(route, points, sections, routes_to_cancel = [], sectio
         for section in sections[route_section].conflictingsections:
             if sections[section].occstatus:
                 return False
+            #don't set route if points are locked
     for point in route.points:
         if not points[point].unlocked:
             return False
+    # TODO don't set route if there is a conflicting signal set
+
     return True
 def set_route(route, sections, points, signals, logger, mqtt_client):
 
@@ -277,7 +301,7 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
             # set signal for that section in accordance with route signals to set
             for signal, aspects in route.signals.items():
                 for aspect in aspects:
-                    set_signal(signals[signal], sections=sections, points=points, logger=logger, aspect=aspect, send_commands = False, route=route.ref)
+                    set_signal(signals[signal], signals, sections=sections, points=points, logger=logger, aspect=aspect, send_commands = False, route=route.ref)
             # clear trigger once route fully set
             #route.set = True # not required?
             route.setting = False
@@ -294,7 +318,7 @@ def cancel_route(route, sections, points, signals, triggers, logger, mqtt_client
             sections[section].routestatus = "not set"
     for signal_ref, aspects in route.signals.items():
         if signals[signal_ref].routeset == route.ref:
-            set_signal(signals[signal_ref], sections=sections, points=points, logger=logger, aspect="danger")
+            set_signal(signals[signal_ref], signals, sections=sections, points=points, logger=logger, aspect="danger")
     for point_ref, direction in route.points.items():
         if points[point_ref].routeset == route.ref:
             points[point_ref].routeset = None
@@ -317,9 +341,8 @@ def set_from_mqtt(command, signals, sections, points, routes, triggers, logger, 
         return
     if command_l[1] == "point":
         set_point(point=points[command_l[2]], direction=command_payload, sections=sections, logger=logger, mqtt_client=mqtt_client)
-    # TODO implement point locking
     if command_l[1] == "signal":
-        set_signal(signal=signals[command_l[2]], sections=sections, points=points, logger=logger, aspect=command_payload, send_commands = False)
+        set_signal(signal=signals[command_l[2]], signals=signals, sections=sections, points=points, logger=logger, aspect=command_payload, send_commands = False)
     if command_l[1] == "route":
         if eval(command_payload):
             set_route(route=routes[command_l[2]], sections=sections, points=points, signals = signals, logger=logger, mqtt_client=mqtt_client)

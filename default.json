@@ -8,6 +8,7 @@
             },
             "description": "Between level crossing and 47",
             "homesignal": [],
+            "protecting_points": {},
             "inctrig": {
                 "A1": "Upcount",
                 "A2": "Downcount"
@@ -36,6 +37,8 @@
                 "45",
                 "46"
             ],
+            "protecting_points":
+                {},
             "inctrig": {
                 "A2": "Upcount",
                 "A3": "Downcount",
@@ -61,6 +64,7 @@
                 "43",
                 "44"
             ],
+            "protecting_points": {},
             "inctrig": {
                 "A3": "Upcount"
             },
@@ -81,6 +85,8 @@
             "homesignal": [
                 "48"
             ],
+            "protecting_points":
+                {},
             "inctrig": {
                 "A3": "Upcount"
             },

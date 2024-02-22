@@ -243,7 +243,7 @@ def check_points(logger, mqtt_client):
                 point.detection_boolean = False
                 point.detection_status = "None"
                 for home_signal in Section.instances[point.section].homesignal:
-                    set.set_signal(Signal.instances[home_signal], Section.instances, Point.instances, logger=logger, aspect="danger")
+                    set.set_signal(Signal.instances[home_signal], Signal.instances, Section.instances, Point.instances, logger=logger, aspect="danger")
 
             if point.comms_status != comms_status:
                 logger.error(point.ref + comms_status)
@@ -262,7 +262,7 @@ def maintain_signals(logger):
                 next_signal = Signal.instances[signal.nextsignal]
             except KeyError:
                 next_signal = None
-            set.set_signal(signal, Section.instances, Point.instances, logger=logger,
+            set.set_signal(signal, Signal.instances, Section.instances, Point.instances, logger=logger,
                            nextsignal=next_signal)
 
 

@@ -28,7 +28,7 @@ class Signal:
     def __init__(self, sigtype, address, ref, description, availableaspects,
                  directionindicator, dangerreg, cautionreg, clearreg, callingonreg,
                  bannerreg, route1reg, route2reg, route3reg, route4reg, route5reg, route6reg, doublecaution=None,
-                 nextsignal=None, board_index=0, slave=None, dynamic_variables = True):
+                 nextsignal=None, board_index=0, slave=None, dynamic_variables = True, conflicting_signals = []):
         #static variables
         self.sigtype = sigtype  # mode = Semaphore or coulour light
         self.address = address  # address
@@ -36,6 +36,7 @@ class Signal:
         self.ref = ref  # Freetext Reference
         self.description = description  # Freetext description
         self.availableaspects = availableaspects  # available aspects
+        self.conflicting_signals = conflicting_signals
         self.directionindicator = directionindicator
         self.dangerreg = dangerreg
         self.cautionreg = cautionreg
@@ -64,7 +65,7 @@ class Signal:
 class Section:
     """Section object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, ref, description, mode, inctrig, dectrig, homesignal, conflictingsections):
+    def __init__(self, ref, description, mode, inctrig, dectrig, homesignal, conflictingsections, protecting_points={}):
         #static variables
         self.ref = ref  # Freetext Ref
         self.description = description  # Freetext description
@@ -73,6 +74,7 @@ class Section:
         self.inctrig = inctrig  # increment triggers
         self.dectrig = dectrig  # decrement triggers
         self.homesignal = homesignal  # protecting signals
+        self.protecting_points = protecting_points # dict of dict: homesignal: {point:direction, point:direction}
         self.conflictingsections = conflictingsections
         #dynamic variables
         self.occstatus = 0  # occupation status
