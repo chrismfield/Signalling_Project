@@ -7,9 +7,9 @@ import paho.mqtt.client as mqtt
 import time
 
 import set
-from object_definitions import AxleCounter, Signal, Point, Plunger, Section, Route, Trigger
+from object_definitions import AxleCounter, Signal, Point, Plunger, Section, Route, Trigger, AutomaticRouteSetting
 
-q=[]
+mqtt_received_queue=[]
 mqtt_dict = {}
 
 dynamic_variables = True
@@ -18,7 +18,7 @@ with open("config.json") as config_file:
     config = jsons.loads(config_file.read())
 
 def on_message(mqtt_client, userdata, message):
-    q.append(message)
+    mqtt_received_queue.append(message)
 
 def setup_mqtt():
     broker_address=config["mqtt_broker_address"]
@@ -266,7 +266,7 @@ def maintain_signals(logger):
                            nextsignal=next_signal)
 
 
-def check_triggers(logger, mqtt_client):
+def check_triggers(logger, mqtt_client, automatic_route_setting):
     def sections_to_cancel(trigger):
         """function to return a list of sections to cancel from a trigger with routes to cancel"""
         sections_to_cancel_list = []
@@ -286,8 +286,7 @@ def check_triggers(logger, mqtt_client):
             if Plunger.instances[plunger].status:
                 trigger.triggered = True
         # check if triggered by section occupancy:
-        # TODO Put in ARS switch
-        if trigger.sections_occupied:
+        if trigger.sections_occupied and AutomaticRouteSetting.global_active:
             for trigger_section in trigger.sections_occupied:
                 if Section.instances[trigger_section].occstatus > 0:
                     trigger.triggered = True
@@ -364,9 +363,9 @@ def check_triggers(logger, mqtt_client):
 
 
 def check_mqtt(logger, mqtt_client):
-    while q:
-        set.set_from_mqtt(command=q.pop(), signals=Signal.instances, sections=Section.instances, points=Point.instances,
-                          routes=Route.instances, triggers=Trigger.instances, logger=logger, mqtt_client=mqtt_client)
+    while mqtt_received_queue:
+        set.set_from_mqtt(command=mqtt_received_queue.pop(), signals=Signal.instances, sections=Section.instances, points=Point.instances,
+                          routes=Route.instances, triggers=Trigger.instances, logger=logger, mqtt_client=mqtt_client, automatic_route_setting=AutomaticRouteSetting)
     # put command actions in here
 
 
@@ -398,7 +397,8 @@ def process(logger, mqtt_client):
                                 triggers=Trigger.instances,
                                 logger = logger,
                                 mqtt_client = mqtt_client,
-                                mqtt_dict = mqtt_dict)
+                                mqtt_dict = mqtt_dict,
+                                automatic_route_setting=AutomaticRouteSetting)
 
 
 

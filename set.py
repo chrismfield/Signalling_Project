@@ -334,7 +334,14 @@ def set_plungers_clear(all_plungers_dict):
     for plunger_key, plunger in all_plungers_dict.items():
         plunger.status = 0
 
-def set_from_mqtt(command, signals, sections, points, routes, triggers, logger, mqtt_client):
+def set_ARS(automatic_route_setting, status):
+    if status:
+        automatic_route_setting.global_active = True
+    else:
+        automatic_route_setting.global_active = False
+
+
+def set_from_mqtt(command, signals, sections, points, routes, triggers, logger, mqtt_client, automatic_route_setting):
     command_l = command.topic.split("/")
     command_payload = str(command.payload.decode("utf-8"))
     if command_l[0] != "set":
@@ -353,10 +360,12 @@ def set_from_mqtt(command, signals, sections, points, routes, triggers, logger, 
     if command_l[1] == "section" and command_l[3] == "occstatus":
         sections[command_l[2]].occstatus = int(command_payload)
         logger.info(str(command_l[2]) + " reset")
+    if command_l[1] == "automatic_route_settting":
+        set_ARS(automatic_route_setting, command_payload)
 
 
 
-def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, routes, triggers, logger, mqtt_client, mqtt_dict):
+def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, routes, triggers, logger, mqtt_client, mqtt_dict, automatic_route_setting):
     mqtt_dict_old = mqtt_dict.copy()
     # set axlecounter dynamic variables
     for axlecounter in axlecounters.values():
@@ -387,8 +396,9 @@ def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, route
     # set trigger dynamic variables
     for trigger in triggers.values():
         mqtt_dict[("report/trigger/"+trigger.ref+"/stored_request")] = trigger.stored_request
+    mqtt_dict[("report/automatic route setting")] = automatic_route_setting.global_active
 
-    #send everythink, only if anything has changed
+    #send everything, only if anything has changed
     if mqtt_dict != mqtt_dict_old:
         for key, val in mqtt_dict.items():
             mqtt_client.publish(key, val)

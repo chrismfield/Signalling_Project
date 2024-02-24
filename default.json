@@ -81,12 +81,12 @@
             "dectrig": {
                 "A4": "Downcount"
             },
-            "description": "Platform Sections",
+            "description": "Platform 2 Section",
             "homesignal": [
                 "48"
             ],
             "protecting_points":
-                {},
+                {"48": {"100": "normal"}},
             "inctrig": {
                 "A3": "Upcount"
             },
@@ -95,6 +95,50 @@
             "occstatus": 0,
             "previousoccstatus": 0,
             "ref": "T",
+            "routeset": false,
+            "routestatus": ""
+        },
+        "U": {
+            "conflictingsections": [],
+            "dectrig": {
+                "A4": "Downcount"
+            },
+            "description": "Platform 3 Section",
+            "homesignal": [
+                "48"
+            ],
+            "protecting_points":
+                {"48": {"100": "reverse", "300": "normal"}},
+            "inctrig": {
+                "A3": "Upcount"
+            },
+            "instances": {},
+            "mode": "axlecounter",
+            "occstatus": 0,
+            "previousoccstatus": 0,
+            "ref": "U",
+            "routeset": false,
+            "routestatus": ""
+        },
+        "V": {
+            "conflictingsections": [],
+            "dectrig": {
+                "A4": "Downcount"
+            },
+            "description": "Platform 4 Section",
+            "homesignal": [
+                "48"
+            ],
+            "protecting_points":
+                {"48": {"100": "reverse", "300": "reverse"}},
+            "inctrig": {
+                "A3": "Upcount"
+            },
+            "instances": {},
+            "mode": "axlecounter",
+            "occstatus": 0,
+            "previousoccstatus": 0,
+            "ref": "V",
             "routeset": false,
             "routestatus": ""
         }

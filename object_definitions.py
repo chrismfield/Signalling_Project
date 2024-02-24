@@ -174,3 +174,8 @@ class Lever:
     instances = {}
     # for later on!
     pass
+
+class AutomaticRouteSetting:
+    global_active = True
+    def __init__(self):
+        pass
