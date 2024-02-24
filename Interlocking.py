@@ -377,7 +377,7 @@ def process(logger, mqtt_client):
         check_points(logger, mqtt_client)
         maintain_signals(logger)
         check_all_plungers(logger)
-        check_triggers(logger, mqtt_client)
+        check_triggers(logger, mqtt_client, AutomaticRouteSetting)
         # iterate through setting routes
         for route in Route.instances.values():
             if route.setting:

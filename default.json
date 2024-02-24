@@ -1051,7 +1051,7 @@
             "plungers": [
                 "P11"
             ],
-            "priority": 5,
+            "priority": 1,
             "ref": "45to48",
             "routes_to_cancel": [],
             "routes_to_set": [
@@ -1206,12 +1206,6 @@
             "priority": 5,
             "ref": "ShuntP4",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
@@ -1243,12 +1237,6 @@
             "priority": 5,
             "ref": "ShuntP3",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
@@ -1280,12 +1268,6 @@
             "priority": 5,
             "ref": "ShuntP2",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
@@ -1423,6 +1405,9 @@
                 "48intoP2occ",
                 "48intoP3occ",
                 "48intoP3(unocc)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
                 "Startup"
             ],
             "routes_to_set": [
@@ -1457,6 +1442,9 @@
                 "48intoP2occ",
                 "48intoP3occ",
                 "48intoP3(unocc)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
                 "Startup"
             ],
             "routes_to_set": [
@@ -1491,6 +1479,9 @@
                 "48intoP2occ",
                 "48intoP3occ",
                 "48intoP3(unocc)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
                 "Startup"
             ],
             "routes_to_set": [
