@@ -68,7 +68,6 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                         if not point.detection_boolean:
                             logger.critical("Cannot clear signal when section points not detected")
                             raise InterlockingError("Cannot clear signal when section points not detected")
-        # TODO test don't set signal if a conflicting signal is set
         for conflicting_signal in signal.conflicting_signals:
             if aspect == "danger":
                 break
@@ -258,7 +257,7 @@ def check_route_available(route, points, sections, routes_to_cancel = [], sectio
         section_signals = sections[route_section].homesignal
         for section_signal in section_signals:
             if section_signal in route.signals:
-                signal_aspects = route.signals[section_signal] #TODO Check this logic
+                signal_aspects = route.signals[section_signal]
                 if sections[route_section].occstatus and \
                         [aspect for aspect in signal_aspects if aspect in main_proceed_aspects]:
                     return False
@@ -275,7 +274,7 @@ def check_route_available(route, points, sections, routes_to_cancel = [], sectio
     for point in route.points:
         if not points[point].unlocked:
             return False
-    # TODO don't set route if there is a conflicting signal set
+    # TODO don't set route if there is a conflicting signal set - currently raises an exception - OK?
 
     return True
 def set_route(route, sections, points, signals, logger, mqtt_client):

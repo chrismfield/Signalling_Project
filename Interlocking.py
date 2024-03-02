@@ -298,7 +298,7 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
         # check if triggered by stored request:
         if trigger.stored_request:
             trigger.triggered = True
-        # TODO check if triggered by timer
+        # TODO implement timer?
         pass
         # check if triggered by expression - use eval()
         for expression in trigger.trigger_expressions:
