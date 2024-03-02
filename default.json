@@ -930,7 +930,8 @@
     "Triggers": {
         "47toP2": {
             "conditions": [
-                "Point.instances[\"100\"].detection_status == \"normal\""
+                "Point.instances[\"100\"].detection_status == \"normal\"",
+                "Section.instances[\"T\"].occstatus != 0"
             ],
             "description": "47 to Plat 2 based on Q occupancy",
             "instances": {},
@@ -957,10 +958,41 @@
             "trigger_special_actions": [],
             "triggered": false
         },
+        "47toP2clear": {
+            "conditions": [
+                "Point.instances[\"100\"].detection_status == \"normal\"",
+                "Section.instances[\"T\"].occstatus == 0"
+            ],
+            "description": "47 to Plat 2 based on Q occupancy",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [],
+            "priority": 2,
+            "ref": "47toP2",
+            "routes_to_cancel": [
+                "S only"
+            ],
+            "routes_to_set": [
+                "47IntoR",
+                "48intoP2unocc"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [
+                "Q"
+            ],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
         "47toP3": {
             "conditions": [
                 "Point.instances[\"100\"].detection_status == \"reverse\"",
-                "Point.instances[\"300\"].detection_status == \"normal\""
+                "Point.instances[\"300\"].detection_status == \"normal\"",
+                "Section.instances[\"U\"].occstatus != 0"
             ],
             "description": "47 to Plat 3 based on Q occupancy",
             "instances": {},
@@ -987,10 +1019,42 @@
             "trigger_special_actions": [],
             "triggered": false
         },
+        "47toP3clear": {
+            "conditions": [
+                "Point.instances[\"100\"].detection_status == \"reverse\"",
+                "Point.instances[\"300\"].detection_status == \"normal\"",
+                "Section.instances[\"U\"].occstatus == 0"
+            ],
+            "description": "47 to Plat 3 based on Q occupancy",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [],
+            "priority": 2,
+            "ref": "47toP3",
+            "routes_to_cancel": [
+                "S only"
+            ],
+            "routes_to_set": [
+                "47IntoR",
+                "48intoP3(unocc)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [
+                "Q"
+            ],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
         "47toP4": {
             "conditions": [
                 "Point.instances[\"100\"].detection_status == \"reverse\"",
-                "Point.instances[\"300\"].detection_status == \"reverse\""
+                "Point.instances[\"300\"].detection_status == \"reverse\"",
+                "Section.instances[\"V\"].occstatus != 0"
             ],
             "description": "47 to Plat 4 based on Q occupancy",
             "instances": {},
@@ -1005,6 +1069,37 @@
             "routes_to_set": [
                 "47IntoR",
                 "48intoP4occ"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [
+                "Q"
+            ],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "47toP4clear": {
+            "conditions": [
+                "Point.instances[\"100\"].detection_status == \"reverse\"",
+                "Point.instances[\"300\"].detection_status == \"reverse\"",
+                "Section.instances[\"V\"].occstatus == 0"
+            ],
+            "description": "47 to Plat 4 based on Q occupancy",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [],
+            "priority": 1,
+            "ref": "47toP4",
+            "routes_to_cancel": [
+                "S only"
+            ],
+            "routes_to_set": [
+                "47IntoR",
+                "48intoP4unocc"
             ],
             "sections_clear": null,
             "sections_occupied": [

@@ -95,7 +95,7 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
 
     def send_aspect_commands():  #set aspects through slaves and lookups
         for set_aspect in signal.aspect:
-
+            comms_status = ""
             if set_aspect == "danger":
                 try:
                     if signal.dangerreg:
@@ -235,7 +235,6 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
-
 
             if signal.comms_status != comms_status:
                 logger.error(signal.ref + comms_status)
