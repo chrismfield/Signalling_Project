@@ -10,8 +10,8 @@
 
 
 <script>
- // MQTT Broker connection details
-  const broker = '192.168.1.242';
+ // MQTT Broker connection details - assumes mqtt is on same host as webserver
+  const broker = location.hostname;
   const clientId = 'webpage-client';
 
   // MQTT client setup
@@ -138,8 +138,9 @@ function createButtonsInSection(sectionName, data) {
       const setStatusCellId = key+"_routeset";
       setStatusCell.id = setStatusCellId;
       setStatusCell.textContent = `Occupancy: Loading...`; // Initial loading state
-      // Only a Clear button for Sections
+      // buttons for Sections
       addButtonCell(row, "Clear", `${sectionName.toLowerCase()}_${key.toLowerCase()}_clear`, () => publishMessage(`set/section/${key}/occstatus`, '0'));
+	  addButtonCell(row, "Occupy", `${sectionName.toLowerCase()}_${key.toLowerCase()}_occupy`, () => publishMessage(`set/section/${key}/occstatus`, '1'));
     }
   }
 
