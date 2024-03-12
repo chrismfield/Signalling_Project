@@ -111,7 +111,8 @@ function createButtonsInSection(sectionName, data) {
       addButtonCell(row, "Danger", `${sectionName.toLowerCase()}_${key.toLowerCase()}_danger`, () => publishMessage(`set/signal/${key}`, 'danger'), value.dangerreg);
       addButtonCell(row, "Clear", `${sectionName.toLowerCase()}_${key.toLowerCase()}_clear`, () => publishMessage(`set/signal/${key}`, 'clear'), value.clearreg);
       addButtonCell(row, "Caution", `${sectionName.toLowerCase()}_${key.toLowerCase()}_caution`, () => publishMessage(`set/signal/${key}`, 'caution'), value.cautionreg);
-      addButtonCell(row, "Calling On", `${sectionName.toLowerCase()}_${key.toLowerCase()}_callingon`, () => publishMessage(`set/signal/${key}`, 'callingon'), value.callingonreg);
+      addButtonCell(row, "Calling On", `${sectionName.toLowerCase()}_${key.toLowerCase()}_callingon`, () => publishMessage(`set/signal/${key}`, 'associated_position_light'), value.callingonreg);
+      addButtonCell(row, "Shunt", `${sectionName.toLowerCase()}_${key.toLowerCase()}_shunt`, () => publishMessage(`set/signal/${key}`, 'position_light'), value.callingonreg);
     } else if (sectionName == "Points") {
       // Buttons for Normal and Reverse for Points
       const setDirectionCell = row.insertCell(1);
