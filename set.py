@@ -50,13 +50,15 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
         if protecting_points and (signal.ref in protecting_points):
             section_protecting_points = protecting_points[signal.ref]
             for point, direction in section_protecting_points.items():
-                if direction != points.instances[point].set_direction:
+                if direction != points[point].set_direction:
                     return True
         return False
 
     def set_aspect():
         #don't set signal if section is occupied
         for section in sections.values():
+            if aspect == "danger":
+                break
             if signal.ref in section.homesignal and not check_protecting_points(section.protecting_points):
                 if section.occstatus and (aspect in main_proceed_aspects):
                     logger.critical("Cannot clear signal when section is occupied")
@@ -66,9 +68,10 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                         if not point.detection_boolean:
                             logger.critical("Cannot clear signal when section points not detected")
                             raise InterlockingError("Cannot clear signal when section points not detected")
-        # TODO test don't set signal if a conflicting signal is set
         for conflicting_signal in signal.conflicting_signals:
-            if signals[conflicting_signal].aspect != "danger":
+            if aspect == "danger":
+                break
+            if signals[conflicting_signal].aspect != {"danger"}:
                 logger.critical("Cannot clear signal when conflicting signal set")
                 raise InterlockingError("Cannot clear signal when conflicting signal set")
 
@@ -92,7 +95,7 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
 
     def send_aspect_commands():  #set aspects through slaves and lookups
         for set_aspect in signal.aspect:
-
+            comms_status = ""
             if set_aspect == "danger":
                 try:
                     if signal.dangerreg:
@@ -233,13 +236,12 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
 
-
             if signal.comms_status != comms_status:
                 logger.error(signal.ref + comms_status)
                 signal.comms_status = comms_status
 
-
-    set_aspect()
+    if aspect:
+        set_aspect()
     if send_commands:
         send_aspect_commands()
 
@@ -251,11 +253,13 @@ def check_route_available(route, points, sections, routes_to_cancel = [], sectio
         if sections[route_section].routestatus == "setting" and (sections[route_section].routeset not in routes_to_cancel):
             return False
         # don't set route if section is occupied and signal aspect is a main proceed aspect
-        section_signal = sections[route_section].homesignal
-        signal_aspects = route.signals[section_signal]
-        if sections[route_section].occstatus and \
-                [aspect for aspect in signal_aspects if aspect in main_proceed_aspects]:
-            return False
+        section_signals = sections[route_section].homesignal
+        for section_signal in section_signals:
+            if section_signal in route.signals:
+                signal_aspects = route.signals[section_signal]
+                if sections[route_section].occstatus and \
+                        [aspect for aspect in signal_aspects if aspect in main_proceed_aspects]:
+                    return False
         # don't set route if there is a conflicting section set or occupied
         for section in sections[route_section].conflictingsections:
             if sections[section].routeset and (sections[section].routeset not in routes_to_cancel):
@@ -269,7 +273,7 @@ def check_route_available(route, points, sections, routes_to_cancel = [], sectio
     for point in route.points:
         if not points[point].unlocked:
             return False
-    # TODO don't set route if there is a conflicting signal set
+    # TODO don't set route if there is a conflicting signal set - currently raises an exception - OK?
 
     return True
 def set_route(route, sections, points, signals, logger, mqtt_client):
