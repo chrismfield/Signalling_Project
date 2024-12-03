@@ -281,15 +281,24 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
         # set points - move to route setting iteration?
         points_detected = False
         route.setting = True
+        #iterate once to set the points:
+        for point_ref, direction in route.points.items():
+            #check if all points are set
+            if points[point_ref].detection_boolean and points[point_ref].detection_status == direction:
+                pass
+            else:
+                points_detected = False
+                set_point(points[point_ref], direction, sections, logger, mqtt_client, route = route.ref)
+        #iterate again to detect points:
         for point_ref, direction in route.points.items():
             #check if all points are set
             if points[point_ref].detection_boolean and points[point_ref].detection_status == direction:
                 points_detected = True
             else:
                 points_detected = False
-                set_point(points[point_ref], direction, sections, logger, mqtt_client, route = route.ref)
-                #this also prevents next points setting until previous points detected
+                #break so that the next set of points doesn't set points_detected to true
                 break
+
 
         # set section.routeset when route is setting or set
         for section in route.sections:
