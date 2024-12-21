@@ -1584,7 +1584,6 @@
             "timer": null,
             "trigger_expressions": [],
             "trigger_special_actions": [
-                "Section.instances[\"Q\"].occstatus = 0",
                 "Section.instances[\"R\"].occstatus = 0"
             ],
             "triggered": false

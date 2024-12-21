@@ -120,14 +120,14 @@ def check_all_plungers(logger):
     """ get status from all plungers and store in their instance"""
     for plungerkey, plungerinstance in Plunger.instances.items():
         try:
-            plungerinstance.status = plungerinstance.slave.read_bit(plungerinstance.register,
-                                                                    functioncode=1)  # register number, number of registers
+            if plungerinstance.slave.read_bit(plungerinstance.register, functioncode=1): # register number, number of registers
+                plungerinstance.status = 1 # avoid setting status to 0 in case it has been set by MQTT
             plungerinstance.slave.write_bit(plungerinstance.register, 0)  # register number,value
             if plungerinstance.status:
                 logger.info(str(plungerinstance.ref) + " operated")
             comms_status = " OK"
         except (OSError, ValueError) as error:
-            plungerinstance.status = 0  # reset these variables to zero if no comms to avoid double counting
+            # plungerinstance.status = 0  # reset these variables to zero if no comms to avoid double counting # don't think this is required as it is set to zero at end of check_triggers()
             comms_status = (" Comms failure " + str(error))
 
         if plungerinstance.comms_status != comms_status:
@@ -382,7 +382,7 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
 def check_mqtt(logger, mqtt_client):
     while mqtt_received_queue:
         set.set_from_mqtt(command=mqtt_received_queue.pop(), signals=Signal.instances, sections=Section.instances,
-                          points=Point.instances,
+                          plungers= Plunger.instances, points=Point.instances,
                           routes=Route.instances, triggers=Trigger.instances, logger=logger, mqtt_client=mqtt_client,
                           automatic_route_setting=AutomaticRouteSetting)
     # put command actions in here

@@ -11,7 +11,8 @@
 
 <script>
  // MQTT Broker connection details - assumes mqtt is on same host as webserver
-  const broker = location.hostname;
+  // const broker = location.hostname;
+  const broker = "127.0.0.1" //"192.168.1.242"
   const clientId = 'webpage-client';
 
   // MQTT client setup
@@ -66,7 +67,7 @@
  
  </script>
   
- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+ <script src="jquery.min.js"></script>
 <script>	
 	// create buttons etc
 
@@ -141,7 +142,10 @@ function createButtonsInSection(sectionName, data) {
       setStatusCell.textContent = `Occupancy: Loading...`; // Initial loading state
       // buttons for Sections
       addButtonCell(row, "Clear", `${sectionName.toLowerCase()}_${key.toLowerCase()}_clear`, () => publishMessage(`set/section/${key}/occstatus`, '0'));
-	  addButtonCell(row, "Occupy", `${sectionName.toLowerCase()}_${key.toLowerCase()}_occupy`, () => publishMessage(`set/section/${key}/occstatus`, '1'));
+	    addButtonCell(row, "Occupy", `${sectionName.toLowerCase()}_${key.toLowerCase()}_occupy`, () => publishMessage(`set/section/${key}/occstatus`, '1'));
+    } else if (sectionName == "Plungers") {
+      // Buttons for Plungers
+      addButtonCell(row, "Press", `${sectionName.toLowerCase()}_${key.toLowerCase()}_press`, () => publishMessage(`set/plunger/${key}`, '1'));
     }
   }
 
@@ -182,6 +186,7 @@ function gotJSON(jsonData){
 	createButtonsInSection('Points', jsonData.Points);
 	createButtonsInSection('Routes', jsonData.Routes);
   createButtonsInSection('Sections', jsonData.Sections);
+  createButtonsInSection('Plungers', jsonData.Plungers);
 	}
 
 $.getJSON("default.json", function(json) {

@@ -354,7 +354,7 @@ def set_ARS(automatic_route_setting, status):
         automatic_route_setting.global_active = False
 
 
-def set_from_mqtt(command, signals, sections, points, routes, triggers, logger, mqtt_client, automatic_route_setting):
+def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers, logger, mqtt_client, automatic_route_setting):
     command_l = command.topic.split("/")
     command_payload = str(command.payload.decode("utf-8"))
     if command_l[0] != "set":
@@ -368,6 +368,8 @@ def set_from_mqtt(command, signals, sections, points, routes, triggers, logger, 
             set_route(route=routes[command_l[2]], sections=sections, points=points, signals = signals, logger=logger, mqtt_client=mqtt_client)
         if not eval(command_payload):
             cancel_route(route=routes[command_l[2]], sections=sections, points=points, signals = signals, triggers = triggers, logger=logger, mqtt_client=mqtt_client)
+    if command_l[1] == "plunger":
+        plungers[command_l[2]].status = command_payload
     if command_l[1] == "trigger":
         triggers[command_l[2]].triggered = eval(command_payload)
     if command_l[1] == "section" and command_l[3] == "occstatus":

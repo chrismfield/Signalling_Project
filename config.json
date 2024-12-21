@@ -1,9 +1,9 @@
 {
-    "axle_tolerance": 2,
+    "axle_tolerance": 6,
     "layoutDB": "default.json",
     "network_ports":
     {
-        "network_1": "COM10",
+        "network_1": "COM6",
         "network_2": "COM2"
     },
     "logging_level": 10,

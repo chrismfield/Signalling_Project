@@ -19,7 +19,12 @@
             "previousoccstatus": 0,
             "ref": "Q",
             "routeset": false,
-            "routestatus": ""
+            "routestatus": "",
+            "coords": {
+                "x": 84.53,
+                "y": 18.83,
+                "rotate": 22.5
+            }
         },
         "R": {
             "conflictingsections": [],
@@ -50,7 +55,11 @@
             "previousoccstatus": 0,
             "ref": "R",
             "routeset": false,
-            "routestatus": ""
+            "routestatus": "",
+            "coords": {
+                "x": 52.58,
+                "y": 16.00
+            }
         },
         "S": {
             "conflictingsections": [],
@@ -74,7 +83,11 @@
             "previousoccstatus": 0,
             "ref": "S",
             "routeset": false,
-            "routestatus": ""
+            "routestatus": "",
+            "coords": {
+                "x": 47.07,
+                "y": 16.00
+            }
         },
         "T": {
             "conflictingsections": [],
@@ -96,7 +109,11 @@
             "previousoccstatus": 0,
             "ref": "T",
             "routeset": false,
-            "routestatus": ""
+            "routestatus": "",
+            "coords": {
+                "x": 21.23,
+                "y": 3.77
+            }
         },
         "U": {
             "conflictingsections": [],
@@ -118,7 +135,11 @@
             "previousoccstatus": 0,
             "ref": "U",
             "routeset": false,
-            "routestatus": ""
+            "routestatus": "",
+            "coords": {
+                "x": 28.91,
+                "y": 16.35
+            }
         },
         "V": {
             "conflictingsections": [],
@@ -140,7 +161,11 @@
             "previousoccstatus": 0,
             "ref": "V",
             "routeset": false,
-            "routestatus": ""
+            "routestatus": "",
+            "coords": {
+                "x": 18.88,
+                "y": 22.64
+            }
         }
     },
     "AxleCounters": {
@@ -242,7 +267,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 1,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 78.82,
+                "y": 16.14
+            }
         },
         "48": {
             "address": 48,
@@ -274,7 +303,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 1,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 49.95,
+                "y": 15.83
+            }
         },
         "42": {
             "address": 42,
@@ -306,7 +339,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 1,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 33.00,
+                "y": 6.50
+            }
         },
         "43": {
             "address": 42,
@@ -338,7 +375,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 0,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 33.00,
+                "y": 15.72
+            }
         },
         "44": {
             "address": 42,
@@ -370,7 +411,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 0,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 33.00,
+                "y": 19.39
+            }
         },
         "45": {
             "address": 45,
@@ -402,7 +447,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 1,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 78.82,
+                "y": 28.93
+            }
         },
         "46": {
             "address": 45,
@@ -434,7 +483,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 1,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 78.82,
+                "y": 22.54
+            }
         }
     },
     "Plungers": {
@@ -603,7 +656,13 @@
             "section": "S",
             "set_direction": "",
             "slave": null,
-            "unlocked": true
+            "unlocked": true,
+            "coords": {
+                "x": 46.55,
+                "y": 16.56,
+                "rotate": 195,
+                "dir": "lh"
+            }
         },
         "300": {
             "address": 100,
@@ -624,7 +683,13 @@
             "section": "S",
             "set_direction": "",
             "slave": null,
-            "unlocked": true
+            "unlocked": true,
+            "coords": {
+                "x": 39.64,
+                "y": 16.56,
+                "rotate": 180,
+                "dir": "lh"
+            }
         }
     },
     "Routes": {

@@ -9,7 +9,7 @@ port="COM7"
 # Enable logging (makes it easier to debug if something goes wrong)
 logging.basicConfig()
 log = logging.getLogger()
-log.setLevel(logging.CRITICAL)
+log.setLevel(logging.WARN)
 
 with open("default.json") as layout_file:
     jsoninfradata = jsons.loads(layout_file.read())
@@ -27,9 +27,6 @@ def setup_slaves():
     holding_registers = ModbusSequentialDataBlock(0, [0] * 100)
     input_registers = ModbusSequentialDataBlock(0, [0] * 100)
 
-#    discrete_inputs.setValues(22,True)
-#    discrete_inputs.setValues(1022,True)
-
     single_slave = ModbusSlaveContext(
         di=discrete_inputs,
         co=coils,
@@ -44,10 +41,10 @@ def setup_slaves():
         points[point["address"]] = single_slave
 
     for ac in jsoninfradata["AxleCounters"].values():
-         axlecounters[ac["address"]] = single_slave
+        axlecounters[ac["address"]] = single_slave
 
 #    for plunger in jsoninfradata["Plungers"].values():
-#         plungers[plunger["address"]] = single_slave
+#        plungers[plunger["address"]] = single_slave
 
     slave_context = signals|points|axlecounters|plungers
     # Define the Modbus server context
@@ -68,10 +65,8 @@ async def update_input_registers(server_context):
                 address = 0  # Start address
                 count = 2000  # Number of registers to read
                 coils = server_context[slave_id].getValues(1, address, count)  # Function code 1: Coils
-                print(coils)
                 # Update input registers with the same values
                 server_context[slave_id].setValues(2, address, coils)  # Function code 4: Input Registers
-                print(server_context[slave_id].getValues(2, address, count))
                 logging.info(f"Updated input registers with coil values: {coils}")
 
         except Exception as e:
