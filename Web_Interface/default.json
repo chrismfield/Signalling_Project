@@ -501,7 +501,11 @@
             "ref": "P5",
             "register": 0,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 54.23,
+                "y": 18.87
+            }
         },
         "P3": {
             "address": 23,
@@ -513,7 +517,11 @@
             "ref": "P3",
             "register": 2,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 29.94,
+                "y": 24.11
+            }
         },
         "P6": {
             "address": 21,
@@ -525,7 +533,11 @@
             "ref": "P6",
             "register": 1,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 54.23,
+                "y": 21.87
+            }
         },
         "P7": {
             "address": 21,
@@ -537,7 +549,11 @@
             "ref": "P7",
             "register": 7,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 54.23,
+                "y": 24.87
+            }
         },
         "P2": {
             "address": 23,
@@ -549,7 +565,11 @@
             "ref": "P2",
             "register": 1,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 29.94,
+                "y": 12.68
+            }
         },
         "P1": {
             "address": 23,
@@ -561,7 +581,11 @@
             "ref": "P1",
             "register": 0,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 29.94,
+                "y": 6.60
+            }
         },
         "P13": {
             "address": 47,
@@ -573,7 +597,11 @@
             "ref": "P13",
             "register": 41,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 81.86,
+                "y": 19.81
+            }
         },
         "P11": {
             "address": 45,
@@ -585,7 +613,11 @@
             "ref": "P11",
             "register": 41,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 81.86,
+                "y": 33.12
+            }
         },
         "P12": {
             "address": 45,
@@ -597,7 +629,11 @@
             "ref": "P12",
             "register": 42,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 81.86,
+                "y": 26.10
+            }
         },
         "P8": {
             "address": 22,
@@ -609,7 +645,11 @@
             "ref": "P8",
             "register": 0,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 46.23,
+                "y": 18.87
+            }
         },
         "P9": {
             "address": 22,
@@ -621,7 +661,11 @@
             "ref": "P9",
             "register": 1,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 46.23,
+                "y": 21.87
+            }
         },
         "P10": {
             "address": 22,
@@ -633,7 +677,11 @@
             "ref": "P10",
             "register": 7,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 46.23,
+                "y": 24.87
+            }
         }
     },
     "Points": {

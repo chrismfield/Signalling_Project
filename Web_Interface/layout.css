@@ -147,6 +147,16 @@ h1 {
 				background-color: #000;
 			}
 		}
+		._plunger {
+			position: absolute;
+			margin:-0.75% -0.75;
+			border-radius: 40px;
+			border:4px solid black;
+			box-sizing:content-box;
+			width:1.5%;
+			height:1.5%;
+			background-color: #00f;
+		}
 		._cb {
 			display: none;
 		}
@@ -171,8 +181,10 @@ h1 {
 			border-top: 2px solid black;
 			._popoutlbl {
 				display:inline-block;
-				width:8vw;
-				font-size: 16pt;
+				width:12vw;
+				._key {
+					font-size: 16pt;
+				}
 			}
 			button {
 				height:50px;

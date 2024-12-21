@@ -136,6 +136,11 @@ function createButtonsInSection(sectionName, data) {
      addStatusCell(oPopout, "Route Set", key+"_routeset");
      addButtonCell(oPopout, "Clear", `${sectionName.toLowerCase()}_${key.toLowerCase()}_clear`, () => publishMessage(`set/section/${key}/occstatus`, '0'));
      addButtonCell(oPopout, "Occupy", `${sectionName.toLowerCase()}_${key.toLowerCase()}_occupy`, () => publishMessage(`set/section/${key}/occstatus`, '1'));
+   } else if (sectionName == "Plungers") {
+     const oPopout = createMarker(oContainer, key, "_plunger", value, "plunger", sectionName);
+     
+     // Buttons for Plungers
+     addButtonCell(oPopout, "Press", `${sectionName.toLowerCase()}_${key.toLowerCase()}_press`, () => publishMessage(`set/plunger/${key}`, '1'));
    } else if (sectionName == "Routes") {
      const oRouteTbl = document.getElementById('routetable');
      const oRow = document.createElement('tr');
@@ -200,7 +205,7 @@ function createMarker(oContainer, key, keysuffix, value, type, sectionName) {
   
   const oPopoutLabel = document.createElement('label');
   oPopoutLabel.className = '_popoutlbl';
-  oPopoutLabel.innerText = sectionName + ": " + key;
+  oPopoutLabel.innerHTML = "<span class='_key'>" + sectionName + ": " + key + "</span><br>" + value.description;
   oPopout.appendChild(oPopoutLabel);
   
   return oPopout;
@@ -241,6 +246,7 @@ function gotJSON(jsonData) {
  createButtonsInSection('Sections', jsonData.Sections);
 	createButtonsInSection('Signals', jsonData.Signals);
  createButtonsInSection('Routes', jsonData.Routes);
+ createButtonsInSection('Plungers', jsonData.Plungers);
 }
 
 $.getJSON("default.json", function(json) {
