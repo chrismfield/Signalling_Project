@@ -628,31 +628,27 @@
         }
     },
     "Routes": {
-        "48intoP4occ": {
+        "Startup": {
             "available": false,
-            "description": "R Into P4 (occupied)",
+            "description": "Used at Startup with no points detection",
             "instances": {},
             "mode": 0,
-            "points": {
-                "100": "reverse",
-                "300": "reverse"
-            },
-            "ref": "48intoP4occ",
+            "points": {},
+            "ref": "Startup",
             "sections": [
-                "S"
+                "R"
             ],
             "set": false,
             "setting": false,
             "signals": {
-                "48": [
-                    "associated_position_light",
-                    "route4"
+                "47": [
+                    "caution"
                 ]
             }
         },
         "47IntoR": {
             "available": false,
-            "description": "47 Into R",
+            "description": "Mainline 47 to 48",
             "instances": {},
             "mode": 0,
             "points": {},
@@ -668,31 +664,9 @@
                 ]
             }
         },
-        "48intoP4unocc": {
-            "available": false,
-            "description": "48 into P4 (unoccupied)",
-            "instances": {},
-            "mode": 0,
-            "points": {
-                "100": "reverse",
-                "300": "reverse"
-            },
-            "ref": "48intoP4unocc",
-            "sections": [
-                "S"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "48": [
-                    "caution",
-                    "route4"
-                ]
-            }
-        },
         "45intoR": {
             "available": false,
-            "description": "Yard 45 Signal into R",
+            "description": "Yard 45 to 48",
             "instances": {},
             "mode": 0,
             "points": {},
@@ -710,7 +684,7 @@
         },
         "46intoR": {
             "available": false,
-            "description": "Yard 46 Signal into R",
+            "description": "Yard 46 to 48",
             "instances": {},
             "mode": 0,
             "points": {},
@@ -726,7 +700,7 @@
                 ]
             }
         },
-        "48intoP2unocc": {
+        "48intoP2(unocc)": {
             "available": false,
             "description": "48 into Platform 2 (unoccupied)",
             "instances": {},
@@ -748,7 +722,7 @@
                 ]
             }
         },
-        "48intoP2occ": {
+        "48intoP2(occ)": {
             "available": false,
             "description": "48 into Platform 2 (occupied)",
             "instances": {},
@@ -767,28 +741,6 @@
                 "48": [
                     "associated_position_light",
                     "route2"
-                ]
-            }
-        },
-        "48intoP3occ": {
-            "available": false,
-            "description": "48 into Platform 3 (occupied)",
-            "instances": {},
-            "mode": 0,
-            "points": {
-                "100": "reverse",
-                "300": "normal"
-            },
-            "ref": "48intoP3occ",
-            "sections": [
-                "S"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "48": [
-                    "associated_position_light",
-                    "route3"
                 ]
             }
         },
@@ -811,6 +763,73 @@
                 "48": [
                     "caution",
                     "route3"
+                ]
+            }
+        },
+        "48intoP3(occ)": {
+            "available": false,
+            "description": "48 into Platform 3 (occupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "reverse",
+                "300": "normal"
+            },
+            "ref": "48intoP3occ",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "associated_position_light",
+                    "route3"
+                ]
+            }
+        },
+
+        "48intoP4(unocc)": {
+            "available": false,
+            "description": "48 into P4 (unoccupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "reverse",
+                "300": "reverse"
+            },
+            "ref": "48intoP4unocc",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "caution",
+                    "route4"
+                ]
+            }
+        },
+        "48intoP4(occ)": {
+            "available": false,
+            "description": "R Into P4 (occupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "reverse",
+                "300": "reverse"
+            },
+            "ref": "48intoP4occ",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "associated_position_light",
+                    "route4"
                 ]
             }
         },
@@ -880,7 +899,7 @@
                 ]
             }
         },
-        "S only": {
+        "S_only": {
             "available": false,
             "description": "Dummy to clear S",
             "instances": {},
@@ -907,24 +926,6 @@
             "set": false,
             "setting": false,
             "signals": {}
-        },
-        "Startup": {
-            "available": false,
-            "description": "",
-            "instances": {},
-            "mode": 0,
-            "points": {},
-            "ref": "Startup",
-            "sections": [
-                "R"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "47": [
-                    "caution"
-                ]
-            }
         }
     },
     "Triggers": {
