@@ -345,7 +345,8 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
                                 trigger.stored_request = True
                                 logging.info(trigger.ref + " trigger stored")
                         else:
-                            trigger.triggered = False
+                            pass
+                        trigger.triggered = False
                         break
             else:
                 full_route_ok = True
