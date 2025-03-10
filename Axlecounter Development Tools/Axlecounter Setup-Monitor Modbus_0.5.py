@@ -237,6 +237,22 @@ class ACFrame:  # axlecounter window class
                 pass
         self.paused = False
 
+    def read_parameter(self, address, register):
+        try:
+            axlecounter = minimalmodbus.Instrument(comport, address)  # update comport and slave address
+            axlecounter.serial.timeout = 0.5
+            axlecounter.serial.baudrate = 19200
+            axlecounter.debug = False
+            time.sleep(0.002)
+            self.hall1sens.set(axlecounter.read_register(register))  # Load 1 register from location 2 (hall1 sensitivity)
+            time.sleep(0.002)
+        except Exception as e:
+            try:
+                print(datetime.datetime.now().strftime("%H:%M:%S") + " Comms failed (adjustparameters) with module address " + str(
+                    self.addrst.get())+": " + str(e))
+            except:
+                pass
+
     def adjustparameters(self, parameter, adjustment, address):
         self.paused = True
         time.sleep(0.5)
@@ -284,6 +300,13 @@ class ACFrame:  # axlecounter window class
             ttk.Entry(frame, width=7, textvariable=new_address).grid(column=1, row=1, sticky="W, E")
             ttk.Button(frame, text="Set", command=lambda: set_new_address(address, new_address.get())).\
                 grid(column=2, row=1, sticky=W)
+
+            def update_logging():
+                self.adjustparameters(103, logging_enabled, address)
+
+            logging_enabled = self.read_parameter(int(self.addrst.get()), 103)
+            ttk.Label(frame, text="Enable Logging").grid(column=0, row=2, sticky=E)
+            ttk.Checkbutton(frame, offvalue=0,onvalue=1, variable=logging_enabled, command=update_logging).grid(column=1, row=2, sticky=W)
 
             for child in frame.winfo_children():
                 child.grid_configure(padx=5, pady=5)
