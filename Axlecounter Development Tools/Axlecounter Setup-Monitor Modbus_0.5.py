@@ -13,6 +13,7 @@ log.setLevel(logging.DEBUG)
 #try:
 comportlist = [comport.device for comport in serial.tools.list_ports.comports()]
 comport = comportlist[0]
+baud = 19200
 #except:
 #    pass
 
@@ -98,43 +99,43 @@ class ACFrame:  # axlecounter window class
         ttk.Label(self.subframe, textvariable=self.hall2ssv).grid(column=2, row=16, sticky="W, E")
         ttk.Label(self.subframe, textvariable=self.hall3ssv).grid(column=2, row=17, sticky="W, E")
         """Adjustment Buttons For Hall Sensitivity"""
-        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(101, -5, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(201, -5, (self.addrst.get()))) \
             .grid(column=3, row=6, sticky=W)
-        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(101, 5, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(201, 5, (self.addrst.get()))) \
             .grid(column=4, row=6, sticky=W)
-        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(102, -5, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(202, -5, (self.addrst.get()))) \
             .grid(column=3, row=7, sticky=W)
-        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(102, 5, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(202, 5, (self.addrst.get()))) \
             .grid(column=4, row=7, sticky=W)
-        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(103, -5, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(203, -5, (self.addrst.get()))) \
             .grid(column=3, row=8, sticky=W)
-        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(103, 5, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(203, 5, (self.addrst.get()))) \
             .grid(column=4, row=8, sticky=W)
         """Adjustment Buttons For Hall Hysteresis"""
-        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(104, -5, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(204, -5, (self.addrst.get()))) \
             .grid(column=3, row=9, sticky=W)
-        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(104, 5, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(204, 5, (self.addrst.get()))) \
             .grid(column=4, row=9, sticky=W)
-        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(105, -5, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(205, -5, (self.addrst.get()))) \
             .grid(column=3, row=10, sticky=W)
-        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(105, 5, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(205, 5, (self.addrst.get()))) \
             .grid(column=4, row=10, sticky=W)
-        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(106, -5, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(206, -5, (self.addrst.get()))) \
             .grid(column=3, row=11, sticky=W)
-        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(106, 5, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(206, 5, (self.addrst.get()))) \
             .grid(column=4, row=11, sticky=W)
         """Adjustment Buttons For Hall Duration"""
-        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(107, -1, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(207, -1, (self.addrst.get()))) \
             .grid(column=3, row=12, sticky=W)
-        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(107, 1, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(207, 1, (self.addrst.get()))) \
             .grid(column=4, row=12, sticky=W)
-        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(108, -1, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(208, -1, (self.addrst.get()))) \
             .grid(column=3, row=13, sticky=W)
-        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(108, 1, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(208, 1, (self.addrst.get()))) \
             .grid(column=4, row=13, sticky=W)
-        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(109, -1, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(209, -1, (self.addrst.get()))) \
             .grid(column=3, row=14, sticky=W)
-        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(109, 1, (self.addrst.get()))) \
+        ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(209, 1, (self.addrst.get()))) \
             .grid(column=4, row=14, sticky=W)
 
         for child in self.subframe.winfo_children():
@@ -160,7 +161,7 @@ class ACFrame:  # axlecounter window class
         try:
             axlecounter = minimalmodbus.Instrument(comport, int(self.addrst.get()))  # update comport and slave address
             axlecounter.serial.timeout = 0.5
-            axlecounter.serial.baudrate = 19200  
+            axlecounter.serial.baudrate = baud
             axlecounter.debug = False
             self.upcount.set(axlecounter.read_register(13))  # Load 1 register from location 13 (upcount)
             self.downcount.set(axlecounter.read_register(14))
@@ -181,7 +182,7 @@ class ACFrame:  # axlecounter window class
         try:
             axlecounter = minimalmodbus.Instrument(comport, int(self.addrst.get()))  # update comport and slave address
             axlecounter.serial.timeout = 0.5
-            axlecounter.serial.baudrate = 19200  
+            axlecounter.serial.baudrate = baud
             axlecounter.debug = False
             axlecounter.write_register(13, 0, functioncode=6)
             axlecounter.write_register(14, 0, functioncode=6)
@@ -201,26 +202,26 @@ class ACFrame:  # axlecounter window class
         try:
             axlecounter = minimalmodbus.Instrument(comport, int(self.addrst.get()))  # update comport and slave address
             axlecounter.serial.timeout = 0.5
-            axlecounter.serial.baudrate = 19200  
+            axlecounter.serial.baudrate = baud
             axlecounter.debug = False
             time.sleep(0.002)
-            self.hall1sens.set(axlecounter.read_register(101))  # Load 1 register from location 2 (hall1 sensitivity)
+            self.hall1sens.set(axlecounter.read_register(201))  # Load 1 register from location 2 (hall1 sensitivity)
             time.sleep(0.002)
-            self.hall2sens.set(axlecounter.read_register(102))
+            self.hall2sens.set(axlecounter.read_register(202))
             time.sleep(0.002)
-            self.hall3sens.set(axlecounter.read_register(103))
+            self.hall3sens.set(axlecounter.read_register(203))
             time.sleep(0.002)
-            self.hall1hys.set(axlecounter.read_register(104))  # Load 1 register from location 2 (hall1 hysteresis)
+            self.hall1hys.set(axlecounter.read_register(204))  # Load 1 register from location 2 (hall1 hysteresis)
             time.sleep(0.002)
-            self.hall2hys.set(axlecounter.read_register(105))
+            self.hall2hys.set(axlecounter.read_register(205))
             time.sleep(0.002)
-            self.hall3hys.set(axlecounter.read_register(106))
+            self.hall3hys.set(axlecounter.read_register(206))
             time.sleep(0.002)
-            self.hall1dur.set(axlecounter.read_register(107))  # Load 1 register from location 2 (hall1 duration)
+            self.hall1dur.set(axlecounter.read_register(207))  # Load 1 register from location 2 (hall1 duration)
             time.sleep(0.002)
-            self.hall2dur.set(axlecounter.read_register(108))
+            self.hall2dur.set(axlecounter.read_register(208))
             time.sleep(0.002)
-            self.hall3dur.set(axlecounter.read_register(109))
+            self.hall3dur.set(axlecounter.read_register(209))
             time.sleep(0.002)
             self.hall1ssv.set(axlecounter.read_register(10))  # Load 1 register from location 2 (hall1 static session value)
             time.sleep(0.002)
@@ -241,11 +242,10 @@ class ACFrame:  # axlecounter window class
         try:
             axlecounter = minimalmodbus.Instrument(comport, address)  # update comport and slave address
             axlecounter.serial.timeout = 0.5
-            axlecounter.serial.baudrate = 19200
+            axlecounter.serial.baudrate = baud
             axlecounter.debug = False
             time.sleep(0.002)
-            self.hall1sens.set(axlecounter.read_register(register))  # Load 1 register from location 2 (hall1 sensitivity)
-            time.sleep(0.002)
+            return axlecounter.read_register(register)
         except Exception as e:
             try:
                 print(datetime.datetime.now().strftime("%H:%M:%S") + " Comms failed (adjustparameters) with module address " + str(
@@ -260,7 +260,7 @@ class ACFrame:  # axlecounter window class
             axlecounter = minimalmodbus.Instrument(comport, address) # update comport and slave address
             axlecounter.debug = False
             axlecounter.serial.timeout = 0.5
-            axlecounter.serial.baudrate = 19200  
+            axlecounter.serial.baudrate = baud
             checkparameter = axlecounter.read_register(parameter)
             time.sleep(0.002)
             newValue = checkparameter + adjustment
@@ -268,6 +268,27 @@ class ACFrame:  # axlecounter window class
                 newValue = 0
             if newValue < 0:
                newValue = 65535
+            axlecounter.write_register(parameter, newValue, functioncode=6)
+            self.readparameters()
+            return True
+        except Exception as e:
+            try:
+                print(datetime.datetime.now().strftime("%H:%M:%S") + " Comms failed (adjustparameters) with module address " + str(
+                    self.addrst.get())+": " + str(e))
+            except:
+                pass
+        self.paused = False
+    
+    def writeRegValue(self, parameter, newValue, address):
+        self.paused = True
+        time.sleep(0.5)
+        try:
+            axlecounter = minimalmodbus.Instrument(comport, address) # update comport and slave address
+            axlecounter.debug = False
+            axlecounter.serial.timeout = 0.5
+            axlecounter.serial.baudrate = baud
+            checkparameter = axlecounter.read_register(parameter)
+            time.sleep(0.002)
             axlecounter.write_register(parameter, newValue, functioncode=6)
             self.readparameters()
             return True
@@ -286,7 +307,8 @@ class ACFrame:  # axlecounter window class
             new_address = IntVar()
 
             def set_new_address(old_address, new_address):
-                if self.adjustparameters(100, new_address, old_address):
+                print("New address: " + str(new_address) + " - " + str(new_address * 1))
+                if self.writeRegValue(100, new_address * 1, old_address):
                     board_setup_window.destroy()
                     self.addrst.set(new_address)
 
@@ -299,17 +321,41 @@ class ACFrame:  # axlecounter window class
             ttk.Label(frame, text="New Address").grid(column=0, row=1, sticky=E)
             ttk.Entry(frame, width=7, textvariable=new_address).grid(column=1, row=1, sticky="W, E")
             ttk.Button(frame, text="Set", command=lambda: set_new_address(address, new_address.get())).\
-                grid(column=2, row=1, sticky=W)
+                grid(column=4, row=1, sticky=W)
+
+# insert board type selection
+
+
+            # baud selection
+            baud_dict = {1:19200, 2:57600, 3:115200}
+            baud_setting = IntVar()
+            baud_setting.set(value=self.read_parameter(address, 101))
+            print(baud_setting.get())
+
+            def update_baud():
+                self.writeRegValue(101, baud_setting.get(), address)
+
+            ttk.Label(frame, text="Baud Rate").grid(column=0, row=2, sticky=E)
+            for key, value in baud_dict.items():
+                ttk.Radiobutton(frame, variable=baud_setting, value=key, text=value, command=update_baud).grid(column=key, row=2, sticky=W)
+
+
+            logging_enabled = IntVar()
+            logging_enabled.set(value=self.read_parameter(address, 103))
 
             def update_logging():
-                self.adjustparameters(103, logging_enabled, address)
+                self.writeRegValue(103, logging_enabled.get(), address)
 
-            logging_enabled = self.read_parameter(int(self.addrst.get()), 103)
-            ttk.Label(frame, text="Enable Logging").grid(column=0, row=2, sticky=E)
-            ttk.Checkbutton(frame, offvalue=0,onvalue=1, variable=logging_enabled, command=update_logging).grid(column=1, row=2, sticky=W)
+            ttk.Label(frame, text="Enable Logging").grid(column=0, row=4, sticky=E)
+            ttk.Checkbutton(frame, variable=logging_enabled, command=update_logging).grid(column=1, row=4, sticky=W)
+
+            ttk.Button(frame, text="Close", command=lambda: board_setup_window.destroy()).\
+                grid(column=4, row=6, sticky=W)
 
             for child in frame.winfo_children():
                 child.grid_configure(padx=5, pady=5)
+
+
 
             frame.pack()
 
