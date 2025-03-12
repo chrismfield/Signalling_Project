@@ -406,8 +406,22 @@ class SetupWindow:  # need to change to have an add button and a remove button, 
         no_of_counters.grid(column=1, row=1, sticky=W)
         no_of_counters.delete("0")
         no_of_counters.insert(0, str(len(ACFrame.items)))
-        ttk.Button(setupframe, text="OK", command=buttonpress).grid(column=1, row=2, sticky=E)
+        ttk.Button(setupframe, text="OK", command=buttonpress).grid(column=1, row=3, sticky=E)
 
+        # baud selection
+        baud_dict = {1: 19200, 2: 57600, 3: 115200}
+        baud_setting = IntVar()
+        baud_setting.set([key for key, value in baud_dict.items() if value == baud][0])
+
+        def update_baud():
+            global baud
+            baud = baud_dict[baud_setting.get()]
+
+        ttk.Label(setupframe, text="Baud Rate").grid(column=0, row=2, sticky=E)
+        for key, value in baud_dict.items():
+            ttk.Radiobutton(setupframe, variable=baud_setting, value=key, text=value, command=update_baud).grid(column=key,
+                                                                                                           row=2,
+                                                                                                           sticky=W)
         for child in setupframe.winfo_children():
             child.grid_configure(padx=5, pady=5)
 
