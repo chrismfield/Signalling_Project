@@ -164,7 +164,9 @@ class ACFrame:  # axlecounter window class
             axlecounter.serial.baudrate = baud
             axlecounter.debug = False
             self.upcount.set(axlecounter.read_register(13))  # Load 1 register from location 13 (upcount)
+            time.sleep(0.002)
             self.downcount.set(axlecounter.read_register(14))
+            time.sleep(0.002)
         except Exception as e:
             try:
                 print(datetime.datetime.now().strftime("%H:%M:%S") + " Comms failed (goserial1) with module address " + str(
@@ -187,7 +189,9 @@ class ACFrame:  # axlecounter window class
             axlecounter.write_register(13, 0, functioncode=6)
             axlecounter.write_register(14, 0, functioncode=6)
             self.upcount.set(axlecounter.read_register(13))  # Load 1 register from location 13 (upcount)
+            time.sleep(0.002)
             self.downcount.set(axlecounter.read_register(14))
+            time.sleep(0.002)
         except Exception as e:
             try:
                 print(datetime.datetime.now().strftime("%H:%M:%S") + " Comms failed (goserialclr1) with module address " + str(
@@ -330,7 +334,6 @@ class ACFrame:  # axlecounter window class
             baud_dict = {1:19200, 2:57600, 3:115200}
             baud_setting = IntVar()
             baud_setting.set(value=self.read_parameter(address, 101))
-            print(baud_setting.get())
 
             def update_baud():
                 self.writeRegValue(101, baud_setting.get(), address)
