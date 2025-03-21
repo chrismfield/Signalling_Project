@@ -39,6 +39,7 @@ function updateDynamicValue(dynamicCellId, dynamicValue) {
    dynamicCell.textContent = dynamicValue;
    let cssClasses = dynamicCell.className || '';
    cssClasses = cssClasses.replace(/state_([^ ]*)/g, ''); // Remove any existing state
+   cssClasses = cssClasses.replace(/  +/g, ' '); // Remove any duplicate spaces
    cssClasses += " state_" + dynamicValue;
    if(dynamicValue != 0) {
     cssClasses += " state_true";
@@ -49,6 +50,18 @@ function updateDynamicValue(dynamicCellId, dynamicValue) {
  const dynamicCell_pop = document.getElementById(dynamicCellId + '_pop');
  if (dynamicCell_pop) {
    dynamicCell_pop.textContent = dynamicValue;
+ }
+ // Signal replication may also show one
+ const dynamicCell_sigrep = document.getElementById(dynamicCellId + '_sigrep');
+ if (dynamicCell_sigrep) {
+   let cssClasses = dynamicCell_sigrep.className || '';
+   cssClasses = cssClasses.replace(/state_([^ ]*)/g, ''); // Remove any existing state
+   cssClasses = cssClasses.replace(/  +/g, ' '); // Remove any duplicate spaces
+   cssClasses += " state_" + dynamicValue;
+   if(dynamicValue != 0) {
+    cssClasses += " state_true";
+   }
+   dynamicCell_sigrep.className = cssClasses.replace(/,/g, ' state_');
  }
  
  checkRoutesSet();
@@ -157,6 +170,7 @@ function createButtonsInSection(sectionName, data) {
      oRow.appendChild(section);
      
      const btnCell = document.createElement('td');
+     btnCell.className = '_btnCell';
      oRow.appendChild(btnCell);
      // Buttons for Set and Clear for Routes
      addButtonCell(btnCell, "Set", `${sectionName.toLowerCase()}_${key.toLowerCase()}_set`, () => publishMessage(`set/route/${key}`, 'True'));
@@ -264,6 +278,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
         console.log(`X: ${xPercent.toFixed(2)}%, Y: ${yPercent.toFixed(2)}%`);
     });
 });
+
+function replicate454647() {
+ document.body.innerHTML = "<div class='repSignals'>" + addRepSignal(45) + addRepSignal(46) + addRepSignal(47) + "</div>";
+}
+
+function replicate48() {
+ document.body.innerHTML = "<div class='repSignals'>" + addRepSignal(48) + "</div>";
+}
+
+function addRepSignal(name) {
+ let html = "<div class='repSignal' id='" + name + "_aspect_sigrep'>" + name + "</div>";
+ return html;
+}
 
 function togglefs() {
 	window.isfullscreen = window.isfullscreen || 0;

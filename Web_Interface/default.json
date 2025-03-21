@@ -741,190 +741,7 @@
         }
     },
     "Routes": {
-        "Startup": {
-            "available": false,
-            "description": "Used at Startup with no points detection",
-            "instances": {},
-            "mode": 0,
-            "points": {},
-            "ref": "Startup",
-            "sections": [
-                "R"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "47": [
-                    "caution"
-                ]
-            }
-        },
-        "47IntoR": {
-            "available": false,
-            "description": "Mainline 47 to 48",
-            "instances": {},
-            "mode": 0,
-            "points": {},
-            "ref": "47IntoR",
-            "sections": [
-                "R"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "47": [
-                    "clear"
-                ]
-            }
-        },
-        "45intoR": {
-            "available": false,
-            "description": "Yard 45 to 48",
-            "instances": {},
-            "mode": 0,
-            "points": {},
-            "ref": "45intoR",
-            "sections": [
-                "R"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "45": [
-                    "clear"
-                ]
-            }
-        },
-        "46intoR": {
-            "available": false,
-            "description": "Yard 46 to 48",
-            "instances": {},
-            "mode": 0,
-            "points": {},
-            "ref": "46intoR",
-            "sections": [
-                "R"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "46": [
-                    "clear"
-                ]
-            }
-        },
-        "48intoP2(unocc)": {
-            "available": false,
-            "description": "48 into Platform 2 (unoccupied)",
-            "instances": {},
-            "mode": 0,
-            "points": {
-                "100": "normal",
-                "300": "normal"
-            },
-            "ref": "48intoP2unocc",
-            "sections": [
-                "S"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "48": [
-                    "caution",
-                    "route2"
-                ]
-            }
-        },
-        "48intoP2(occ)": {
-            "available": false,
-            "description": "48 into Platform 2 (occupied)",
-            "instances": {},
-            "mode": 0,
-            "points": {
-                "100": "normal",
-                "300": "normal"
-            },
-            "ref": "48intoP2occ",
-            "sections": [
-                "S"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "48": [
-                    "associated_position_light",
-                    "route2"
-                ]
-            }
-        },
-        "48intoP3(unocc)": {
-            "available": false,
-            "description": "48 into Platform 3 (unoccupied)",
-            "instances": {},
-            "mode": 0,
-            "points": {
-                "100": "reverse",
-                "300": "normal"
-            },
-            "ref": "48intoP3(unocc)",
-            "sections": [
-                "S"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "48": [
-                    "caution",
-                    "route3"
-                ]
-            }
-        },
-        "48intoP3(occ)": {
-            "available": false,
-            "description": "48 into Platform 3 (occupied)",
-            "instances": {},
-            "mode": 0,
-            "points": {
-                "100": "reverse",
-                "300": "normal"
-            },
-            "ref": "48intoP3occ",
-            "sections": [
-                "S"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "48": [
-                    "associated_position_light",
-                    "route3"
-                ]
-            }
-        },
-
-        "48intoP4(unocc)": {
-            "available": false,
-            "description": "48 into P4 (unoccupied)",
-            "instances": {},
-            "mode": 0,
-            "points": {
-                "100": "reverse",
-                "300": "reverse"
-            },
-            "ref": "48intoP4unocc",
-            "sections": [
-                "S"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "48": [
-                    "caution",
-                    "route4"
-                ]
-            }
-        },
-        "48intoP4(occ)": {
+        "48intoP4(occupied)": {
             "available": false,
             "description": "R Into P4 (occupied)",
             "instances": {},
@@ -946,6 +763,170 @@
                 ]
             }
         },
+        "47IntoR": {
+            "available": false,
+            "description": "47 Into R",
+            "instances": {},
+            "mode": 0,
+            "points": {},
+            "ref": "47IntoR",
+            "sections": [
+                "R"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "47": [
+                    "clear"
+                ]
+            }
+        },
+        "48intoP4(unoccupied)": {
+            "available": false,
+            "description": "48 into P4 (unoccupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "reverse",
+                "300": "reverse"
+            },
+            "ref": "48intoP4unocc",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "caution",
+                    "route4"
+                ]
+            }
+        },
+        "45intoR": {
+            "available": false,
+            "description": "Yard 45 Signal into R",
+            "instances": {},
+            "mode": 0,
+            "points": {},
+            "ref": "45intoR",
+            "sections": [
+                "R"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "45": [
+                    "clear"
+                ]
+            }
+        },
+        "46intoR": {
+            "available": false,
+            "description": "Yard 46 Signal into R",
+            "instances": {},
+            "mode": 0,
+            "points": {},
+            "ref": "46intoR",
+            "sections": [
+                "R"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "46": [
+                    "clear"
+                ]
+            }
+        },
+        "48intoP2(unoccupied)": {
+            "available": false,
+            "description": "48 into Platform 2 (unoccupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "normal",
+                "300": "normal"
+            },
+            "ref": "48intoP2unocc",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "caution",
+                    "route2"
+                ]
+            }
+        },
+        "48intoP2(occupied)": {
+            "available": false,
+            "description": "48 into Platform 2 (occupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "normal",
+                "300": "normal"
+            },
+            "ref": "48intoP2occ",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "associated_position_light",
+                    "route2"
+                ]
+            }
+        },
+        "48intoP3(occupied)": {
+            "available": false,
+            "description": "48 into Platform 3 (occupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "reverse",
+                "300": "normal"
+            },
+            "ref": "48intoP3occ",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "associated_position_light",
+                    "route3"
+                ]
+            }
+        },
+        "48intoP3(unoccupied)": {
+            "available": false,
+            "description": "48 into Platform 3 (unoccupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "reverse",
+                "300": "normal"
+            },
+            "ref": "48intoP3(unocc)",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "caution",
+                    "route3"
+                ]
+            }
+        },
         "P2shunt": {
             "available": false,
             "description": "Shunt from Platform 2",
@@ -957,8 +938,7 @@
             },
             "ref": "P2shunt",
             "sections": [
-                "R",
-                "S"
+                "R"
             ],
             "set": false,
             "setting": false,
@@ -979,8 +959,7 @@
             },
             "ref": "P3shunt",
             "sections": [
-                "R",
-                "S"
+                "R"
             ],
             "set": false,
             "setting": false,
@@ -1001,8 +980,7 @@
             },
             "ref": "P4shunt",
             "sections": [
-                "R",
-                "S"
+                "R"
             ],
             "set": false,
             "setting": false,
@@ -1039,6 +1017,24 @@
             "set": false,
             "setting": false,
             "signals": {}
+        },
+        "Startup": {
+            "available": false,
+            "description": "",
+            "instances": {},
+            "mode": 0,
+            "points": {},
+            "ref": "Startup",
+            "sections": [
+                "R"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "47": [
+                    "caution"
+                ]
+            }
         }
     },
     "Triggers": {

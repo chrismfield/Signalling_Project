@@ -35,6 +35,9 @@ h1 {
 	td._section {
 		width:20px;
 	}
+	td._btnCell {
+		white-space: nowrap;
+	}
 	td ._desc {
 		font-size:8pt;
 	}
@@ -149,12 +152,12 @@ h1 {
 		}
 		._plunger {
 			position: absolute;
-			margin:-0.75% -0.75;
+			margin:-0.75% -0.75%;
 			border-radius: 40px;
 			border:4px solid black;
 			box-sizing:content-box;
 			width:1.5%;
-			height:1.5%;
+			padding:0.75% 0%; /* force circular as padding ratio based on width */
 			background-color: #00f;
 		}
 		._cb {
@@ -200,4 +203,52 @@ h1 {
 	display: block;
 	margin: 10px auto;
 	padding: 10px;
+}
+
+/* Signal replication */
+.repSignals {
+	display:flex;
+	width:100%;
+	height:100%;
+	flex-direction: row;
+}
+.repSignals .repSignal {
+	height:100%;
+	flex: 1 1 auto;
+	box-sizing:border-box;
+	border: 5px solid black;
+	color: black;
+	text-align:center;
+	font-size: 10rem;
+	&.state_danger {
+		background-color: #f00;
+	}
+	&.state_caution {
+		background-color: #ff0;
+	}
+	&.state_clear {
+		background-color: #0f0;
+	}
+	&.state_associated_position_light {
+		background-color: #fff; /* Show as white for assoc red */
+	}
+	&.state_position_light {
+		background-color: #fff; /* Show as white */
+	}
+	&.state_route2::after,
+	&.state_route3::after,
+	&.state_route4::after {
+		display:block;
+		text-align:center;
+		font-size:15rem;
+	}
+	&.state_route2::after {
+		content: '2';
+	}
+	&.state_route3::after {
+		content: '3';
+	}
+	&.state_route4::after {
+		content: '4';
+	}
 }

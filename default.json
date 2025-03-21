@@ -19,7 +19,12 @@
             "previousoccstatus": 0,
             "ref": "Q",
             "routeset": false,
-            "routestatus": ""
+            "routestatus": "",
+            "coords": {
+                "x": 84.53,
+                "y": 18.83,
+                "rotate": 22.5
+            }
         },
         "R": {
             "conflictingsections": [],
@@ -50,7 +55,11 @@
             "previousoccstatus": 0,
             "ref": "R",
             "routeset": false,
-            "routestatus": ""
+            "routestatus": "",
+            "coords": {
+                "x": 52.58,
+                "y": 16.00
+            }
         },
         "S": {
             "conflictingsections": [],
@@ -74,7 +83,11 @@
             "previousoccstatus": 0,
             "ref": "S",
             "routeset": false,
-            "routestatus": ""
+            "routestatus": "",
+            "coords": {
+                "x": 47.07,
+                "y": 16.00
+            }
         },
         "T": {
             "conflictingsections": [],
@@ -96,7 +109,11 @@
             "previousoccstatus": 0,
             "ref": "T",
             "routeset": false,
-            "routestatus": ""
+            "routestatus": "",
+            "coords": {
+                "x": 21.23,
+                "y": 3.77
+            }
         },
         "U": {
             "conflictingsections": [],
@@ -118,7 +135,11 @@
             "previousoccstatus": 0,
             "ref": "U",
             "routeset": false,
-            "routestatus": ""
+            "routestatus": "",
+            "coords": {
+                "x": 28.91,
+                "y": 16.35
+            }
         },
         "V": {
             "conflictingsections": [],
@@ -140,7 +161,11 @@
             "previousoccstatus": 0,
             "ref": "V",
             "routeset": false,
-            "routestatus": ""
+            "routestatus": "",
+            "coords": {
+                "x": 18.88,
+                "y": 22.64
+            }
         }
     },
     "AxleCounters": {
@@ -242,7 +267,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 1,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 78.82,
+                "y": 16.14
+            }
         },
         "48": {
             "address": 48,
@@ -274,7 +303,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 1,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 49.95,
+                "y": 15.83
+            }
         },
         "42": {
             "address": 42,
@@ -306,7 +339,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 1,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 33.00,
+                "y": 6.50
+            }
         },
         "43": {
             "address": 42,
@@ -338,7 +375,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 0,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 33.00,
+                "y": 15.72
+            }
         },
         "44": {
             "address": 42,
@@ -370,7 +411,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 0,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 33.00,
+                "y": 19.39
+            }
         },
         "45": {
             "address": 45,
@@ -402,7 +447,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 1,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 78.82,
+                "y": 28.93
+            }
         },
         "46": {
             "address": 45,
@@ -434,7 +483,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 1,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 78.82,
+                "y": 22.54
+            }
         }
     },
     "Plungers": {
@@ -448,7 +501,11 @@
             "ref": "P5",
             "register": 0,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 54.23,
+                "y": 18.87
+            }
         },
         "P3": {
             "address": 23,
@@ -460,7 +517,11 @@
             "ref": "P3",
             "register": 2,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 29.94,
+                "y": 24.11
+            }
         },
         "P6": {
             "address": 21,
@@ -472,7 +533,11 @@
             "ref": "P6",
             "register": 1,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 54.23,
+                "y": 21.87
+            }
         },
         "P7": {
             "address": 21,
@@ -484,7 +549,11 @@
             "ref": "P7",
             "register": 7,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 54.23,
+                "y": 24.87
+            }
         },
         "P2": {
             "address": 23,
@@ -496,7 +565,11 @@
             "ref": "P2",
             "register": 1,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 29.94,
+                "y": 12.68
+            }
         },
         "P1": {
             "address": 23,
@@ -508,7 +581,11 @@
             "ref": "P1",
             "register": 0,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 29.94,
+                "y": 6.60
+            }
         },
         "P13": {
             "address": 47,
@@ -520,7 +597,11 @@
             "ref": "P13",
             "register": 41,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 81.86,
+                "y": 19.81
+            }
         },
         "P11": {
             "address": 45,
@@ -532,7 +613,11 @@
             "ref": "P11",
             "register": 41,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 81.86,
+                "y": 33.12
+            }
         },
         "P12": {
             "address": 45,
@@ -544,7 +629,11 @@
             "ref": "P12",
             "register": 42,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 81.86,
+                "y": 26.10
+            }
         },
         "P8": {
             "address": 22,
@@ -556,7 +645,11 @@
             "ref": "P8",
             "register": 0,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 46.23,
+                "y": 18.87
+            }
         },
         "P9": {
             "address": 22,
@@ -568,7 +661,11 @@
             "ref": "P9",
             "register": 1,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 46.23,
+                "y": 21.87
+            }
         },
         "P10": {
             "address": 22,
@@ -580,7 +677,11 @@
             "ref": "P10",
             "register": 7,
             "slave": null,
-            "status": 0
+            "status": 0,
+            "coords": {
+                "x": 46.23,
+                "y": 24.87
+            }
         }
     },
     "Points": {
@@ -603,7 +704,13 @@
             "section": "S",
             "set_direction": "",
             "slave": null,
-            "unlocked": true
+            "unlocked": true,
+            "coords": {
+                "x": 46.55,
+                "y": 16.56,
+                "rotate": 195,
+                "dir": "lh"
+            }
         },
         "300": {
             "address": 100,
@@ -624,31 +731,41 @@
             "section": "S",
             "set_direction": "",
             "slave": null,
-            "unlocked": true
+            "unlocked": true,
+            "coords": {
+                "x": 39.64,
+                "y": 16.56,
+                "rotate": 180,
+                "dir": "lh"
+            }
         }
     },
     "Routes": {
-        "Startup": {
+        "48intoP4(occupied)": {
             "available": false,
-            "description": "Used at Startup with no points detection",
+            "description": "R Into P4 (occupied)",
             "instances": {},
             "mode": 0,
-            "points": {},
-            "ref": "Startup",
+            "points": {
+                "100": "reverse",
+                "300": "reverse"
+            },
+            "ref": "48intoP4(occupied)",
             "sections": [
-                "R"
+                "S"
             ],
             "set": false,
             "setting": false,
             "signals": {
-                "47": [
-                    "caution"
+                "48": [
+                    "associated_position_light",
+                    "route4"
                 ]
             }
         },
         "47IntoR": {
             "available": false,
-            "description": "Mainline 47 to 48",
+            "description": "47 Into R",
             "instances": {},
             "mode": 0,
             "points": {},
@@ -664,9 +781,31 @@
                 ]
             }
         },
+        "48intoP4(unoccupied)": {
+            "available": false,
+            "description": "48 into P4 (unoccupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "reverse",
+                "300": "reverse"
+            },
+            "ref": "48intoP4(unoccupied)",
+            "sections": [
+                "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "caution",
+                    "route4"
+                ]
+            }
+        },
         "45intoR": {
             "available": false,
-            "description": "Yard 45 to 48",
+            "description": "Yard 45 Signal into R",
             "instances": {},
             "mode": 0,
             "points": {},
@@ -684,7 +823,7 @@
         },
         "46intoR": {
             "available": false,
-            "description": "Yard 46 to 48",
+            "description": "Yard 46 Signal into R",
             "instances": {},
             "mode": 0,
             "points": {},
@@ -700,7 +839,7 @@
                 ]
             }
         },
-        "48intoP2(unocc)": {
+        "48intoP2(unoccupied)": {
             "available": false,
             "description": "48 into Platform 2 (unoccupied)",
             "instances": {},
@@ -709,7 +848,7 @@
                 "100": "normal",
                 "300": "normal"
             },
-            "ref": "48intoP2unocc",
+            "ref": "48intoP2(unoccupied)",
             "sections": [
                 "S"
             ],
@@ -722,7 +861,7 @@
                 ]
             }
         },
-        "48intoP2(occ)": {
+        "48intoP2(occupied)": {
             "available": false,
             "description": "48 into Platform 2 (occupied)",
             "instances": {},
@@ -731,7 +870,7 @@
                 "100": "normal",
                 "300": "normal"
             },
-            "ref": "48intoP2occ",
+            "ref": "48intoP2(occupied)",
             "sections": [
                 "S"
             ],
@@ -744,29 +883,7 @@
                 ]
             }
         },
-        "48intoP3(unocc)": {
-            "available": false,
-            "description": "48 into Platform 3 (unoccupied)",
-            "instances": {},
-            "mode": 0,
-            "points": {
-                "100": "reverse",
-                "300": "normal"
-            },
-            "ref": "48intoP3(unocc)",
-            "sections": [
-                "S"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "48": [
-                    "caution",
-                    "route3"
-                ]
-            }
-        },
-        "48intoP3(occ)": {
+        "48intoP3(occupied)": {
             "available": false,
             "description": "48 into Platform 3 (occupied)",
             "instances": {},
@@ -775,7 +892,7 @@
                 "100": "reverse",
                 "300": "normal"
             },
-            "ref": "48intoP3occ",
+            "ref": "48intoP3(occupied)",
             "sections": [
                 "S"
             ],
@@ -788,17 +905,16 @@
                 ]
             }
         },
-
-        "48intoP4(unocc)": {
+        "48intoP3(unoccupied)": {
             "available": false,
-            "description": "48 into P4 (unoccupied)",
+            "description": "48 into Platform 3 (unoccupied)",
             "instances": {},
             "mode": 0,
             "points": {
                 "100": "reverse",
-                "300": "reverse"
+                "300": "normal"
             },
-            "ref": "48intoP4unocc",
+            "ref": "48intoP3(unoccupied)",
             "sections": [
                 "S"
             ],
@@ -807,29 +923,7 @@
             "signals": {
                 "48": [
                     "caution",
-                    "route4"
-                ]
-            }
-        },
-        "48intoP4(occ)": {
-            "available": false,
-            "description": "R Into P4 (occupied)",
-            "instances": {},
-            "mode": 0,
-            "points": {
-                "100": "reverse",
-                "300": "reverse"
-            },
-            "ref": "48intoP4occ",
-            "sections": [
-                "S"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "48": [
-                    "associated_position_light",
-                    "route4"
+                    "route3"
                 ]
             }
         },
@@ -905,7 +999,7 @@
             "instances": {},
             "mode": 0,
             "points": {},
-            "ref": "S only",
+            "ref": "S_only",
             "sections": [
                 "S"
             ],
@@ -926,6 +1020,24 @@
             "set": false,
             "setting": false,
             "signals": {}
+        },
+        "Startup": {
+            "available": false,
+            "description": "",
+            "instances": {},
+            "mode": 0,
+            "points": {},
+            "ref": "Startup",
+            "sections": [
+                "R"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "47": [
+                    "caution"
+                ]
+            }
         }
     },
     "Triggers": {
@@ -942,11 +1054,11 @@
             "priority": 2,
             "ref": "47toP2",
             "routes_to_cancel": [
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
                 "47IntoR",
-                "48intoP2occ"
+                "48intoP2(occupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [
@@ -972,11 +1084,11 @@
             "priority": 2,
             "ref": "47toP2",
             "routes_to_cancel": [
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
                 "47IntoR",
-                "48intoP2unocc"
+                "48intoP2(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [
@@ -1003,11 +1115,11 @@
             "priority": 2,
             "ref": "47toP3",
             "routes_to_cancel": [
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
                 "47IntoR",
-                "48intoP3occ"
+                "48intoP3(occupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [
@@ -1034,11 +1146,11 @@
             "priority": 2,
             "ref": "47toP3",
             "routes_to_cancel": [
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
                 "47IntoR",
-                "48intoP3(unocc)"
+                "48intoP3(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [
@@ -1065,11 +1177,11 @@
             "priority": 1,
             "ref": "47toP4",
             "routes_to_cancel": [
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
                 "47IntoR",
-                "48intoP4occ"
+                "48intoP4(occupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [
@@ -1096,11 +1208,11 @@
             "priority": 1,
             "ref": "47toP4",
             "routes_to_cancel": [
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
                 "47IntoR",
-                "48intoP4unocc"
+                "48intoP4(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [
@@ -1129,7 +1241,7 @@
             "routes_to_cancel": [],
             "routes_to_set": [
                 "46intoR",
-                "S only"
+                "S_only"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1156,7 +1268,7 @@
             "routes_to_cancel": [],
             "routes_to_set": [
                 "45intoR",
-                "S only"
+                "S_only"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1181,24 +1293,24 @@
             "priority": 5,
             "ref": "RintoP2",
             "routes_to_cancel": [
-                "48intoP4occ",
+                "48intoP4(occupied)",
                 "47IntoR",
-                "48intoP4unocc",
+                "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
-                "S only",
+                "S_only",
                 "R_only",
                 "Startup"
             ],
             "routes_to_set": [
-                "48intoP2occ"
+                "48intoP2(occupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1223,24 +1335,24 @@
             "priority": 5,
             "ref": "RintoP2",
             "routes_to_cancel": [
-                "48intoP4occ",
+                "48intoP4(occupied)",
                 "47IntoR",
-                "48intoP4unocc",
+                "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
-                "S only",
+                "S_only",
                 "R_only",
                 "Startup"
             ],
             "routes_to_set": [
-                "48intoP2unocc"
+                "48intoP2(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1265,24 +1377,24 @@
             "priority": 5,
             "ref": "RintoP3",
             "routes_to_cancel": [
-                "48intoP4occ",
+                "48intoP4(occupied)",
                 "47IntoR",
-                "48intoP4unocc",
+                "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
-                "S only",
+                "S_only",
                 "R_only",
                 "Startup"
             ],
             "routes_to_set": [
-                "48intoP3occ"
+                "48intoP3(occupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1307,24 +1419,24 @@
             "priority": 5,
             "ref": "RintoP3",
             "routes_to_cancel": [
-                "48intoP4occ",
+                "48intoP4(occupied)",
                 "47IntoR",
-                "48intoP4unocc",
+                "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
-                "S only",
+                "S_only",
                 "R_only",
                 "Startup"
             ],
             "routes_to_set": [
-                "48intoP3(unocc)"
+                "48intoP3(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1349,24 +1461,24 @@
             "priority": 5,
             "ref": "RintoP4",
             "routes_to_cancel": [
-                "48intoP4occ",
+                "48intoP4(occupied)",
                 "47IntoR",
-                "48intoP4unocc",
+                "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
-                "S only",
+                "S_only",
                 "R_only",
                 "Startup"
             ],
             "routes_to_set": [
-                "48intoP4occ"
+                "48intoP4(occupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1391,24 +1503,24 @@
             "priority": 5,
             "ref": "RintoP4",
             "routes_to_cancel": [
-                "48intoP4occ",
+                "48intoP4(occupied)",
                 "47IntoR",
-                "48intoP4unocc",
+                "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
-                "S only",
+                "S_only",
                 "R_only",
                 "Startup"
             ],
             "routes_to_set": [
-                "48intoP4unocc"
+                "48intoP4(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1437,7 +1549,7 @@
                 "P3shunt",
                 "P4shunt",
                 "R_only",
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
                 "P4shunt"
@@ -1469,7 +1581,7 @@
                 "P3shunt",
                 "P4shunt",
                 "R_only",
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
                 "P3shunt"
@@ -1501,7 +1613,7 @@
                 "P3shunt",
                 "P4shunt",
                 "R_only",
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
                 "P2shunt"
@@ -1536,7 +1648,7 @@
             "routes_to_cancel": [],
             "routes_to_set": [
                 "R_only",
-                "S only"
+                "S_only"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1561,19 +1673,19 @@
             "priority": 0,
             "ref": "47toR",
             "routes_to_cancel": [
-                "48intoP4occ",
+                "48intoP4(occupied)",
                 "47IntoR",
-                "48intoP4unocc",
+                "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
-                "S only",
+                "S_only",
                 "R_only",
                 "Startup"
             ],
@@ -1630,20 +1742,20 @@
             "priority": 5,
             "ref": "P8trig",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P4shunt",
                 "P3shunt",
                 "P2shunt",
                 "Startup",
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
-                "48intoP2occ"
+                "48intoP2(occupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1668,20 +1780,20 @@
             "priority": 5,
             "ref": "P8trig",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P4shunt",
                 "P3shunt",
                 "P2shunt",
                 "Startup",
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
-                "48intoP2unocc"
+                "48intoP2(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1706,20 +1818,20 @@
             "priority": 5,
             "ref": "P9trig",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P4shunt",
                 "P3shunt",
                 "P2shunt",
                 "Startup",
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
-                "48intoP3occ"
+                "48intoP3(occupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1744,20 +1856,20 @@
             "priority": 5,
             "ref": "P9trig",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P4shunt",
                 "P3shunt",
                 "P2shunt",
                 "Startup",
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
-                "48intoP3(unocc)"
+                "48intoP3(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1782,20 +1894,20 @@
             "priority": 5,
             "ref": "P10trig",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P4shunt",
                 "P3shunt",
                 "P2shunt",
                 "Startup",
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
-                "48intoP4occ"
+                "48intoP4(occupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1820,20 +1932,20 @@
             "priority": 5,
             "ref": "P10trig",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P4shunt",
                 "P3shunt",
                 "P2shunt",
                 "Startup",
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
-                "48intoP4unocc"
+                "48intoP4(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
