@@ -108,9 +108,9 @@ def check_all_ACs(logger, mqtt_client):
 
 
         except (OSError, ValueError) as error:
-            ACinstance.upcount, ACinstance.downcount = 0, 0  # reset these variables to zero if no comms to avoid double counting
             comms_status = (" Comms failure " + str(error))
 
+        # Determine if logging is required
         if ACinstance.comms_status != comms_status:
             logger.error(ACinstance.ref + comms_status)
             ACinstance.comms_status = comms_status
@@ -132,6 +132,7 @@ def check_all_plungers(logger):
             # plungerinstance.status = 0  # reset these variables to zero if no comms to avoid double counting # don't think this is required as it is set to zero at end of check_triggers()
             comms_status = (" Comms failure " + str(error))
 
+        # Determine if logging is required
         if plungerinstance.comms_status != comms_status:
             logger.error(plungerinstance.ref + comms_status)
             plungerinstance.comms_status = comms_status
@@ -153,7 +154,7 @@ def section_update(logger, mqtt_client):
                     section.occstatus += AxleCounter.instances[AC].upcount
                 if direction == "Downcount":
                     section.occstatus += AxleCounter.instances[AC].downcount
-            if section.occstatus > 0:  # these three lines in here to help clear virtual section
+            if section.occstatus > 0:  # these three lines in here to help clear routes
                 section.routeset = False
                 section.routestatus = "not set"
             for AC, direction in section.dectrig.items():  # for each decrement trigger (which is in form "A1":"Upcount", "A2":"Downcount")
@@ -166,11 +167,13 @@ def section_update(logger, mqtt_client):
                     if AxleCounter.instances[AC].downcount and (section.occstatus < axle_tolerance):
                         section.occstatus = 0
         # TODO add in other detection modes logic i.e. treadle and track circuit
+        # Determine if logging is required
         if section.occstatus != old_occstatus:
             logger.info(sectionkey + " " + str(section.occstatus))
         if section.occstatus:
             section.routeset = False
             section.routestatus = "not set"
+            # TODO combine these variables?
 
 
 def interlocking(logger):
@@ -217,7 +220,7 @@ def interlocking(logger):
                 if point.section == sectionkey:
                     point.unlocked = False
             # for every route, make not available if the section is occupied or route already set through:
-            # there is a bug in this logic as per Andy's email. But this is only used for MQTT currently
+            # TODO there is a bug in this logic as per Andy's email. But this is only used for MQTT currently
             for routekey, route in Route.instances.items():
                 if sectionkey in route.sections:
                     route.available = False
@@ -234,7 +237,9 @@ def check_points(logger, mqtt_client):
     for pointkey, point in Point.instances.items():
         old_detection_status = point.detection_status
         old_detection_boolean = point.detection_boolean
-        if point.detection_mode:
+        if not point.detection_mode:
+            point.detection_boolean = True
+        else:
             try:
                 detection_normal = point.slave.read_bit(point.normal_coil, 2)  # read input corresponding to coil
                 detection_reverse = point.slave.read_bit(point.reverse_coil, 2)  # read input corresponding to coil
@@ -245,6 +250,7 @@ def check_points(logger, mqtt_client):
                 detection_normal = False
                 detection_reverse = False
                 comms_status = " Comms failure"
+                # Determine if logging is required
                 if point.comms_status != comms_status:
                     logger.error(point.ref + comms_status)
                     point.comms_status = comms_status
@@ -269,11 +275,12 @@ def check_points(logger, mqtt_client):
                     set.set_signal(Signal.instances[home_signal], Signal.instances, Section.instances, Point.instances,
                                    logger=logger, aspect="danger")
 
+            # Determine if logging is required
             if point.comms_status != comms_status:
                 logger.error(point.ref + comms_status)
                 point.comms_status = comms_status
-        else:
-            point.detection_boolean = True
+
+        # Determine if logging is required
         if (point.detection_status != old_detection_status) or (point.detection_boolean != old_detection_boolean):
             logger.info(point.ref + " detection direction " + point.detection_status + " boolean " +
                         str(point.detection_boolean))
@@ -281,11 +288,11 @@ def check_points(logger, mqtt_client):
 
 def maintain_signals(logger):
     # maintain signals by sending aspect regularly to avoid timeout
+    # also check for next signal for correct caution / clear aspect.
     for signal in Signal.instances.values():
-        try:
+        next_signal = None
+        if signal.nextsignal and Signal.instances[signal.nextsignal]:
             next_signal = Signal.instances[signal.nextsignal]
-        except KeyError:
-            next_signal = None
         set.set_signal(signal, Signal.instances, Section.instances, Point.instances, logger=logger,
                        nextsignal=next_signal)
 
@@ -300,6 +307,7 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
         return sections_to_cancel_list
 
     for trigger in sorted(Trigger.instances.values(), key=lambda x: x.priority, reverse=True):
+        triggered = False
         # check all conditions are true and continue to next trigger if not
         if not all([eval(condition) for condition in trigger.conditions]):
             continue
@@ -308,33 +316,33 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
         # check if triggered by axlecounter
         for axlecounterref, axlecounterdirection in trigger.axlecount.items():
             if getattr(AxleCounter.instances[axlecounterref], axlecounterdirection):
-                trigger.triggered = True
+                triggered = True
         # check if triggered by plunger:
         for plunger in trigger.plungers:
             if Plunger.instances[plunger].status:
-                trigger.triggered = True
+                triggered = True
         # check if triggered by section occupancy:
         if trigger.sections_occupied and AutomaticRouteSetting.global_active:
             for trigger_section in trigger.sections_occupied:
                 if Section.instances[trigger_section].occstatus > 0:
-                    trigger.triggered = True
+                    triggered = True
         # check if triggered by section vacancy:
         if trigger.sections_clear:
             for trigger_section_clear in trigger.sections_clear:
                 if Section.instances[trigger_section_clear].occstatus == 0:
-                    trigger.triggered = True
+                    triggered = True
         # check if triggered by stored request:
         if trigger.stored_request:
-            trigger.triggered = True
+            triggered = True
         # TODO implement timer?
         pass
         # check if triggered by expression - use eval()
         for expression in trigger.trigger_expressions:
             if eval(expression):
-                trigger.triggered = True
+                triggered = True
 
         # try to set routes if triggered
-        if trigger.triggered:
+        if triggered:
             logger.debug(trigger.ref + " triggered")
             full_route_ok = False
 
@@ -350,15 +358,16 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
                     else:
                         full_route_ok = False
                         # store trigger if not possible to execute:
-                        if trigger.store_request:
+                        if trigger.retain_request:
                             if not trigger.stored_request:
                                 trigger.stored_request = True
                                 logger.info(trigger.ref + " trigger stored")
                         else:
                             pass
-                        trigger.triggered = False
+                        triggered = False
                         break
             else:
+                # route ok if not caught by above checks
                 full_route_ok = True
 
             if full_route_ok:
@@ -369,7 +378,7 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
                 if trigger.stored_requests_to_cancel:
                     for stored_request_to_cancel in trigger.stored_requests_to_cancel:
                         Trigger.instances[stored_request_to_cancel].stored_request = False
-                # cancel routes first
+                # cancel routes first to clear the way
                 for route in trigger.routes_to_cancel:
                     set.cancel_route(Route.instances[route],
                                      sections=Section.instances,
@@ -386,7 +395,7 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
                                   signals=Signal.instances,
                                   logger=logger,
                                   mqtt_client=mqtt_client)
-                trigger.triggered = False
+                triggered = False
                 trigger.stored_request = False
                 logger.info(trigger.ref + " triggered and set")
 
@@ -402,6 +411,32 @@ def check_mqtt(logger, mqtt_client):
                           automatic_route_setting=AutomaticRouteSetting, axlecounters=AxleCounter.instances)
     # put command actions in here
 
+def set_setting_routes(logger, mqtt_client):
+    for route in Route.instances.values():
+        if route.setting:
+            set.set_route(route,
+                          sections=Section.instances,
+                          points=Point.instances,
+                          signals=Signal.instances,
+                          logger=logger,
+                          mqtt_client=mqtt_client)
+
+def startup(logger, mqtt_client):
+    """ get upcount and downcount from all axlecounters and store them in their instance"""
+    for ACkey, ACinstance in AxleCounter.instances.items():
+        ACinstance.upcount, ACinstance.downcount = 0, 0  # reset these variables to zero prior to read
+        try:
+            upcountreading, downcountreading = ACinstance.slave.read_registers(13,2)  # register number, number of registers
+
+            ACinstance.sessionupcount = upcountreading
+            ACinstance.sessiondowncount = downcountreading
+
+        except (OSError, ValueError) as error:
+            comms_status = (" Comms failure " + str(error))
+            logger.error(ACinstance.ref + comms_status)
+            ACinstance.comms_status = comms_status
+
+    return
 
 def process(logger, mqtt_client):
     while True:
@@ -413,14 +448,7 @@ def process(logger, mqtt_client):
         check_all_plungers(logger)
         check_triggers(logger, mqtt_client, AutomaticRouteSetting)
         # iterate through setting routes
-        for route in Route.instances.values():
-            if route.setting:
-                set.set_route(route,
-                              sections=Section.instances,
-                              points=Point.instances,
-                              signals=Signal.instances,
-                              logger=logger,
-                              mqtt_client=mqtt_client)
+        set_setting_routes(logger, mqtt_client)
         check_mqtt(logger, mqtt_client)
         set.send_status_to_mqtt(axlecounters=AxleCounter.instances,
                                 signals=Signal.instances,
@@ -439,8 +467,9 @@ def main():
     logger = setup_logger(config["logging_level"])
     mqtt_client = setup_mqtt()
     loadlayoutjson(logger, mqtt_client)
+    startup(logger, mqtt_client)
     process(logger, mqtt_client)
-    pass
+
 
 
 if __name__ == '__main__':

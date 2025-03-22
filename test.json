@@ -231,7 +231,7 @@
             "sections_occupied": [
                 "R"
             ],
-            "store_request": 1,
+            "retain_request": 1,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
@@ -260,7 +260,7 @@
             "sections_occupied": [
                 "Q"
             ],
-            "store_request": false,
+            "retain_request": false,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],

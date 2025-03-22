@@ -149,7 +149,7 @@ class Trigger:
     """Trigger object containing static and dynamic variables"""
     instances = {}
     def __init__(self, ref, description = None, override=False, sections_occupied=[], sections_clear=[], plungers=[], lever=None,
-                 timer=None, MQTT=None, routes_to_set=[], routes_to_cancel=[], priority=10, store_request = False, conditions = ["True"], trigger_expressions = [], trigger_special_actions = []):
+                 timer=None, MQTT=None, routes_to_set=[], routes_to_cancel=[], priority=10, retain_request = False, conditions = ["True"], trigger_expressions = [], trigger_special_actions = []):
         #static variables
         self.ref = ref
         self.description = description
@@ -162,7 +162,7 @@ class Trigger:
         self.routes_to_set = routes_to_set
         self.routes_to_cancel = routes_to_cancel
         self.priority = priority
-        self.store_request = store_request
+        self.retain_request = retain_request
         self.conditions = conditions
         self.trigger_expressions = trigger_expressions
         self.trigger_special_actions = trigger_special_actions

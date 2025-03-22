@@ -1295,7 +1295,7 @@ def add_trigger(parent, existing_ref):
             plungers = plungers,
             routes_to_set= routes_to_set,
             routes_to_cancel = routes_to_clear,
-            store_request = store_request.get(),
+            retain_request = retain_request.get(),
             priority = priority.get(),
             conditions = trigger_conditions,
             trigger_special_actions = trigger_special_actions
@@ -1316,11 +1316,11 @@ def add_trigger(parent, existing_ref):
         trigger_description.set(trigger_dict[existing_ref].description)
     except KeyError:
         pass
-    store_request = IntVar()
+    retain_request = IntVar()
     try:
-        store_request.set(trigger_dict[existing_ref].store_request)
+        retain_request.set(trigger_dict[existing_ref].retain_request)
     except KeyError:
-        store_request.set(0)
+        retain_request.set(0)
     priority = IntVar()
     try:
         priority.set(trigger_dict[existing_ref].priority)
@@ -1426,12 +1426,12 @@ def add_trigger(parent, existing_ref):
         except KeyError:
             pass
     #
-    # store_request_checkbox = Checkbutton(trigger_setup_frame, text="Store Request", variable=store_request, anchor=W)
-    # store_request_checkbox.grid(row=7, column=1, sticky=E)
+    # retain_request_checkbox = Checkbutton(trigger_setup_frame, text="Store Request", variable=retain_request, anchor=W)
+    # retain_request_checkbox.grid(row=7, column=1, sticky=E)
 
     ttk.Label(trigger_setup_frame, text="Trigger mode:").grid(column=0, row=7, sticky=W, padx=10, pady=10)
-    Radiobutton(trigger_setup_frame, text="Store request", variable=store_request, value=1).grid(column=1, row=7, sticky=W)
-    Radiobutton(trigger_setup_frame, text="Do not store request", variable=store_request, value=0).grid(column=2, row=7, sticky=W)
+    Radiobutton(trigger_setup_frame, text="Store request", variable=retain_request, value=1).grid(column=1, row=7, sticky=W)
+    Radiobutton(trigger_setup_frame, text="Do not store request", variable=retain_request, value=0).grid(column=2, row=7, sticky=W)
 
     ttk.Label(trigger_setup_frame, text="Trigger priority:").grid(column=0, row=8, sticky=W, pady=4, padx=10)
     ttk.Entry(trigger_setup_frame, width=70, textvariable=priority).grid(column=1, columnspan=4, row=8,

@@ -36,6 +36,7 @@ def set_point(point, direction, sections, logger, mqtt_client, route = None):
             except (OSError, ValueError) as error:
                 comms_status = (" Comms failure " + str(error))
 
+        # Determine if logging is required
         if point.comms_status != comms_status:
             logger.error(point.ref + comms_status)
             point.comms_status = comms_status
@@ -89,6 +90,8 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                     signal.aspect.discard(PA)
             signal.aspect.add(aspect)
             signal.routeset = route
+
+        # Determine if logging is required
         if signal.aspect != old_aspects:
             logger.info(signal.ref + " aspects requested " + str(signal.aspect))
 
@@ -237,6 +240,7 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
 
+            # Determine if logging is required
             if signal.comms_status != comms_status:
                 logger.error(signal.ref + comms_status)
                 signal.comms_status = comms_status
