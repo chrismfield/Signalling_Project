@@ -64,7 +64,10 @@
         "S": {
             "conflictingsections": [],
             "dectrig": {
-                "A3": "Upcount"
+                "A3": "Downcount",
+                "A8": "Upcount",
+                "A9": "Upcount",
+                "A10": "Upcount"
             },
             "description": "Points Section",
             "homesignal": [
@@ -75,7 +78,10 @@
             ],
             "protecting_points": {},
             "inctrig": {
-                "A3": "Upcount"
+                "A3": "Upcount",
+                "A8": "Downcount",
+                "A9": "Downcount",
+                "A10": "Downcount"
             },
             "instances": {},
             "mode": "axlecounter",
@@ -92,7 +98,7 @@
         "T": {
             "conflictingsections": [],
             "dectrig": {
-                "A4": "Downcount"
+                "A8": "Downcount"
             },
             "description": "Platform 2 Section",
             "homesignal": [
@@ -101,7 +107,7 @@
             "protecting_points":
                 {"48": {"100": "normal"}},
             "inctrig": {
-                "A3": "Upcount"
+                "A8": "Upcount"
             },
             "instances": {},
             "mode": "axlecounter",
@@ -118,7 +124,7 @@
         "U": {
             "conflictingsections": [],
             "dectrig": {
-                "A4": "Downcount"
+                "A9": "Downcount"
             },
             "description": "Platform 3 Section",
             "homesignal": [
@@ -127,7 +133,7 @@
             "protecting_points":
                 {"48": {"100": "reverse", "300": "normal"}},
             "inctrig": {
-                "A3": "Upcount"
+                "A9": "Upcount"
             },
             "instances": {},
             "mode": "axlecounter",
@@ -144,7 +150,7 @@
         "V": {
             "conflictingsections": [],
             "dectrig": {
-                "A4": "Downcount"
+                "A10": "Downcount"
             },
             "description": "Platform 4 Section",
             "homesignal": [
@@ -153,7 +159,7 @@
             "protecting_points":
                 {"48": {"100": "reverse", "300": "reverse"}},
             "inctrig": {
-                "A3": "Upcount"
+                "A10": "Upcount"
             },
             "instances": {},
             "mode": "axlecounter",
@@ -231,6 +237,57 @@
             "mode": 0,
             "network": "network_1",
             "ref": "A4",
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        },
+        "A8": {
+            "address": 8,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "Entrance to Platform 2",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A8",
+            "reverse_coil": 23,
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        },
+        "A9": {
+            "address": 9,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "Entrance to Platform 3",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A9",
+            "reverse_coil": 23,
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        },
+        "A10": {
+            "address": 10,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "Entrance to Platform 4",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A10",
+            "reverse_coil": 23,
             "slave": null,
             "upcount": 0,
             "upcount_reg": 13
@@ -750,9 +807,10 @@
                 "100": "reverse",
                 "300": "reverse"
             },
-            "ref": "48intoP4occ",
+            "ref": "48intoP4(occupied)",
             "sections": [
-                "S"
+                "S",
+                "V"
             ],
             "set": false,
             "setting": false,
@@ -790,9 +848,10 @@
                 "100": "reverse",
                 "300": "reverse"
             },
-            "ref": "48intoP4unocc",
+            "ref": "48intoP4(unoccupied)",
             "sections": [
-                "S"
+                "S",
+                "V"
             ],
             "set": false,
             "setting": false,
@@ -848,9 +907,10 @@
                 "100": "normal",
                 "300": "normal"
             },
-            "ref": "48intoP2unocc",
+            "ref": "48intoP2(unoccupied)",
             "sections": [
-                "S"
+                "S",
+                "T"
             ],
             "set": false,
             "setting": false,
@@ -870,9 +930,10 @@
                 "100": "normal",
                 "300": "normal"
             },
-            "ref": "48intoP2occ",
+            "ref": "48intoP2(occupied)",
             "sections": [
-                "S"
+                "S",
+                "T"
             ],
             "set": false,
             "setting": false,
@@ -892,9 +953,10 @@
                 "100": "reverse",
                 "300": "normal"
             },
-            "ref": "48intoP3occ",
+            "ref": "48intoP3(occupied)",
             "sections": [
-                "S"
+                "S",
+                "U"
             ],
             "set": false,
             "setting": false,
@@ -914,9 +976,10 @@
                 "100": "reverse",
                 "300": "normal"
             },
-            "ref": "48intoP3(unocc)",
+            "ref": "48intoP3(unoccupied)",
             "sections": [
-                "S"
+                "S",
+                "U"
             ],
             "set": false,
             "setting": false,
@@ -938,7 +1001,8 @@
             },
             "ref": "P2shunt",
             "sections": [
-                "R"
+                "R",
+                "S"
             ],
             "set": false,
             "setting": false,
@@ -959,7 +1023,8 @@
             },
             "ref": "P3shunt",
             "sections": [
-                "R"
+                "R",
+                "S"
             ],
             "set": false,
             "setting": false,
@@ -980,7 +1045,8 @@
             },
             "ref": "P4shunt",
             "sections": [
-                "R"
+                "R",
+                "S"
             ],
             "set": false,
             "setting": false,
@@ -996,7 +1062,7 @@
             "instances": {},
             "mode": 0,
             "points": {},
-            "ref": "S only",
+            "ref": "S_only",
             "sections": [
                 "S"
             ],
@@ -1040,7 +1106,8 @@
     "Triggers": {
         "47toP2": {
             "conditions": [
-                "Point.instances[\"100\"].detection_status == \"normal\""
+                "Section.instances[\"T\"].occstatus <= Section.instances[\"U\"].occstatus",
+                "Section.instances[\"T\"].occstatus != 0"
             ],
             "description": "47 to Plat 2 based on Q occupancy",
             "instances": {},
@@ -1050,11 +1117,41 @@
             "priority": 2,
             "ref": "47toP2",
             "routes_to_cancel": [
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
                 "47IntoR",
-                "48intoP2occ"
+                "48intoP2(occupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [
+                "Q"
+            ],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "47toP2clear": {
+            "conditions": [
+                "Section.instances[\"T\"].occstatus <= Section.instances[\"U\"].occstatus",
+                "Section.instances[\"T\"].occstatus == 0"
+            ],
+            "description": "47 to Plat 2 based on Q occupancy",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [],
+            "priority": 2,
+            "ref": "47toP2",
+            "routes_to_cancel": [
+                "S_only"
+            ],
+            "routes_to_set": [
+                "47IntoR",
+                "48intoP2(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [
@@ -1069,8 +1166,8 @@
         },
         "47toP3": {
             "conditions": [
-                "Point.instances[\"100\"].detection_status == \"reverse\"",
-                "Point.instances[\"300\"].detection_status == \"normal\""
+                "Section.instances[\"U\"].occstatus < Section.instances[\"T\"].occstatus",
+                "Section.instances[\"U\"].occstatus != 0"
             ],
             "description": "47 to Plat 3 based on Q occupancy",
             "instances": {},
@@ -1080,11 +1177,41 @@
             "priority": 2,
             "ref": "47toP3",
             "routes_to_cancel": [
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
                 "47IntoR",
-                "48intoP3occ"
+                "48intoP3(occupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [
+                "Q"
+            ],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "47toP3clear": {
+            "conditions": [
+                "Section.instances[\"U\"].occstatus < Section.instances[\"T\"].occstatus",
+                "Section.instances[\"U\"].occstatus == 0"
+            ],
+            "description": "47 to Plat 3 based on Q occupancy",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [],
+            "priority": 2,
+            "ref": "47toP3",
+            "routes_to_cancel": [
+                "S_only"
+            ],
+            "routes_to_set": [
+                "47IntoR",
+                "48intoP3(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [
@@ -1099,8 +1226,7 @@
         },
         "47toP4": {
             "conditions": [
-                "Point.instances[\"100\"].detection_status == \"reverse\"",
-                "Point.instances[\"300\"].detection_status == \"reverse\""
+                "Section.instances[\"V\"].occstatus != 0"
             ],
             "description": "47 to Plat 4 based on Q occupancy",
             "instances": {},
@@ -1110,16 +1236,41 @@
             "priority": 1,
             "ref": "47toP4",
             "routes_to_cancel": [
-                "S only"
+                "S_only"
             ],
             "routes_to_set": [
                 "47IntoR",
-                "48intoP4occ"
+                "48intoP4(occupied)"
             ],
             "sections_clear": null,
-            "sections_occupied": [
-                "Q"
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "47toP4clear": {
+            "conditions": [
+                "Section.instances[\"V\"].occstatus == 0"
             ],
+            "description": "47 to Plat 4 based on Q occupancy",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [],
+            "priority": 1,
+            "ref": "47toP4",
+            "routes_to_cancel": [
+                "S_only"
+            ],
+            "routes_to_set": [
+                "47IntoR",
+                "48intoP4(unoccupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
             "store_request": 0,
             "stored_request": false,
             "timer": null,
@@ -1142,7 +1293,8 @@
             "ref": "46to48",
             "routes_to_cancel": [],
             "routes_to_set": [
-                "46intoR"
+                "46intoR",
+                "S_only"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1164,11 +1316,12 @@
             "plungers": [
                 "P11"
             ],
-            "priority": 5,
+            "priority": 1,
             "ref": "45to48",
             "routes_to_cancel": [],
             "routes_to_set": [
-                "45intoR"
+                "45intoR",
+                "S_only"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1181,7 +1334,7 @@
         },
         "RintoP2": {
             "conditions": [
-                "True"
+                "Section.instances[\"T\"].occstatus != 0"
             ],
             "description": "Plunger P5 Trigger",
             "instances": {},
@@ -1193,24 +1346,66 @@
             "priority": 5,
             "ref": "RintoP2",
             "routes_to_cancel": [
-                "48intoP4occ",
+                "48intoP4(occupied)",
                 "47IntoR",
-                "48intoP4unocc",
+                "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
-                "S only",
+                "S_only",
                 "R_only",
                 "Startup"
             ],
             "routes_to_set": [
-                "48intoP2occ"
+                "48intoP2(occupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "RintoP2clear": {
+            "conditions": [
+                "Section.instances[\"T\"].occstatus == 0"
+            ],
+            "description": "Plunger P5 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P5"
+            ],
+            "priority": 5,
+            "ref": "RintoP2",
+            "routes_to_cancel": [
+                "48intoP4(occupied)",
+                "47IntoR",
+                "48intoP4(unoccupied)",
+                "45intoR",
+                "46intoR",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P2shunt",
+                "P3shunt",
+                "P4shunt",
+                "S_only",
+                "R_only",
+                "Startup"
+            ],
+            "routes_to_set": [
+                "48intoP2(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1223,7 +1418,7 @@
         },
         "RintoP3": {
             "conditions": [
-                "True"
+                "Section.instances[\"U\"].occstatus != 0"
             ],
             "description": "Plunger P6 Trigger",
             "instances": {},
@@ -1235,24 +1430,66 @@
             "priority": 5,
             "ref": "RintoP3",
             "routes_to_cancel": [
-                "48intoP4occ",
+                "48intoP4(occupied)",
                 "47IntoR",
-                "48intoP4unocc",
+                "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
-                "S only",
+                "S_only",
                 "R_only",
                 "Startup"
             ],
             "routes_to_set": [
-                "48intoP3occ"
+                "48intoP3(occupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "RintoP3clear": {
+            "conditions": [
+                "Section.instances[\"U\"].occstatus == 0"
+            ],
+            "description": "Plunger P6 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P6"
+            ],
+            "priority": 5,
+            "ref": "RintoP3",
+            "routes_to_cancel": [
+                "48intoP4(occupied)",
+                "47IntoR",
+                "48intoP4(unoccupied)",
+                "45intoR",
+                "46intoR",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P2shunt",
+                "P3shunt",
+                "P4shunt",
+                "S_only",
+                "R_only",
+                "Startup"
+            ],
+            "routes_to_set": [
+                "48intoP3(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1265,7 +1502,7 @@
         },
         "RintoP4": {
             "conditions": [
-                "True"
+                "Section.instances[\"V\"].occstatus != 0"
             ],
             "description": "Plunger P7 Trigger",
             "instances": {},
@@ -1277,24 +1514,66 @@
             "priority": 5,
             "ref": "RintoP4",
             "routes_to_cancel": [
-                "48intoP4occ",
+                "48intoP4(occupied)",
                 "47IntoR",
-                "48intoP4unocc",
+                "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
-                "S only",
+                "S_only",
                 "R_only",
                 "Startup"
             ],
             "routes_to_set": [
-                "48intoP4unocc"
+                "48intoP4(occupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "RintoP4clear": {
+            "conditions": [
+                "Section.instances[\"V\"].occstatus == 0"
+            ],
+            "description": "Plunger P7 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P7"
+            ],
+            "priority": 5,
+            "ref": "RintoP4",
+            "routes_to_cancel": [
+                "48intoP4(occupied)",
+                "47IntoR",
+                "48intoP4(unoccupied)",
+                "45intoR",
+                "46intoR",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P2shunt",
+                "P3shunt",
+                "P4shunt",
+                "S_only",
+                "R_only",
+                "Startup"
+            ],
+            "routes_to_set": [
+                "48intoP4(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1316,26 +1595,21 @@
             "plungers": [
                 "P3"
             ],
-            "priority": 5,
+            "priority": 3,
             "ref": "ShuntP4",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
-                "R_only"
+                "R_only",
+                "S_only"
             ],
             "routes_to_set": [
                 "P4shunt"
             ],
             "sections_clear": null,
             "sections_occupied": [],
-            "store_request": 0,
+            "store_request": 1,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
@@ -1353,26 +1627,21 @@
             "plungers": [
                 "P2"
             ],
-            "priority": 5,
+            "priority": 3,
             "ref": "ShuntP3",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
-                "R_only"
+                "R_only",
+                "S_only"
             ],
             "routes_to_set": [
                 "P3shunt"
             ],
             "sections_clear": null,
             "sections_occupied": [],
-            "store_request": 0,
+            "store_request": 1,
             "stored_request": false,
             "timer": null,
             "trigger_expressions": [],
@@ -1390,53 +1659,17 @@
             "plungers": [
                 "P1"
             ],
-            "priority": 5,
+            "priority": 3,
             "ref": "ShuntP2",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
-                "R_only"
+                "R_only",
+                "S_only"
             ],
             "routes_to_set": [
                 "P2shunt"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "store_request": 0,
-            "stored_request": false,
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "R_only": {
-            "conditions": [
-                "Section.instances[\"R\"].routeset != \"P2shunt\"",
-                "Section.instances[\"R\"].routeset != \"P3shunt\"",
-                "Section.instances[\"R\"].routeset != \"P4shunt\"",
-                "Section.instances[\"R\"].routestatus != \"setting\""
-            ],
-            "description": "Set route R only with no points or signals to reserve route",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P3",
-                "P2",
-                "P1"
-            ],
-            "priority": 3,
-            "ref": "R_only",
-            "routes_to_cancel": [],
-            "routes_to_set": [
-                "R_only"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1461,19 +1694,19 @@
             "priority": 0,
             "ref": "47toR",
             "routes_to_cancel": [
-                "48intoP4occ",
+                "48intoP4(occupied)",
                 "47IntoR",
-                "48intoP4unocc",
+                "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
                 "P2shunt",
                 "P3shunt",
                 "P4shunt",
-                "S only",
+                "S_only",
                 "R_only",
                 "Startup"
             ],
@@ -1485,6 +1718,7 @@
             "timer": null,
             "trigger_expressions": [],
             "trigger_special_actions": [
+                "Section.instances[\"Q\"].occstatus = 0",
                 "Section.instances[\"R\"].occstatus = 0"
             ],
             "triggered": false
@@ -1517,29 +1751,70 @@
         },
         "P8trig": {
             "conditions": [
-                "True"
+                "Section.instances[\"T\"].occstatus != 0"
             ],
             "description": "Plunger P8 Trigger",
             "instances": {},
             "lever": null,
             "override": false,
             "plungers": [
-                "P5",
                 "P8"
             ],
             "priority": 5,
             "ref": "P8trig",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
-                "Startup"
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
+                "Startup",
+                "S_only"
             ],
             "routes_to_set": [
-                "48intoP2occ"
+                "48intoP2(occupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "P8_clear_trig": {
+            "conditions": [
+                "Section.instances[\"T\"].occstatus == 0"
+            ],
+            "description": "Plunger P8 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P8"
+            ],
+            "priority": 5,
+            "ref": "P8trig",
+            "routes_to_cancel": [
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
+                "Startup",
+                "S_only"
+            ],
+            "routes_to_set": [
+                "48intoP2(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1552,7 +1827,7 @@
         },
         "P9trig": {
             "conditions": [
-                "True"
+                "Section.instances[\"U\"].occstatus != 0"
             ],
             "description": "Plunger P9 Trigger",
             "instances": {},
@@ -1564,16 +1839,58 @@
             "priority": 5,
             "ref": "P9trig",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
-                "Startup"
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
+                "Startup",
+                "S_only"
             ],
             "routes_to_set": [
-                "48intoP3occ"
+                "48intoP3(occupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "P9cleartrig": {
+            "conditions": [
+                "Section.instances[\"U\"].occstatus == 0"
+            ],
+            "description": "Plunger P9 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P9"
+            ],
+            "priority": 5,
+            "ref": "P9trig",
+            "routes_to_cancel": [
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
+                "Startup",
+                "S_only"
+            ],
+            "routes_to_set": [
+                "48intoP3(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1586,7 +1903,7 @@
         },
         "P10trig": {
             "conditions": [
-                "True"
+                "Section.instances[\"V\"].occstatus != 0"
             ],
             "description": "Plunger P10 Trigger",
             "instances": {},
@@ -1598,16 +1915,58 @@
             "priority": 5,
             "ref": "P10trig",
             "routes_to_cancel": [
-                "48intoP4occ",
-                "48intoP4unocc",
-                "48intoP2unocc",
-                "48intoP2occ",
-                "48intoP3occ",
-                "48intoP3(unocc)",
-                "Startup"
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
+                "Startup",
+                "S_only"
             ],
             "routes_to_set": [
-                "48intoP4occ"
+                "48intoP4(occupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "store_request": 0,
+            "stored_request": false,
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "P10cleartrig": {
+            "conditions": [
+                "Section.instances[\"V\"].occstatus == 0"
+            ],
+            "description": "Plunger P10 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P10"
+            ],
+            "priority": 5,
+            "ref": "P10trig",
+            "routes_to_cancel": [
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
+                "Startup",
+                "S_only"
+            ],
+            "routes_to_set": [
+                "48intoP4(unoccupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],

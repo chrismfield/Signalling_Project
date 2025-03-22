@@ -6,7 +6,7 @@
         "network_1": "COM6",
         "network_2": "COM2"
     },
-    "logging_level": 10,
+    "logging_level": 20,
     "mqtt_broker_address": "127.0.0.1",
     "point_interlock_timeout": 5
 }

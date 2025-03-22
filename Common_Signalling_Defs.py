@@ -22,6 +22,8 @@ class axlecounter:
         self.description = description  # Freetext description
         self.upcount = 0
         self.downcount = 0
+        self.sessionupcount = 0
+        self.sessiondowncount = 0
 
 
 class signal:

@@ -52,6 +52,10 @@ class ACFrame:  # axlecounter window class
         self.hall1ssv = IntVar()
         self.hall2ssv = IntVar()
         self.hall3ssv = IntVar()
+        self.hall1live = IntVar()
+        self.hall2live = IntVar()
+        self.hall3live = IntVar()
+
 
         addrst_entry = ttk.Entry(self.subframe, width=7, textvariable=self.addrst, validate="focusout",
                                  validatecommand=lambda: print(self.addrst.get()))
@@ -98,6 +102,15 @@ class ACFrame:  # axlecounter window class
         ttk.Label(self.subframe, textvariable=self.hall1ssv).grid(column=2, row=15, sticky="W, E")
         ttk.Label(self.subframe, textvariable=self.hall2ssv).grid(column=2, row=16, sticky="W, E")
         ttk.Label(self.subframe, textvariable=self.hall3ssv).grid(column=2, row=17, sticky="W, E")
+        if True:
+            ttk.Label(self.subframe, text="Hall 1 Live Value:").grid(column=0, row=19, sticky=W)
+            ttk.Label(self.subframe, text="Hall 2 Live Value:").grid(column=0, row=20, sticky=W)
+            ttk.Label(self.subframe, text="Hall 3 Live Value:").grid(column=0, row=21, sticky=W)
+            ttk.Label(self.subframe, textvariable=self.hall1live).grid(column=2, row=19, sticky="W, E")
+            ttk.Label(self.subframe, textvariable=self.hall2live).grid(column=2, row=20, sticky="W, E")
+            ttk.Label(self.subframe, textvariable=self.hall3live).grid(column=2, row=21, sticky="W, E")
+
+
         """Adjustment Buttons For Hall Sensitivity"""
         ttk.Button(self.subframe, text='<', width=2, command=lambda: self.adjustparameters(201, -5, (self.addrst.get()))) \
             .grid(column=3, row=6, sticky=W)
@@ -167,6 +180,19 @@ class ACFrame:  # axlecounter window class
             time.sleep(0.002)
             self.downcount.set(axlecounter.read_register(14))
             time.sleep(0.002)
+            self.hall1ssv.set(axlecounter.read_register(10))  # Load EMA values
+            time.sleep(0.002)
+            self.hall2ssv.set(axlecounter.read_register(11))
+            time.sleep(0.002)
+            self.hall3ssv.set(axlecounter.read_register(12))
+            time.sleep(0.002)
+            if True:
+                self.hall1live.set(axlecounter.read_register(20))
+                time.sleep(0.002)
+                self.hall2live.set(axlecounter.read_register(21))
+                time.sleep(0.002)
+                self.hall3live.set(axlecounter.read_register(22))
+                time.sleep(0.002)
         except Exception as e:
             try:
                 print(datetime.datetime.now().strftime("%H:%M:%S") + " Comms failed (goserial1) with module address " + str(

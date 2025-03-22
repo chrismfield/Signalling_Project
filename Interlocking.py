@@ -90,20 +90,22 @@ def loadlayoutjson(logger, mqtt_client):
     pass
 
 
-# ---------------
-
-
-# need to apply inputs, outputs and logic.
 def check_all_ACs(logger, mqtt_client):
     """ get upcount and downcount from all axlecounters and store them in their instance"""
     for ACkey, ACinstance in AxleCounter.instances.items():
         ACinstance.upcount, ACinstance.downcount = 0, 0  # reset these variables to zero prior to read
         try:
-            ACinstance.upcount, ACinstance.downcount = ACinstance.slave.read_registers(13,
-                                                                                       2)  # register number, number of registers
-            ACinstance.slave.write_register(13, 0, functioncode=6)  # register number, value
-            ACinstance.slave.write_register(14, 0, functioncode=6)  # register number, value
+            upcountreading, downcountreading = ACinstance.slave.read_registers(13,2)  # register number, number of registers
+            #ACinstance.slave.write_register(13, 0, functioncode=6)  # register number, value
+            #ACinstance.slave.write_register(14, 0, functioncode=6)  # register number, value
             comms_status = " OK"
+
+            ACinstance.upcount = upcountreading - ACinstance.sessionupcount
+            ACinstance.downcount = downcountreading - ACinstance.sessiondowncount
+
+            ACinstance.sessionupcount = upcountreading
+            ACinstance.sessiondowncount = downcountreading
+
 
         except (OSError, ValueError) as error:
             ACinstance.upcount, ACinstance.downcount = 0, 0  # reset these variables to zero if no comms to avoid double counting
@@ -209,19 +211,23 @@ def interlocking(logger):
         section.previousoccstatus = section.occstatus
         # if section has any axles or route is set through section:
         if section.occstatus > 0:
-            # for every point, lock if it is in this occupied:
+            # for every point, lock if it is in this occupied section:
             # TODO ought to also check for section.routeset to lock points. But makes cancel and set new route harder.
             for pointkey, point in Point.instances.items():
                 if point.section == sectionkey:
                     point.unlocked = False
-                else:
-                    point.unlocked = True
             # for every route, make not available if the section is occupied or route already set through:
+            # there is a bug in this logic as per Andy's email. But this is only used for MQTT currently
             for routekey, route in Route.instances.items():
                 if sectionkey in route.sections:
                     route.available = False
                 else:
                     route.available = True
+        if section.occstatus == 0:
+            # for every point, unlock it if it is in this unoccupied section
+            for pointkey, point in Point.instances.items():
+                if point.section == sectionkey:
+                    point.unlocked = True
 
 
 def check_points(logger, mqtt_client):
@@ -299,6 +305,10 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
             continue
         else:
             pass
+        # check if triggered by axlecounter
+        for axlecounterref, axlecounterdirection in trigger.axlecount.items():
+            if getattr(AxleCounter.instances[axlecounterref], axlecounterdirection):
+                trigger.triggered = True
         # check if triggered by plunger:
         for plunger in trigger.plungers:
             if Plunger.instances[plunger].status:
@@ -325,7 +335,7 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
 
         # try to set routes if triggered
         if trigger.triggered:
-            logging.debug(trigger.ref + " triggered")
+            logger.debug(trigger.ref + " triggered")
             full_route_ok = False
 
             if trigger.routes_to_set:
@@ -343,7 +353,7 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
                         if trigger.store_request:
                             if not trigger.stored_request:
                                 trigger.stored_request = True
-                                logging.info(trigger.ref + " trigger stored")
+                                logger.info(trigger.ref + " trigger stored")
                         else:
                             pass
                         trigger.triggered = False
@@ -355,6 +365,10 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
                 # execute special trigger actions
                 for action in trigger.trigger_special_actions:
                     exec(action)
+                # cancel stored requests in relevant other triggers
+                if trigger.stored_requests_to_cancel:
+                    for stored_request_to_cancel in trigger.stored_requests_to_cancel:
+                        Trigger.instances[stored_request_to_cancel].stored_request = False
                 # cancel routes first
                 for route in trigger.routes_to_cancel:
                     set.cancel_route(Route.instances[route],
@@ -374,7 +388,7 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
                                   mqtt_client=mqtt_client)
                 trigger.triggered = False
                 trigger.stored_request = False
-                logging.info(trigger.ref + " triggered and set")
+                logger.info(trigger.ref + " triggered and set")
 
     # clear all plungers requests after checking all triggers:
     set.set_plungers_clear(Plunger.instances)
@@ -385,7 +399,7 @@ def check_mqtt(logger, mqtt_client):
         set.set_from_mqtt(command=mqtt_received_queue.pop(), signals=Signal.instances, sections=Section.instances,
                           plungers= Plunger.instances, points=Point.instances,
                           routes=Route.instances, triggers=Trigger.instances, logger=logger, mqtt_client=mqtt_client,
-                          automatic_route_setting=AutomaticRouteSetting)
+                          automatic_route_setting=AutomaticRouteSetting, axlecounters=AxleCounter.instances)
     # put command actions in here
 
 

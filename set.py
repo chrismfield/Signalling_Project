@@ -40,6 +40,7 @@ def set_point(point, direction, sections, logger, mqtt_client, route = None):
             logger.error(point.ref + comms_status)
             point.comms_status = comms_status
 
+
 def set_signal(signal, signals, sections, points, logger, aspect=None, nextsignal =None, send_commands = True, route = None): #arguments are signal object and aspect as string
     main_proceed_aspects = ["clear", "caution", "doublecaution"]
     proceed_aspects = ["clear", "caution", "doublecaution", "associated_position_light", "position_light"]
@@ -245,6 +246,7 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
     if send_commands:
         send_aspect_commands()
 
+
 def check_route_available(route, points, sections, routes_to_cancel = [], sections_to_cancel = []):
     for route_section in route.sections:
         # exclude sections_to_cancel from routeset sections
@@ -276,12 +278,13 @@ def check_route_available(route, points, sections, routes_to_cancel = [], sectio
     # TODO don't set route if there is a conflicting signal set - currently raises an exception - OK?
 
     return True
+
+
 def set_route(route, sections, points, signals, logger, mqtt_client):
 
     # check route is clear to set
     if check_route_available(route, points, sections) or route.setting:
 
-        #route.set = "setting" # not required?
         # set points - move to route setting iteration?
         points_detected = False
         route.setting = True
@@ -324,6 +327,7 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
     else:
         return "route not available"
 
+
 def cancel_route(route, sections, points, signals, triggers, logger, mqtt_client):
     for section in route.sections:
         if sections[section].routeset == route.ref:
@@ -343,9 +347,11 @@ def cancel_route(route, sections, points, signals, triggers, logger, mqtt_client
             trigger.stored_request = False
     route.setting = False
 
+
 def set_plungers_clear(all_plungers_dict):
     for plunger_key, plunger in all_plungers_dict.items():
         plunger.status = 0
+
 
 def set_ARS(automatic_route_setting, status):
     if status:
@@ -354,11 +360,16 @@ def set_ARS(automatic_route_setting, status):
         automatic_route_setting.global_active = False
 
 
-def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers, logger, mqtt_client, automatic_route_setting):
+def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers, logger, mqtt_client, automatic_route_setting, axlecounters):
     command_l = command.topic.split("/")
     command_payload = str(command.payload.decode("utf-8"))
     if command_l[0] != "set":
         return
+    if command_l[1] == "axlecounter":
+        if command_l[3] == "sessionupcount":
+            axlecounters[command_l[2]].sessionupcount = int(command_payload)
+        if command_l[3] == "sessiondowncount":
+            axlecounters[command_l[2]].sessiondowncount = int(command_payload)
     if command_l[1] == "point":
         set_point(point=points[command_l[2]], direction=command_payload, sections=sections, logger=logger, mqtt_client=mqtt_client)
     if command_l[1] == "signal":
@@ -374,10 +385,9 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
         triggers[command_l[2]].triggered = eval(command_payload)
     if command_l[1] == "section" and command_l[3] == "occstatus":
         sections[command_l[2]].occstatus = int(command_payload)
-        logger.info(str(command_l[2]) + " reset")
+        logger.info(str(command_l[2]) + " set to " + str(command_payload))
     if command_l[1] == "automatic_route_settting":
         set_ARS(automatic_route_setting, command_payload)
-
 
 
 def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, routes, triggers, logger, mqtt_client, mqtt_dict, automatic_route_setting):
