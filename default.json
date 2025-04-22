@@ -1313,8 +1313,7 @@
             "ref": "46to48",
             "routes_to_cancel": [],
             "routes_to_set": [
-                "46intoR",
-                "S_only"
+                "46intoR"
             ],
             "sections_clear": null,
             "sections_occupied": [],
@@ -1342,8 +1341,7 @@
             "ref": "45to48",
             "routes_to_cancel": [],
             "routes_to_set": [
-                "45intoR",
-                "S_only"
+                "45intoR"
             ],
             "sections_clear": null,
             "sections_occupied": [],

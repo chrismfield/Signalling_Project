@@ -400,6 +400,15 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
     command_l = command.topic.split("/")
     command_payload = str(command.payload.decode("utf-8"))
 
+    def check_protecting_points(protecting_points):
+        """returns true if points are set to protect section"""
+        if protecting_points and (signal.ref in protecting_points):
+            section_protecting_points = protecting_points[signal.ref]
+            for point, direction in section_protecting_points.items():
+                if direction != points[point].set_direction:
+                    return True
+        return False
+
     if command_l[0] != "set":
         return
     if command_l[1] == "axlecounter":
@@ -473,7 +482,7 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
 
 
 def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, routes, triggers, logger, mqtt_client,
-                        automatic_route_setting, mqtt_error):
+                        mqtt_dict, automatic_route_setting, mqtt_error):
     mqtt_dict_old = mqtt_dict.copy()
 
     # set axlecounter dynamic variables
@@ -507,7 +516,8 @@ def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, route
     for trigger in triggers.values():
         mqtt_dict[("report/trigger/"+trigger.ref+"/stored_request")] = trigger.stored_request
     mqtt_dict["report/automatic route setting"] = automatic_route_setting.global_active
-    mqtt_dict["MQTT_caused_error"] = mqtt_error
+    if mqtt_error:
+        mqtt_dict["error/MQTT_Command"] = mqtt_error
 
     # send everything, only if anything has changed
     if mqtt_dict != mqtt_dict_old:
