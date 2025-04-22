@@ -95,9 +95,9 @@ def check_all_ACs(logger, mqtt_client):
     for ACkey, ACinstance in AxleCounter.instances.items():
         ACinstance.upcount, ACinstance.downcount = 0, 0  # reset these variables to zero prior to read
         try:
-            upcountreading, downcountreading = ACinstance.slave.read_registers(13,2)  # register number, number of registers
-            #ACinstance.slave.write_register(13, 0, functioncode=6)  # register number, value
-            #ACinstance.slave.write_register(14, 0, functioncode=6)  # register number, value
+            upcountreading, downcountreading = ACinstance.slave.read_registers(13, 2)  # register number, number of registers
+            # ACinstance.slave.write_register(13, 0, functioncode=6)  # register number, value
+            # ACinstance.slave.write_register(14, 0, functioncode=6)  # register number, value
             comms_status = " OK"
 
             ACinstance.upcount = upcountreading - ACinstance.sessionupcount
@@ -105,7 +105,6 @@ def check_all_ACs(logger, mqtt_client):
 
             ACinstance.sessionupcount = upcountreading
             ACinstance.sessiondowncount = downcountreading
-
 
         except (OSError, ValueError) as error:
             comms_status = (" Comms failure " + str(error))
@@ -122,8 +121,8 @@ def check_all_plungers(logger):
     """ get status from all plungers and store in their instance"""
     for plungerkey, plungerinstance in Plunger.instances.items():
         try:
-            if plungerinstance.slave.read_bit(plungerinstance.register, functioncode=1): # register number, number of registers
-                plungerinstance.status = 1 # avoid setting status to 0 in case it has been set by MQTT
+            if plungerinstance.slave.read_bit(plungerinstance.register, functioncode=1):  # register number, number of registers
+                plungerinstance.status = 1  # avoid setting status to 0 in case it has been set by MQTT
             plungerinstance.slave.write_bit(plungerinstance.register, 0)  # register number,value
             if plungerinstance.status:
                 logger.info(str(plungerinstance.ref) + " operated")
@@ -139,14 +138,14 @@ def check_all_plungers(logger):
 
     return
 
-    pass  # -----------need to implement -------------
-
 
 def section_update(logger, mqtt_client):
     """Update occupancy of sections based on axle-counter readings"""
     axle_tolerance = config["axle_tolerance"]
     for sectionkey, section in Section.instances.items():  # for each section:
         # create sub functions depending on type of section occupation detection
+        if section.axle_tolerance:
+            axle_tolerance = section.axle_tolerance
         old_occstatus = section.occstatus
         if section.mode == "axlecounter":
             for AC, direction in section.inctrig.items():  # for each increment trigger (which is in form "A1":"Upcount", "A2":"Downcount")
@@ -219,13 +218,6 @@ def interlocking(logger):
             for pointkey, point in Point.instances.items():
                 if point.section == sectionkey:
                     point.unlocked = False
-            # for every route, make not available if the section is occupied or route already set through:
-            # TODO there is a bug in this logic as per Andy's email. But this is only used for MQTT currently
-            for routekey, route in Route.instances.items():
-                if sectionkey in route.sections:
-                    route.available = False
-                else:
-                    route.available = True
         if section.occstatus == 0:
             # for every point, unlock it if it is in this unoccupied section
             for pointkey, point in Point.instances.items():
@@ -297,15 +289,8 @@ def maintain_signals(logger):
                        nextsignal=next_signal)
 
 
-def check_triggers(logger, mqtt_client, automatic_route_setting):
-    def sections_to_cancel(trigger):
-        """function to return a list of sections to cancel from a trigger with routes to cancel"""
-        sections_to_cancel_list = []
-        for route in trigger.routes_to_cancel:
-            for section in Route.instances[route].sections:
-                sections_to_cancel_list.append(section)
-        return sections_to_cancel_list
-
+def check_triggers(logger, mqtt_client):
+    #TODO move this to another module when implementing RFID & train tracking
     for trigger in sorted(Trigger.instances.values(), key=lambda x: x.priority, reverse=True):
         triggered = False
         # check all conditions are true and continue to next trigger if not
@@ -352,8 +337,7 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
                     if set.check_route_available(Route.instances[route],
                                                  sections=Section.instances,
                                                  points=Point.instances,
-                                                 routes_to_cancel=trigger.routes_to_cancel,
-                                                 sections_to_cancel=sections_to_cancel(trigger)):
+                                                 routes_to_cancel=trigger.routes_to_cancel):
                         full_route_ok = True
                     else:
                         full_route_ok = False
@@ -404,14 +388,16 @@ def check_triggers(logger, mqtt_client, automatic_route_setting):
 
 
 def check_mqtt(logger, mqtt_client):
+    # TODO move this to another module when implementing RFID & train tracking?
     while mqtt_received_queue:
-        set.set_from_mqtt(command=mqtt_received_queue.pop(), signals=Signal.instances, sections=Section.instances,
+        return set.set_from_mqtt(command=mqtt_received_queue.pop(), signals=Signal.instances, sections=Section.instances,
                           plungers= Plunger.instances, points=Point.instances,
                           routes=Route.instances, triggers=Trigger.instances, logger=logger, mqtt_client=mqtt_client,
                           automatic_route_setting=AutomaticRouteSetting, axlecounters=AxleCounter.instances)
-    # put command actions in here
+
 
 def set_setting_routes(logger, mqtt_client):
+    # TODO move this to another module when implementing RFID & train tracking
     for route in Route.instances.values():
         if route.setting:
             set.set_route(route,
@@ -446,10 +432,10 @@ def process(logger, mqtt_client):
         check_points(logger, mqtt_client)
         maintain_signals(logger)
         check_all_plungers(logger)
-        check_triggers(logger, mqtt_client, AutomaticRouteSetting)
+        check_triggers(logger, mqtt_client)
         # iterate through setting routes
         set_setting_routes(logger, mqtt_client)
-        check_mqtt(logger, mqtt_client)
+        mqtt_error = check_mqtt(logger, mqtt_client) # sets from MQTT and returns any error that occurs
         set.send_status_to_mqtt(axlecounters=AxleCounter.instances,
                                 signals=Signal.instances,
                                 sections=Section.instances,
@@ -460,7 +446,8 @@ def process(logger, mqtt_client):
                                 logger=logger,
                                 mqtt_client=mqtt_client,
                                 mqtt_dict=mqtt_dict,
-                                automatic_route_setting=AutomaticRouteSetting)
+                                automatic_route_setting=AutomaticRouteSetting,
+                                mqtt_error=mqtt_error)
 
 
 def main():

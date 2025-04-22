@@ -1,9 +1,18 @@
+"""set.py provides:
+- entry points to change devices
+- safety checks before changing
+- driver to connect to devices
+- handles route setting with checks
+- handles route cancelling
+- responds to mqtt commands"""
+
 from custom_exceptions import *
 
 main_proceed_aspects = ["clear", "caution", "doublecaution"]
 proceed_aspects = ["clear", "caution", "doublecaution", "associated_position_light", "position_light"]
 
-def set_point(point, direction, sections, logger, mqtt_client, route = None):
+
+def set_point(point, direction, sections, logger, mqtt_client, route=None):
     # don't move points if section is occupied
     if sections[point.section].occstatus:
         logger.critical("Cannot set points when section is occupied")
@@ -13,6 +22,7 @@ def set_point(point, direction, sections, logger, mqtt_client, route = None):
         raise InterlockingError("Cannot set points when route is set through section")
     elif not point.unlocked:
         logger.error("Trying to set points when locked")
+    # checks all passed, safe to change
     else:
         comms_status = "no direction set"
         point.set_direction = direction
@@ -21,10 +31,11 @@ def set_point(point, direction, sections, logger, mqtt_client, route = None):
         point.routeset = route
         if direction == "normal":
             try:
+                #coils are write-only modbus registers; one for each direction, must always be opposite
                 point.slave.write_bit(point.reverse_coil, 0)
                 point.slave.write_bit(point.normal_coil, 1)
                 comms_status = " OK"
-                #logger.info(point.ref + " set normal")
+                # logger.info(point.ref + " set normal")
             except (OSError, ValueError) as error:
                 comms_status = (" Comms failure " + str(error))
         if direction == "reverse":
@@ -32,19 +43,18 @@ def set_point(point, direction, sections, logger, mqtt_client, route = None):
                 point.slave.write_bit(point.normal_coil, 0)
                 point.slave.write_bit(point.reverse_coil, 1)
                 comms_status = " OK"
-                #logger.info(point.ref + " set reverse")
+                # logger.info(point.ref + " set reverse")
             except (OSError, ValueError) as error:
                 comms_status = (" Comms failure " + str(error))
 
-        # Determine if logging is required
+        # Determine if logging is required due to state change
         if point.comms_status != comms_status:
-            logger.error(point.ref + comms_status)
+            logger.info(point.ref + comms_status)
             point.comms_status = comms_status
 
 
-def set_signal(signal, signals, sections, points, logger, aspect=None, nextsignal =None, send_commands = True, route = None): #arguments are signal object and aspect as string
-    main_proceed_aspects = ["clear", "caution", "doublecaution"]
-    proceed_aspects = ["clear", "caution", "doublecaution", "associated_position_light", "position_light"]
+def set_signal(signal, signals, sections, points, logger, aspect=None, nextsignal=None, send_commands=True, route=None):
+    # arguments are signal object and aspect as string
     old_aspects = signal.aspect.copy()
 
     def check_protecting_points(protecting_points):
@@ -57,19 +67,25 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
         return False
 
     def set_aspect():
-        #don't set signal if section is occupied
+        """only sets aspect if permitted"""
+        # don't set signal if not permitted
         for section in sections.values():
+            # you can set signal to danger without any further checks.
             if aspect == "danger":
                 break
+            # only check signal for section if points are not already protecting the section
             if signal.ref in section.homesignal and not check_protecting_points(section.protecting_points):
+                # don't set signal if section is occupied
                 if section.occstatus and (aspect in main_proceed_aspects):
                     logger.critical("Cannot clear signal when section is occupied")
                     raise InterlockingError("Cannot clear signal when section is occupied")
+                #don't set signal if points in section do not have detection
                 for point in points.values():
                     if point.section == section.ref:
                         if not point.detection_boolean:
                             logger.critical("Cannot clear signal when section points not detected")
                             raise InterlockingError("Cannot clear signal when section points not detected")
+        # to protect against two signals feeding into one section being set
         for conflicting_signal in signal.conflicting_signals:
             if aspect == "danger":
                 break
@@ -77,13 +93,12 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                 logger.critical("Cannot clear signal when conflicting signal set")
                 raise InterlockingError("Cannot clear signal when conflicting signal set")
 
-        comms_status = ""
-        #clear other aspects if set to danger
+        # clear other aspects if set to danger
         if aspect == "danger":
             signal.aspect.clear()
             signal.aspect.add(aspect)
         elif aspect:
-            #update class instance with aspect instruction
+            # update class instance with aspect instruction
             if aspect in proceed_aspects:
                 signal.aspect.discard("danger")
                 for PA in proceed_aspects:
@@ -95,12 +110,10 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
         if signal.aspect != old_aspects:
             logger.info(signal.ref + " aspects requested " + str(signal.aspect))
 
-
-
-    def send_aspect_commands():  #set aspects through slaves and lookups
-        for set_aspect in signal.aspect:
+    def send_aspect_commands():  # set aspects through slaves and lookups
+        for req_aspect in signal.aspect:
             comms_status = ""
-            if set_aspect == "danger":
+            if req_aspect == "danger":
                 try:
                     if signal.dangerreg:
                         signal.slave.write_bit(signal.dangerreg, 1)
@@ -127,7 +140,7 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
-            if set_aspect == "caution":
+            if req_aspect == "caution":
                 try:
                     signal.slave.write_bit(signal.dangerreg, 0)
                     if signal.clearreg:
@@ -138,7 +151,7 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
-            if set_aspect == "doublecaution":
+            if req_aspect == "doublecaution":
                 try:
                     signal.slave.write_bit(signal.dangerreg, 0)
                     if signal.clearreg:
@@ -150,27 +163,30 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
-            if set_aspect == "clear":
-                #test if next aspect is a main proceed aspect
+            if req_aspect == "clear":
+                # test if next aspect is a main proceed aspect
+                # noinspection PyPep8Naming
                 next_signal_MPA = False
                 try:
+                    # noinspection PyPep8Naming
                     next_signal_MPA = [True for MPA in main_proceed_aspects if MPA in nextsignal.aspect]
                 except AttributeError:
-                    if nextsignal == None:
+                    if nextsignal is None:
+                        # noinspection PyPep8Naming
                         next_signal_MPA = True
                 if next_signal_MPA:
                     try:
                         signal.slave.write_bit(signal.dangerreg, 0)
-                        if signal.cautionreg: # only turn off caution reg if there is a caution aspect to turn off
+                        if signal.cautionreg:  # only turn off caution reg if there is a caution aspect to turn off
                             signal.slave.write_bit(signal.cautionreg, 0)
                         if signal.callingonreg:
                             signal.slave.write_bit(signal.callingonreg, 0)
-                        #signal.slave.write_bit(signal.doublecautionreg, 0) # TODO fix this to work if no register for this
+                        # signal.slave.write_bit(signal.doublecautionreg, 0) # TODO fix this to work if no register for this
                         signal.slave.write_bit(signal.clearreg, 1)
                         comms_status = " OK"
                     except (OSError, ValueError) as error:
                         comms_status = (" Comms failure " + str(error))
-                #if not, apply a caution aspect
+                # if not, apply a caution aspect
                 else:
                     # TODO add in check of available aspects to understand if possible to clear caution aspect
                     try:
@@ -179,7 +195,7 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                         comms_status = " OK"
                     except (OSError, ValueError) as error:
                         comms_status = (" Comms failure " + str(error))
-            if set_aspect == "associated_position_light":  # used where main danger aspect not to be turned off
+            if req_aspect == "associated_position_light":  # used where main danger aspect not to be turned off
                 try:
                     signal.slave.write_bit(signal.dangerreg, 1)
                     signal.slave.write_bit(signal.callingonreg, 1)
@@ -190,50 +206,50 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
-            if set_aspect == "position_light": # used where main danger aspect to be turned off
+            if req_aspect == "position_light":  # used where main danger aspect to be turned off
                 try:
                     signal.slave.write_bit(signal.dangerreg, 0)
                     signal.slave.write_bit(signal.callingonreg, 1)
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
-            if set_aspect == "bannerreg":
+            if req_aspect == "bannerreg":
                 try:
                     signal.slave.write_bit(signal.bannerreg, 1)
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
-            if set_aspect == "route1":
+            if req_aspect == "route1":
                 try:
                     signal.slave.write_bit(signal.route1reg, 1)
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
-            if set_aspect == "route2":
+            if req_aspect == "route2":
                 try:
                     signal.slave.write_bit(signal.route2reg, 1)
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
-            if set_aspect == "route3":
+            if req_aspect == "route3":
                 try:
                     signal.slave.write_bit(signal.route3reg, 1)
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
-            if set_aspect == "route4":
+            if req_aspect == "route4":
                 try:
                     signal.slave.write_bit(signal.route4reg, 1)
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
-            if set_aspect == "route5":
+            if req_aspect == "route5":
                 try:
                     signal.slave.write_bit(signal.route5reg, 1)
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
-            if set_aspect == "route6":
+            if req_aspect == "route6":
                 try:
                     signal.slave.write_bit(signal.route6reg, 1)
                     comms_status = " OK"
@@ -251,12 +267,15 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
         send_aspect_commands()
 
 
-def check_route_available(route, points, sections, routes_to_cancel = [], sections_to_cancel = []):
+def check_route_available(route, points, sections, routes_to_cancel=None):
+    if routes_to_cancel is None:
+        routes_to_cancel = []
     for route_section in route.sections:
-        # exclude sections_to_cancel from routeset sections
+        # don't set route if a route is already set or setting through the section and will not be cancelled
         if sections[route_section].routeset and (sections[route_section].routeset not in routes_to_cancel):
             return False
-        if sections[route_section].routestatus == "setting" and (sections[route_section].routeset not in routes_to_cancel):
+        if sections[route_section].routestatus == "setting" and \
+                (sections[route_section].routeset not in routes_to_cancel):
             return False
         # don't set route if section is occupied and signal aspect is a main proceed aspect
         section_signals = sections[route_section].homesignal
@@ -275,7 +294,7 @@ def check_route_available(route, points, sections, routes_to_cancel = [], sectio
         for section in sections[route_section].conflictingsections:
             if sections[section].occstatus:
                 return False
-            #don't set route if points are locked
+            # don't set route if points are locked
     for point in route.points:
         if not points[point].unlocked:
             return False
@@ -292,24 +311,22 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
         # set points - move to route setting iteration?
         points_detected = False
         route.setting = True
-        #iterate once to set the points:
+        # iterate once to set the points:
         for point_ref, direction in route.points.items():
-            #check if all points are set
+            # check if all points are set
             if points[point_ref].detection_boolean and points[point_ref].detection_status == direction:
                 pass
             else:
-                points_detected = False
-                set_point(points[point_ref], direction, sections, logger, mqtt_client, route = route.ref)
-        #iterate again to detect points:
+                set_point(points[point_ref], direction, sections, logger, mqtt_client, route=route.ref)
+        # iterate again to detect points:
         for point_ref, direction in route.points.items():
-            #check if all points are set
+            # check if all points are set
             if points[point_ref].detection_boolean and points[point_ref].detection_status == direction:
                 points_detected = True
             else:
                 points_detected = False
-                #break so that the next set of points doesn't set points_detected to true
+                # break so that the next set of points doesn't set points_detected to true
                 break
-
 
         # set section.routeset when route is setting or set
         for section in route.sections:
@@ -321,9 +338,16 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
             # set signal for that section in accordance with route signals to set
             for signal, aspects in route.signals.items():
                 for aspect in aspects:
-                    set_signal(signals[signal], signals, sections=sections, points=points, logger=logger, aspect=aspect, send_commands = False, route=route.ref)
+                    set_signal(signals[signal],
+                               signals,
+                               sections=sections,
+                               points=points,
+                               logger=logger,
+                               aspect=aspect,
+                               send_commands=False,
+                               route=route.ref)
             # clear trigger once route fully set
-            #route.set = True # not required?
+            # route.set = True # not required?
             route.setting = False
             for section in route.sections:
                 sections[section].routestatus = "set"
@@ -364,9 +388,18 @@ def set_ARS(automatic_route_setting, status):
         automatic_route_setting.global_active = False
 
 
-def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers, logger, mqtt_client, automatic_route_setting, axlecounters):
+def check_route_availability_for_mqtt(routes, points, sections):
+    # for every route, make not available if the section is occupied or route already set through:
+    for routekey, route in routes.items():
+        route.available = check_route_available(route, points, sections)
+
+
+def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers, logger, mqtt_client,
+                  automatic_route_setting, axlecounters):
+    mqtt_error = None
     command_l = command.topic.split("/")
     command_payload = str(command.payload.decode("utf-8"))
+
     if command_l[0] != "set":
         return
     if command_l[1] == "axlecounter":
@@ -375,14 +408,58 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
         if command_l[3] == "sessiondowncount":
             axlecounters[command_l[2]].sessiondowncount = int(command_payload)
     if command_l[1] == "point":
-        set_point(point=points[command_l[2]], direction=command_payload, sections=sections, logger=logger, mqtt_client=mqtt_client)
+        point = points[command_l[2]]
+        # check this it is OK to set point:
+        if sections[point.section].occstatus:
+            mqtt_error = "Cannot set points when section is occupied"
+        elif sections[point.section].routeset and sections[point.section].routestatus != "setting":
+            mqtt_error = "Cannot set points when route is set through section"
+        elif not point.unlocked:
+            mqtt_error = "Trying to set points when locked"
+        else:
+            set_point(point=point, direction=command_payload, sections=sections, logger=logger, mqtt_client=mqtt_client)
     if command_l[1] == "signal":
-        set_signal(signal=signals[command_l[2]], signals=signals, sections=sections, points=points, logger=logger, aspect=command_payload, send_commands = False)
+        signal = signals[command_l[2]]
+        aspect = command_payload
+        for section in sections.values():
+            if aspect == "danger":
+                break
+            if signal.ref in section.homesignal and not check_protecting_points(section.protecting_points):
+                if section.occstatus and (aspect in main_proceed_aspects):
+                    mqtt_error = "Cannot clear signal when section is occupied"
+                for point in points.values():
+                    if point.section == section.ref:
+                        if not point.detection_boolean:
+                            mqtt_error = "Cannot clear signal when section points not detected"
+        for conflicting_signal in signal.conflicting_signals:
+            if aspect == "danger":
+                break
+            if signals[conflicting_signal].aspect != {"danger"}:
+                mqtt_error = "Cannot clear signal when conflicting signal set"
+        if not mqtt_error:
+            set_signal(signal=signal,
+                       signals=signals,
+                       sections=sections,
+                       points=points,
+                       logger=logger,
+                       aspect=aspect,
+                       send_commands=False)
     if command_l[1] == "route":
         if eval(command_payload):
-            set_route(route=routes[command_l[2]], sections=sections, points=points, signals = signals, logger=logger, mqtt_client=mqtt_client)
+            set_route(route=routes[command_l[2]],
+                      sections=sections,
+                      points=points,
+                      signals=signals,
+                      logger=logger,
+                      mqtt_client=mqtt_client)
         if not eval(command_payload):
-            cancel_route(route=routes[command_l[2]], sections=sections, points=points, signals = signals, triggers = triggers, logger=logger, mqtt_client=mqtt_client)
+            cancel_route(route=routes[command_l[2]],
+                         sections=sections,
+                         points=points,
+                         signals=signals,
+                         triggers=triggers,
+                         logger=logger,
+                         mqtt_client=mqtt_client)
     if command_l[1] == "plunger":
         plungers[command_l[2]].status = command_payload
     if command_l[1] == "trigger":
@@ -392,21 +469,24 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
         logger.info(str(command_l[2]) + " set to " + str(command_payload))
     if command_l[1] == "automatic_route_settting":
         set_ARS(automatic_route_setting, command_payload)
+    return mqtt_error
 
 
-def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, routes, triggers, logger, mqtt_client, mqtt_dict, automatic_route_setting):
+def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, routes, triggers, logger, mqtt_client,
+                        automatic_route_setting, mqtt_error):
     mqtt_dict_old = mqtt_dict.copy()
+
     # set axlecounter dynamic variables
     for axlecounter in axlecounters.values():
-        mqtt_dict[("error/axlecounter/comms/"+ axlecounter.ref)] = axlecounter.comms_status
+        mqtt_dict[("error/axlecounter/comms/" + axlecounter.ref)] = axlecounter.comms_status
     # set signal dynamic variables
     for signal in signals.values():
-        mqtt_dict[("report/signal/"+ signal.ref +"/aspect")] = (",".join(signal.aspect))
-        mqtt_dict[("error/signal/comms/"+ signal.ref)] = signal.comms_status
+        mqtt_dict[("report/signal/" + signal.ref + "/aspect")] = (",".join(signal.aspect))
+        mqtt_dict[("error/signal/comms/" + signal.ref)] = signal.comms_status
     # set section dynamic variables
     for section in sections.values():
-        mqtt_dict[("report/section/"+ section.ref+"/occstatus")] = section.occstatus
-        mqtt_dict[("report/section/"+ section.ref+"/routeset")] = section.routeset
+        mqtt_dict[("report/section/" + section.ref+"/occstatus")] = section.occstatus
+        mqtt_dict[("report/section/" + section.ref+"/routeset")] = section.routeset
         mqtt_dict[("report/section/" + section.ref + "/routestatus")] = section.routestatus
     # set plunger dynamic variables
     for plunger in plungers.values():
@@ -420,14 +500,16 @@ def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, route
         mqtt_dict[("error/point/comms/" + point.ref)] = point.comms_status
     # set route dynamic variables
     for route in routes.values():
+        route.available = check_route_available(route, points, sections)  # update route availabilty
         mqtt_dict[("report/route/"+route.ref+"/available")] = route.available
         mqtt_dict[("report/route/"+route.ref+"/setting")] = route.setting
     # set trigger dynamic variables
     for trigger in triggers.values():
         mqtt_dict[("report/trigger/"+trigger.ref+"/stored_request")] = trigger.stored_request
-    mqtt_dict[("report/automatic route setting")] = automatic_route_setting.global_active
+    mqtt_dict["report/automatic route setting"] = automatic_route_setting.global_active
+    mqtt_dict["MQTT_caused_error"] = mqtt_error
 
-    #send everything, only if anything has changed
+    # send everything, only if anything has changed
     if mqtt_dict != mqtt_dict_old:
         for key, val in mqtt_dict.items():
             mqtt_client.publish(key, val)

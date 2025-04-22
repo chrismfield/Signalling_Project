@@ -81,6 +81,7 @@ class Section:
         self.routeset = None #set to the route when set through this section
         self.routestatus = ""  # availability status
         self.previousoccstatus = 0
+        self.axle_tolerance = None #default axle tolerance is as per config file
 
 
 class Plunger:
