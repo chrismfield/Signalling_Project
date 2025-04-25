@@ -1302,7 +1302,7 @@
             "conditions": [
                 "True"
             ],
-            "description": "",
+            "description": "Plunger 12 at Signal 46 when T is occupied",
             "instances": {},
             "lever": null,
             "override": false,
@@ -1313,13 +1313,43 @@
             "ref": "46to48",
             "routes_to_cancel": [],
             "routes_to_set": [
-                "46intoR"
+                "46intoR",
+                "48intoP2(occupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
             "retain_request": true,
             "stored_request": false,
-            "stored_requests_to_cancel": [],
+            "stored_requests_to_cancel": ["46to48clear"],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "46to48clear": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "Plunger 12 at Signal 46 when T is unoccupied",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P12"
+            ],
+            "priority": 1.5,
+            "ref": "46to48clear",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "46intoR",
+                "48intoP2(unoccupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": true,
+            "stored_request": false,
+            "stored_requests_to_cancel": ["46to48"],
             "timer": null,
             "trigger_expressions": [],
             "trigger_special_actions": [],
@@ -1330,7 +1360,7 @@
             "conditions": [
                 "True"
             ],
-            "description": "",
+            "description": "Plunger 11 at Signal 45 when T is occupied",
             "instances": {},
             "lever": null,
             "override": false,
@@ -1341,13 +1371,43 @@
             "ref": "45to48",
             "routes_to_cancel": [],
             "routes_to_set": [
-                "45intoR"
+                "45intoR",
+                "48intoP2(occupied)"
             ],
             "sections_clear": null,
             "sections_occupied": [],
             "retain_request": true,
             "stored_request": false,
-            "stored_requests_to_cancel": [],
+            "stored_requests_to_cancel": ["45to48clear"],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "45to48clear": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "Plunger 11 at Signal 45 when T is unoccupied",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P11"
+            ],
+            "priority": 1.5,
+            "ref": "45to48clear",
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "45intoR",
+                "48intoP2(unoccupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": true,
+            "stored_request": false,
+            "stored_requests_to_cancel": ["45to48"],
             "timer": null,
             "trigger_expressions": [],
             "trigger_special_actions": [],
@@ -1722,12 +1782,12 @@
             "trigger_special_actions": [],
             "triggered": false
         },
-        "47toR": {
+        "P13_clear_all": {
             "axlecount": {},
             "conditions": [
                 "True"
             ],
-            "description": "47 into R only",
+            "description": "P13 Clear all sections and routes",
             "instances": {},
             "lever": null,
             "override": false,
@@ -1735,10 +1795,9 @@
                 "P13"
             ],
             "priority": 0,
-            "ref": "47toR",
+            "ref": "P13_clear_all",
             "routes_to_cancel": [
                 "48intoP4(occupied)",
-                "47IntoR",
                 "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",

@@ -370,9 +370,6 @@ def cancel_route(route, sections, points, signals, triggers, logger, mqtt_client
             # unlock points if section not occupied
             if sections[points[point_ref].section].occstatus == 0:
                 points[point_ref].unlocked = True
-    for trigger_ref, trigger in triggers.items():
-        if route.ref in trigger.routes_to_set:
-            trigger.stored_request = False
     route.setting = False
 
 
