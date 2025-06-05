@@ -8,7 +8,7 @@ from PyQt5 import QtWidgets, QtCore
 import pyqtgraph as pg
 
 # --- Config ---
-PORT = 'COM4'
+PORT = 'COM9'
 BAUD = 115200
 ROLLING_SECONDS = 10
 MAX_SAMPLES = 5000  # Enough to hold 10s of data at 500Hz

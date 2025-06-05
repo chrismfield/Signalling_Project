@@ -99,7 +99,9 @@
         "T": {
             "conflictingsections": [],
             "dectrig": {
-                "A8": "Downcount"
+                "A8": "Downcount",
+                "A5": "Upcount",
+                "A7": "Downcount"
             },
             "description": "Platform 2 Section",
             "homesignal": [
@@ -108,7 +110,8 @@
             "protecting_points":
                 {"48": {"100": "normal"}},
             "inctrig": {
-                "A8": "Upcount"
+                "A8": "Upcount",
+                "A7": "Upcount"
             },
             "instances": {},
             "mode": "axlecounter",
@@ -125,7 +128,8 @@
         "U": {
             "conflictingsections": [],
             "dectrig": {
-                "A9": "Downcount"
+                "A9": "Downcount",
+                "A6": "Upcount"
             },
             "description": "Platform 3 Section",
             "homesignal": [
@@ -244,6 +248,63 @@
             "mode": 0,
             "network": "network_1",
             "ref": "A4",
+            "sessionupcount": 0,
+            "sessiondowncount": 0,
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        },
+        "A5": {
+            "address": 5,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "Exit to Platform 2",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A5",
+            "reverse_coil": 23,
+            "sessionupcount": 0,
+            "sessiondowncount": 0,
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        },
+        "A6": {
+            "address": 6,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "Exit to Platform 3",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A6",
+            "reverse_coil": 23,
+            "sessionupcount": 0,
+            "sessiondowncount": 0,
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        },
+        "A7": {
+            "address": 7,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "Entrance to Carriage Sidings",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A7",
+            "reverse_coil": 23,
             "sessionupcount": 0,
             "sessiondowncount": 0,
             "slave": null,
@@ -1152,15 +1213,13 @@
         },
         "47toP2clear": {
             "axlecount": {},
-            "conditions": [
-                "Section.instances[\"T\"].occstatus <= Section.instances[\"U\"].occstatus"
-            ],
+            "conditions": ["True"],
             "description": "47 to Plat 2 based on Q occupancy",
             "instances": {},
             "lever": null,
             "override": false,
             "plungers": [],
-            "priority": 3,
+            "priority": 3.1,
             "ref": "47toP2",
             "routes_to_cancel": [
                 "S_only"
@@ -1214,9 +1273,7 @@
         },
         "47toP3clear": {
             "axlecount": {},
-            "conditions": [
-                "Section.instances[\"U\"].occstatus < Section.instances[\"T\"].occstatus"
-            ],
+            "conditions": ["True"],
             "description": "47 to Plat 3 based on Q occupancy",
             "instances": {},
             "lever": null,
@@ -1270,6 +1327,33 @@
             "trigger_special_actions": [],
             "triggered": false
         },
+        "47toP4clear": {
+            "axlecount": {},
+            "conditions": ["True"],
+            "description": "47 to Plat 4 For use in web interface only",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [],
+            "priority": 2,
+            "ref": "47toP4",
+            "routes_to_cancel": [
+                "S_only"
+            ],
+            "routes_to_set": [
+                "47IntoR",
+                "48intoP4(unoccupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": 0,
+            "stored_request": false,
+            "stored_requests_to_cancel": [],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
         "46_yard_exit": {
             "axlecount": {},
             "conditions": [
@@ -1292,10 +1376,10 @@
             "sections_occupied": [],
             "retain_request": true,
             "stored_request": false,
-            "stored_requests_to_cancel": [],
+            "stored_requests_to_cancel": ["45_yard_exit"],
             "timer": null,
             "trigger_expressions": [],
-            "trigger_special_actions": ["45intoR"],
+            "trigger_special_actions": [],
             "triggered": false
         },
         "45_yard_exit": {
@@ -1320,7 +1404,7 @@
             "sections_occupied": [],
             "retain_request": true,
             "stored_request": false,
-            "stored_requests_to_cancel": ["46intoR"],
+            "stored_requests_to_cancel": ["46_yard_exit"],
             "timer": null,
             "trigger_expressions": [],
             "trigger_special_actions": [],
@@ -1714,6 +1798,7 @@
                 "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",
+                "47IntoR",
                 "48intoP2(unoccupied)",
                 "48intoP2(occupied)",
                 "48intoP3(occupied)",

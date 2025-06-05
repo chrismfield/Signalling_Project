@@ -344,7 +344,8 @@ def check_triggers(logger, mqtt_client):
                         # store trigger if not possible to execute:
                         if trigger.retain_request:
                             #only store request if route is not already set through all required sections
-                            if not trigger.stored_request and not set.check_if_route_set(route, Section.instances):
+                            if not trigger.stored_request and not set.check_if_route_set(Route.instances[route],
+                                                                                         Section.instances):
                                 trigger.stored_request = True
                                 logger.info(trigger.ref + " trigger stored")
                         else:

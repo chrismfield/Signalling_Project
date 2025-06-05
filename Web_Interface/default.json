@@ -86,7 +86,7 @@
             },
             "instances": {},
             "mode": "axlecounter",
-            "occstatus": 1,
+            "occstatus": 0,
             "previousoccstatus": 0,
             "ref": "S",
             "routeset": false,
@@ -99,7 +99,9 @@
         "T": {
             "conflictingsections": [],
             "dectrig": {
-                "A8": "Downcount"
+                "A8": "Downcount",
+                "A5": "Upcount",
+                "A7": "Downcount"
             },
             "description": "Platform 2 Section",
             "homesignal": [
@@ -108,7 +110,8 @@
             "protecting_points":
                 {"48": {"100": "normal"}},
             "inctrig": {
-                "A8": "Upcount"
+                "A8": "Upcount",
+                "A7": "Upcount"
             },
             "instances": {},
             "mode": "axlecounter",
@@ -125,7 +128,8 @@
         "U": {
             "conflictingsections": [],
             "dectrig": {
-                "A9": "Downcount"
+                "A9": "Downcount",
+                "A6": "Upcount"
             },
             "description": "Platform 3 Section",
             "homesignal": [
@@ -244,6 +248,63 @@
             "mode": 0,
             "network": "network_1",
             "ref": "A4",
+            "sessionupcount": 0,
+            "sessiondowncount": 0,
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        },
+        "A5": {
+            "address": 5,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "Exit to Platform 2",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A5",
+            "reverse_coil": 23,
+            "sessionupcount": 0,
+            "sessiondowncount": 0,
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        },
+        "A6": {
+            "address": 6,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "Exit to Platform 3",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A6",
+            "reverse_coil": 23,
+            "sessionupcount": 0,
+            "sessiondowncount": 0,
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        },
+        "A7": {
+            "address": 7,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "Entrance to Carriage Sidings",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A7",
+            "reverse_coil": 23,
             "sessionupcount": 0,
             "sessiondowncount": 0,
             "slave": null,
@@ -1311,45 +1372,15 @@
             ],
             "priority": 1,
             "ref": "46to48",
-            "routes_to_cancel": [],
+            "routes_to_cancel": ["45intoR"],
             "routes_to_set": [
-                "46intoR",
-                "48intoP2(occupied)"
+                "46intoR"
             ],
             "sections_clear": null,
             "sections_occupied": [],
             "retain_request": true,
             "stored_request": false,
-            "stored_requests_to_cancel": ["46to48clear"],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "46to48clear": {
-            "axlecount": {},
-            "conditions": [
-                "True"
-            ],
-            "description": "Plunger 12 at Signal 46 when T is unoccupied",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P12"
-            ],
-            "priority": 1.5,
-            "ref": "46to48clear",
-            "routes_to_cancel": [],
-            "routes_to_set": [
-                "46intoR",
-                "48intoP2(unoccupied)"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "retain_request": true,
-            "stored_request": false,
-            "stored_requests_to_cancel": ["46to48"],
+            "stored_requests_to_cancel": ["45to48"],
             "timer": null,
             "trigger_expressions": [],
             "trigger_special_actions": [],
@@ -1369,45 +1400,15 @@
             ],
             "priority": 1,
             "ref": "45to48",
-            "routes_to_cancel": [],
+            "routes_to_cancel": ["46intoR"],
             "routes_to_set": [
-                "45intoR",
-                "48intoP2(occupied)"
+                "45intoR"
             ],
             "sections_clear": null,
             "sections_occupied": [],
             "retain_request": true,
             "stored_request": false,
-            "stored_requests_to_cancel": ["45to48clear"],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "45to48clear": {
-            "axlecount": {},
-            "conditions": [
-                "True"
-            ],
-            "description": "Plunger 11 at Signal 45 when T is unoccupied",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P11"
-            ],
-            "priority": 1.5,
-            "ref": "45to48clear",
-            "routes_to_cancel": [],
-            "routes_to_set": [
-                "45intoR",
-                "48intoP2(unoccupied)"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "retain_request": true,
-            "stored_request": false,
-            "stored_requests_to_cancel": ["45to48"],
+            "stored_requests_to_cancel": ["46to48"],
             "timer": null,
             "trigger_expressions": [],
             "trigger_special_actions": [],
@@ -1801,6 +1802,7 @@
                 "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",
+                "47IntoR",
                 "48intoP2(unoccupied)",
                 "48intoP2(occupied)",
                 "48intoP3(occupied)",

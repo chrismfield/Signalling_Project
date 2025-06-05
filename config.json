@@ -1,5 +1,5 @@
 {
-    "axle_tolerance": 6,
+    "axle_tolerance": 4,
     "layoutDB": "default.json",
     "network_ports":
     {
