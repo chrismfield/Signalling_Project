@@ -373,6 +373,17 @@ def cancel_route(route, sections, points, signals, triggers, logger, mqtt_client
     route.setting = False
 
 
+def check_if_route_set(route, sections):
+    route_set = False
+    for section in route.sections:
+        if sections[section].routeset == route.ref:
+            route_set = True
+        else:
+            route_set = False
+            break
+    return route_set
+
+
 def set_plungers_clear(all_plungers_dict):
     for plunger_key, plunger in all_plungers_dict.items():
         plunger.status = 0

@@ -343,7 +343,8 @@ def check_triggers(logger, mqtt_client):
                         full_route_ok = False
                         # store trigger if not possible to execute:
                         if trigger.retain_request:
-                            if not trigger.stored_request:
+                            #only store request if route is not already set through all required sections
+                            if not trigger.stored_request and not set.check_if_route_set(route, Section.instances):
                                 trigger.stored_request = True
                                 logger.info(trigger.ref + " trigger stored")
                         else:
@@ -463,7 +464,4 @@ if __name__ == '__main__':
     main()
 
 # Next Jobs
-# Finish points
-# More work on routes interface - set routes but move route triggers into route scheduling?
-# Get all the logic to work
-# Route scheduling? This could be used to cycle routes on a trigger. Helper variables may be required
+# Finish 

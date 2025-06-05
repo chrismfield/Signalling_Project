@@ -1270,97 +1270,40 @@
             "trigger_special_actions": [],
             "triggered": false
         },
-        "47toP4clear": {
+        "46_yard_exit": {
             "axlecount": {},
-            "conditions": ["True"],
-            "description": "47 to Plat 4 For use in web interface only",
+            "conditions": [
+                "True"
+            ],
+            "description": "Plunger 12 at Signal 46",
             "instances": {},
             "lever": null,
             "override": false,
-            "plungers": [],
-            "priority": 2,
-            "ref": "47toP4",
-            "routes_to_cancel": [
-                "S_only"
+            "plungers": [
+                "P12"
             ],
+            "priority": 1,
+            "ref": "46_yard_exit",
+            "routes_to_cancel": ["45intoR"],
             "routes_to_set": [
-                "47IntoR",
-                "48intoP4(unoccupied)"
+                "46intoR"
             ],
             "sections_clear": null,
             "sections_occupied": [],
-            "retain_request": 0,
+            "retain_request": true,
             "stored_request": false,
             "stored_requests_to_cancel": [],
             "timer": null,
             "trigger_expressions": [],
-            "trigger_special_actions": [],
+            "trigger_special_actions": ["45intoR"],
             "triggered": false
         },
-        "46to48": {
+        "45_yard_exit": {
             "axlecount": {},
             "conditions": [
                 "True"
             ],
-            "description": "Plunger 12 at Signal 46 when T is occupied",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P12"
-            ],
-            "priority": 1,
-            "ref": "46to48",
-            "routes_to_cancel": [],
-            "routes_to_set": [
-                "46intoR",
-                "48intoP2(occupied)"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "retain_request": true,
-            "stored_request": false,
-            "stored_requests_to_cancel": ["46to48clear"],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "46to48clear": {
-            "axlecount": {},
-            "conditions": [
-                "True"
-            ],
-            "description": "Plunger 12 at Signal 46 when T is unoccupied",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P12"
-            ],
-            "priority": 1.5,
-            "ref": "46to48clear",
-            "routes_to_cancel": [],
-            "routes_to_set": [
-                "46intoR",
-                "48intoP2(unoccupied)"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "retain_request": true,
-            "stored_request": false,
-            "stored_requests_to_cancel": ["46to48"],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "45to48": {
-            "axlecount": {},
-            "conditions": [
-                "True"
-            ],
-            "description": "Plunger 11 at Signal 45 when T is occupied",
+            "description": "Plunger 11 at Signal 45",
             "instances": {},
             "lever": null,
             "override": false,
@@ -1368,46 +1311,16 @@
                 "P11"
             ],
             "priority": 1,
-            "ref": "45to48",
-            "routes_to_cancel": [],
+            "ref": "45_yard_exit",
+            "routes_to_cancel": ["46intoR"],
             "routes_to_set": [
-                "45intoR",
-                "48intoP2(occupied)"
+                "45intoR"
             ],
             "sections_clear": null,
             "sections_occupied": [],
             "retain_request": true,
             "stored_request": false,
-            "stored_requests_to_cancel": ["45to48clear"],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "45to48clear": {
-            "axlecount": {},
-            "conditions": [
-                "True"
-            ],
-            "description": "Plunger 11 at Signal 45 when T is unoccupied",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P11"
-            ],
-            "priority": 1.5,
-            "ref": "45to48clear",
-            "routes_to_cancel": [],
-            "routes_to_set": [
-                "45intoR",
-                "48intoP2(unoccupied)"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "retain_request": true,
-            "stored_request": false,
-            "stored_requests_to_cancel": ["45to48"],
+            "stored_requests_to_cancel": ["46intoR"],
             "timer": null,
             "trigger_expressions": [],
             "trigger_special_actions": [],
