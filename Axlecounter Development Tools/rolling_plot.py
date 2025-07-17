@@ -4,8 +4,8 @@ import matplotlib.animation as animation
 from collections import deque
 
 # Configure the minimalmodbus instrument.
-instrument = minimalmodbus.Instrument('COM8', 8)
-instrument.serial.baudrate = 115200  # Set baud rate to 19200
+instrument = minimalmodbus.Instrument('COM9', 3)
+instrument.serial.baudrate = 19200  # Set baud rate to 19200
 instrument.serial.timeout = 1  # Timeout in seconds
 
 # Create deques to store the most recent 100 readings for each register.

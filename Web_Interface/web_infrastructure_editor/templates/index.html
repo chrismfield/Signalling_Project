@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Signalling Infrastructure Editor</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- Bootstrap & FontAwesome -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+</head>
+<body>
+<div class="container py-4">
+  <h1 class="mb-4">Signalling Infrastructure Editor</h1>
+
+  <!-- Tab Navigation -->
+  <ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#file">File</button>
+    </li>
+    {% for tab in tabs %}
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#{{ tab|lower }}">{{ tab }}</button>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <div class="tab-content">
+    <!-- FILE TAB -->
+    <div class="tab-pane fade show active" id="file">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header"><h5>File Operations</h5></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Load JSON from Server</label>
+            <div class="input-group">
+              <select id="serverFiles" class="form-select">
+                {% for f in server_files %}
+                <option value="{{f}}" {% if f==current_file %}selected{% endif %}>{{f}}</option>
+                {% endfor %}
+              </select>
+              <button class="btn btn-info" onclick="loadFromServer()">
+                <i class="fa fa-download"></i> Load
+              </button>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Upload JSON (Local File)</label>
+            <input type="file" id="uploadInput" class="form-control" onchange="uploadFile()">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Save Current Data As</label><br>
+            <input type="text" id="filename" class="form-control w-auto d-inline-block"
+                   value="{{ current_file }}">
+            <button class="btn btn-success ms-2" onclick="saveJSON()">
+              <i class="fa fa-save"></i> Save to Server
+            </button>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Download JSON From Server</label><br>
+            <button class="btn btn-secondary" onclick="downloadFile()">
+              <i class="fa fa-file-export"></i> Download
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENTITY TABS -->
+    {% for tab in tabs %}
+    <div class="tab-pane fade" id="{{ tab|lower }}">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">{{ tab }}</h5>
+          <button class="btn btn-sm btn-success" id="add{{ tab }}Btn">
+            <i class="fa fa-plus"></i> Add
+          </button>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Ref</th>
+                  <th>Description</th>
+                  <th>Address</th>
+                  <th>Mode</th>
+                  <th>Network</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="{{ tab|lower }}TableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add/Edit Modal -->
+      <div class="modal fade" id="{{ tab|lower }}Modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <form class="modal-content {{ tab|lower }}Form">
+            <div class="modal-header">
+              <h5 class="modal-title">Add {{ tab[:-1] }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <!-- Common fields -->
+              <div class="row g-3">
+                <div class="col-md-2">
+                  <label class="form-label">Ref</label>
+                  <input type="text" class="form-control" name="ref" required>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Description</label>
+                  <input type="text" class="form-control" name="description">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Address</label>
+                  <input type="number" class="form-control" name="address" required>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Board Index</label>
+                  <select class="form-select" name="board_index">
+                    {% for i in range(4) %}
+                    <option value="{{ i }}">Board {{ i }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Mode</label>
+                  <input type="number" class="form-control" name="mode">
+                </div>
+              </div>
+
+              <!-- Entity-specific fields -->
+              {% if tab=="AxleCounters" %}
+              <div class="row g-3 mt-3">
+                <div class="col-md-2">
+                  <label class="form-label">Upcount Reg</label>
+                  <input type="number" class="form-control" name="upcount_reg" value="13">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Downcount Reg</label>
+                  <input type="number" class="form-control" name="downcount_reg" value="14">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Normal Coil</label>
+                  <input type="number" class="form-control" name="normal_coil" value="22">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Reverse Coil</label>
+                  <input type="number" class="form-control" name="reverse_coil" value="23">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Network</label>
+                  <input type="text" class="form-control" name="network" value="network_1">
+                </div>
+              </div>
+              {% endif %}
+
+              {% if tab=="Signals" %}
+              <div class="row g-3 mt-3">
+                <div class="col-md-3">
+                  <label class="form-label">Type</label>
+                  <select class="form-select" name="sigtype">
+                    <option value="1">Colour Light</option>
+                    <option value="0">Semaphore</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Avl Aspects</label>
+                  <input type="number" class="form-control" name="availableaspects">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Dir Indicator</label>
+                  <input type="number" class="form-control" name="directionindicator">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Next Signal</label>
+                  <select class="form-select" name="nextsignal">
+                    <option value="">None</option>
+                    {% for s in data["Signals"].keys() %}
+                    <option value="{{ s }}">{{ s }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="row g-3 mt-2">
+                <div class="col-md-3">
+                  <label class="form-label">Danger Reg</label>
+                  <input type="number" class="form-control" name="dangerreg">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Caution Reg</label>
+                  <input type="number" class="form-control" name="cautionreg">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Clear Reg</label>
+                  <input type="number" class="form-control" name="clearreg">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Calling‑On Reg</label>
+                  <input type="number" class="form-control" name="callingonreg">
+                </div>
+              </div>
+              <div class="row g-3 mt-2">
+                <div class="col-md-3">
+                  <label class="form-label">Banner Reg</label>
+                  <input type="number" class="form-control" name="bannerreg">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Dbl Caution Reg</label>
+                  <input type="number" class="form-control" name="doublecautionreg">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Conflicting Signals</label>
+                  <select multiple class="form-select" name="conflicting_signals">
+                    {% for s in data["Signals"].keys() %}
+                    <option value="{{ s }}">{{ s }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              {% endif %}
+
+              {% if tab=="Points" %}
+              <div class="row g-3 mt-3">
+                <div class="col-md-3">
+                  <label class="form-label">Detection Mode</label>
+                  <input type="number" class="form-control" name="detection_mode">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Normal Coil</label>
+                  <input type="number" class="form-control" name="normal_coil">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Reverse Coil</label>
+                  <input type="number" class="form-control" name="reverse_coil">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Section</label>
+                  <select class="form-select" name="section">
+                    {% for s in data["Sections"].keys() %}
+                    <option value="{{ s }}">{{ s }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              {% endif %}
+
+              {% if tab=="Sections" %}
+              <div class="row g-3 mt-3">
+                <div class="col-md-3">
+                  <label class="form-label">Axle Tolerance</label>
+                  <input type="number" class="form-control" name="axle_tolerance">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Arrival Triggers</label>
+                  <select multiple class="form-select" name="inctrig">
+                    {% for ac in data["AxleCounters"].keys() %}
+                    <optgroup label="{{ ac }}">
+                      <option value="{{ ac }}:Upcount">{{ ac }} – Upcount</option>
+                      <option value="{{ ac }}:Downcount">{{ ac }} – Downcount</option>
+                    </optgroup>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Departure Triggers</label>
+                  <select multiple class="form-select" name="dectrig">
+                    {% for ac in data["AxleCounters"].keys() %}
+                    <optgroup label="{{ ac }}">
+                      <option value="{{ ac }}:Upcount">{{ ac }} – Upcount</option>
+                      <option value="{{ ac }}:Downcount">{{ ac }} – Downcount</option>
+                    </optgroup>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                  <label class="form-label">Home Signals</label>
+                  <select multiple class="form-select" name="homesignal">
+                    {% for s in data["Signals"].keys() %}
+                    <option value="{{ s }}">{{ s }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Conflicting Sections</label>
+                  <select multiple class="form-select" name="conflictingsections">
+                    {% for s in data["Sections"].keys() %}
+                    <option value="{{ s }}">{{ s }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              {% endif %}
+
+              {% if tab=="Plungers" %}
+              <div class="row g-3 mt-3">
+                <div class="col-md-3">
+                  <label class="form-label">Register</label>
+                  <input type="number" class="form-control" name="register">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Mode</label>
+                  <select class="form-select" name="mode">
+                    <option value="0">Request Store</option>
+                    <option value="1">No Request Store</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Network</label>
+                  <input type="text" class="form-control" name="network" value="network_1">
+                </div>
+              </div>
+              {% endif %}
+
+              {% if tab=="Routes" %}
+              <div class="row g-3 mt-3">
+                <div class="col-md-3">
+                  <label class="form-label">Mode</label>
+                  <select class="form-select" name="mode">
+                    <option value="1">Store Request</option>
+                    <option value="0">Do Not Store Request</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Priority</label>
+                  <input type="number" class="form-control" name="priority">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Sections</label>
+                  <select multiple class="form-select" name="sections">
+                    {% for s in data["Sections"].keys() %}
+                    <option value="{{ s }}">{{ s }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                  <label class="form-label">Points (to set)</label>
+                  <select multiple class="form-select" name="points">
+                    {% for p in data["Points"].keys() %}
+                    <option value="{{ p }}">{{ p }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Signals→Aspects</label>
+                  <textarea class="form-control" name="signals" rows="2"
+                    placeholder='{"48":["clear","route2"],"47":["caution"]}'></textarea>
+                </div>
+              </div>
+              {% endif %}
+
+              {% if tab=="Triggers" %}
+              <div class="row g-3 mt-3">
+                <div class="col-md-3">
+                  <label class="form-label">Priority</label>
+                  <input type="number" step="0.1" class="form-control" name="priority">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Retain Request</label><br>
+                  <input type="checkbox" name="retain_request" value="1">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Conditions</label>
+                  <textarea class="form-control" name="conditions" rows="3"
+                    placeholder='Section.instances["Q"].occstatus>0'></textarea>
+                </div>
+              </div>
+              <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                  <label class="form-label">Plungers</label>
+                  <select multiple class="form-select" name="plungers">
+                    {% for p in data["Plungers"].keys() %}
+                    <option value="{{ p }}">{{ p }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Sections Occupied</label>
+                  <select multiple class="form-select" name="sections_occupied">
+                    {% for s in data["Sections"].keys() %}
+                    <option value="{{ s }}">{{ s }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Sections Clear</label>
+                  <select multiple class="form-select" name="sections_clear">
+                    {% for s in data["Sections"].keys() %}
+                    <option value="{{ s }}">{{ s }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                  <label class="form-label">Routes To Set</label>
+                  <select multiple class="form-select" name="routes_to_set">
+                    {% for r in data["Routes"].keys() %}
+                    <option value="{{ r }}">{{ r }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Routes To Cancel</label>
+                  <select multiple class="form-select" name="routes_to_cancel">
+                    {% for r in data["Routes"].keys() %}
+                    <option value="{{ r }}">{{ r }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Special Actions</label>
+                  <textarea class="form-control" name="trigger_special_actions" rows="2"
+                    placeholder='Section.instances["Q"].occstatus=0'></textarea>
+                </div>
+              </div>
+              {% endif %}
+
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Save</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+// Entity setup
+const entityTypes = {{ tabs|tojson }};
+const dataStore   = {};
+const bsModals    = {};
+
+// Load initial data
+{% for tab in tabs %}
+dataStore["{{ tab }}"] = {{ data[tab]|tojson }};
+{% endfor %}
+
+$(function(){
+  entityTypes.forEach(type => {
+    const lc = type.toLowerCase();
+    bsModals[type] = new bootstrap.Modal(document.getElementById(`${lc}Modal`));
+    renderTable(type);
+
+    // Add button
+    $(`#add${type}Btn`).click(()=>{
+      const form = $(`.${lc}Form`);
+      form[0].reset();
+      form.find('[name=ref]').prop('disabled', false);
+      $(`#${lc}Modal .modal-title`).text(`Add ${type.slice(0,-1)}`);
+      bsModals[type].show();
+    });
+
+    // Submit form
+    $(`.${lc}Form`).submit(function(e){
+      e.preventDefault();
+      let vals = Object.fromEntries(new FormData(this).entries());
+      let ref  = vals.ref.trim();
+      if(!ref) return alert("Reference required");
+      let entry = {
+        ref,
+        description: vals.description||"",
+        address: +vals.address||0,
+        mode: +vals.mode||0,
+        board_index: +vals.board_index||0,
+        network: vals.network||"network_1"
+      };
+      // Merge type-specific
+      if(type==="AxleCounters"){
+        ["upcount_reg","downcount_reg","normal_coil","reverse_coil"]
+          .forEach(k=>entry[k]=+vals[k]||0);
+      }
+      if(type==="Signals"){
+        ["sigtype","availableaspects","directionindicator",
+         "dangerreg","cautionreg","clearreg","callingonreg",
+         "bannerreg","doublecautionreg","route1reg","route2reg",
+         "route3reg","route4reg","route5reg","route6reg"]
+          .forEach(k=>entry[k]=+vals[k]||null);
+        entry.nextsignal = vals.nextsignal||"";
+        entry.conflicting_signals = vals.conflicting_signals||[];
+      }
+      if(type==="Points"){
+        ["detection_mode","normal_coil","reverse_coil"]
+          .forEach(k=>entry[k]=+vals[k]||0);
+        entry.section = vals.section||"";
+      }
+      if(type==="Sections"){
+        entry.axle_tolerance      = +vals.axle_tolerance||0;
+        entry.inctrig             = (vals.inctrig||[]).reduce((o,v)=>{
+                                     let [ac,d]=v.split(":");o[ac]=d;return o;
+                                   },{});
+        entry.dectrig             = (vals.dectrig||[]).reduce((o,v)=>{
+                                     let [ac,d]=v.split(":");o[ac]=d;return o;
+                                   },{});
+        entry.homesignal          = vals.homesignal||[];
+        entry.conflictingsections = vals.conflictingsections||[];
+      }
+      if(type==="Plungers"){
+        entry.register = +vals.register||0;
+      }
+      if(type==="Routes"){
+        entry.mode     = +vals.mode||0;
+        entry.priority = +vals.priority||0;
+        entry.sections = vals.sections||[];
+        entry.points   = vals.points
+                          ? Object.fromEntries(vals.points.map(p=>[p,"normal"]))
+                          : {};
+        entry.signals  = vals.signals
+                          ? JSON.parse(vals.signals)
+                          : {};
+      }
+      if(type==="Triggers"){
+        entry.priority                = +vals.priority||0;
+        entry.retain_request          = vals.retain_request?1:0;
+        entry.conditions              = vals.conditions? vals.conditions.split("\n") : [];
+        entry.plungers                = vals.plungers||[];
+        entry.sections_occupied       = vals.sections_occupied||[];
+        entry.sections_clear          = vals.sections_clear||[];
+        entry.routes_to_set           = vals.routes_to_set||[];
+        entry.routes_to_cancel        = vals.routes_to_cancel||[];
+        entry.trigger_special_actions = vals.trigger_special_actions
+                                          ? vals.trigger_special_actions.split("\n")
+                                          : [];
+      }
+
+      dataStore[type][ref] = entry;
+      bsModals[type].hide();
+      renderTable(type);
+    });
+
+    // Edit/Delete handlers
+    $(`#${lc}TableBody`)
+      .on('click','.edit-btn', function(){
+        const row = $(this).closest('tr'), ref = row.data('ref'), it = dataStore[type][ref];
+        const form = $(`.${lc}Form`);
+        form.find('[name=ref]').val(it.ref).prop('disabled', true);
+        form.find('[name=description]').val(it.description);
+        form.find('[name=address]').val(it.address);
+        form.find('[name=mode]').val(it.mode);
+        form.find('[name=board_index]').val(it.board_index);
+        form.find('[name=network]').val(it.network);
+        if(type==="AxleCounters"){
+          ["upcount_reg","downcount_reg","normal_coil","reverse_coil"]
+            .forEach(k=>form.find(`[name=${k}]`).val(it[k]));
+        }
+        if(type==="Signals"){
+          ["sigtype","availableaspects","directionindicator","dangerreg",
+           "cautionreg","clearreg","callingonreg","bannerreg","doublecautionreg",
+           "route1reg","route2reg","route3reg","route4reg","route5reg","route6reg"]
+            .forEach(k=>form.find(`[name=${k}]`).val(it[k]));
+          form.find('[name=nextsignal]').val(it.nextsignal);
+          form.find('[name=conflicting_signals]').val(it.conflicting_signals);
+        }
+        if(type==="Points"){
+          ["detection_mode","normal_coil","reverse_coil"]
+            .forEach(k=>form.find(`[name=${k}]`).val(it[k]));
+          form.find('[name=section]').val(it.section);
+        }
+        if(type==="Sections"){
+          form.find('[name=axle_tolerance]').val(it.axle_tolerance);
+          form.find('[name=homesignal]').val(it.homesignal);
+          form.find('[name=conflictingsections]').val(it.conflictingsections);
+          form.find('[name=inctrig]').val(Object.entries(it.inctrig).map(([ac,d])=>`${ac}:${d}`));
+          form.find('[name=dectrig]').val(Object.entries(it.dectrig).map(([ac,d])=>`${ac}:${d}`));
+        }
+        if(type==="Plungers"){
+          form.find('[name=register]').val(it.register);
+          form.find('[name=mode]').val(it.mode);
+        }
+        if(type==="Routes"){
+          form.find('[name=mode]').val(it.mode);
+          form.find('[name=priority]').val(it.priority);
+          form.find('[name=sections]').val(it.sections);
+          form.find('[name=points]').val(Object.keys(it.points));
+          form.find('[name=signals]').val(JSON.stringify(it.signals));
+        }
+        if(type==="Triggers"){
+          form.find('[name=priority]').val(it.priority);
+          form.find('[name=retain_request]').prop('checked', it.retain_request);
+          form.find('[name=conditions]').val((it.conditions||[]).join("\n"));
+          form.find('[name=plungers]').val(it.plungers);
+          form.find('[name=sections_occupied]').val(it.sections_occupied);
+          form.find('[name=sections_clear]').val(it.sections_clear);
+          form.find('[name=routes_to_set]').val(it.routes_to_set);
+          form.find('[name=routes_to_cancel]').val(it.routes_to_cancel);
+          form.find('[name=trigger_special_actions]').val((it.trigger_special_actions||[]).join("\n"));
+        }
+
+        $(`#${lc}Modal .modal-title`).text(`Edit ${type.slice(0,-1)}`);
+        bsModals[type].show();
+      })
+      .on('click','.delete-btn', function(){
+        const ref = $(this).closest('tr').data('ref');
+        if(confirm(`Delete ${type.slice(0,-1)} "${ref}"?`)){
+          delete dataStore[type][ref];
+          renderTable(type);
+        }
+      });
+  });
+});
+
+// Render table helper
+function renderTable(type){
+  const lc = type.toLowerCase();
+  const tbody = $(`#${lc}TableBody`).empty();
+  Object.values(dataStore[type]).forEach(item=>{
+    tbody.append(`
+      <tr data-ref="${item.ref}">
+        <td>${item.ref}</td>
+        <td>${item.description}</td>
+        <td>${item.address}</td>
+        <td>${item.mode}</td>
+        <td>${item.network}</td>
+        <td class="text-end">
+          <button class="btn btn-sm btn-outline-primary edit-btn me-1">
+            <i class="fa fa-edit"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-danger delete-btn">
+            <i class="fa fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    `);
+  });
+}
+
+// File tab helpers
+function loadFromServer(){
+  const f = $('#serverFiles').val();
+  window.location = `/?file=${encodeURIComponent(f)}`;
+}
+function uploadFile(){
+  const file = $('#uploadInput')[0].files[0];
+  if(!file) return;
+  const fd = new FormData(); fd.append('file', file);
+  fetch('/api/upload',{method:'POST',body:fd})
+    .then(r=>r.json())
+    .then(d=>window.location=`/?file=${encodeURIComponent(d.filename)}`);
+}
+function saveJSON(){
+  const fn = $('#filename').val().trim()||'default.json';
+  let payload = {};
+  entityTypes.forEach(t=>payload[t]=dataStore[t]);
+  fetch(`/api/save?filename=${encodeURIComponent(fn)}`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).then(r=>r.json()).then(d=>alert(`Saved to "${d.filename}"`));
+}
+function downloadFile(){
+  const fn = $('#filename').val().trim()||'default.json';
+  window.location = `/api/download?filename=${encodeURIComponent(fn)}`;
+}
+</script>
+</body>
+</html>
