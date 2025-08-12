@@ -7,7 +7,7 @@ import paho.mqtt.client as mqtt
 import time
 
 import set
-from object_definitions import AxleCounter, Signal, Point, Plunger, Section, Route, Trigger, AutomaticRouteSetting
+from object_definitions import AxleCounter, TrackCircuit, Signal, Point, Plunger, Section, Route, Trigger, AutomaticRouteSetting
 
 mqtt_received_queue = []
 mqtt_dict = {}
@@ -53,6 +53,7 @@ def loadlayoutjson(logger, mqtt_client):
     jsoninfradata = jsons.loads(json_in.read())  # turns file contents into a dictionary of the asset dictionaries
     jsonsectiondict = jsons.load(jsoninfradata["Sections"], dict)  # Strips into seperate assets dicts
     jsonACdict = jsons.load(jsoninfradata["AxleCounters"], dict)
+    jsonTCdict = jsons.load(jsoninfradata["TrackCircuits"], dict)
     jsonsignaldict = jsons.load(jsoninfradata["Signals"], dict)
     jsonplungerdict = jsons.load(jsoninfradata["Plungers"], dict)
     jsonpointdict = jsons.load(jsoninfradata["Points"], dict)
@@ -68,6 +69,11 @@ def loadlayoutjson(logger, mqtt_client):
         # create modbus slave object for each Axlecounter instance:
         AxleCounter.instances[x].slave = minimalmodbus.Instrument(
             config["network_ports"][AxleCounter.instances[x].network], AxleCounter.instances[x].address)
+    for x in jsonTCdict.keys():
+        TrackCircuit.instances[x] = jsons.load(jsonTCdict[x], TrackCircuit)
+        # create modbus slave object for each TrackCircuit instance:
+        TrackCircuit.instances[x].slave = minimalmodbus.Instrument(
+            config["network_ports"][TrackCircuit.instances[x].network], TrackCircuit.instances[x].address)
     for x in jsonsignaldict.keys():
         Signal.instances[x] = jsons.load(jsonsignaldict[x], Signal)
         Signal.instances[x].slave = minimalmodbus.Instrument(
@@ -116,6 +122,28 @@ def check_all_ACs(logger, mqtt_client):
 
     return
 
+def check_all_trackcircuits(logger):
+    for TCkey, TCinstance in TrackCircuit.instances.items():
+        if TCinstance.mode == "self-latching":
+            for register in TCinstance.registers["self-latching"]:
+                try:
+                    if not TCinstance.slave.read_bit(register, 2):
+                        TCinstance.occstatus = False
+                        comms_status = " OK"
+                    else:
+                        TCinstance.occstatus = True
+                        comms_status = " OK"
+                        break
+
+                except (OSError, ValueError) as error:
+                    comms_status = (" Comms failure " + str(error))
+
+        # Determine if logging is required
+        if TCinstance.comms_status != comms_status:
+            logger.error(TCinstance.ref + comms_status)
+            TCinstance.comms_status = comms_status
+
+    return
 
 def check_all_plungers(logger):
     """ get status from all plungers and store in their instance"""
@@ -140,7 +168,7 @@ def check_all_plungers(logger):
 
 
 def section_update(logger, mqtt_client):
-    """Update occupancy of sections based on axle-counter readings"""
+    """Update occupancy of sections based on axle-counter and Track-circuit readings"""
     axle_tolerance = config["axle_tolerance"]
     for sectionkey, section in Section.instances.items():  # for each section:
         # create sub functions depending on type of section occupation detection
@@ -165,6 +193,15 @@ def section_update(logger, mqtt_client):
                     section.occstatus -= AxleCounter.instances[AC].downcount
                     if AxleCounter.instances[AC].downcount and (section.occstatus < axle_tolerance):
                         section.occstatus = 0
+
+        if section.mode == "trackcircuit":
+            for TC in section.trackcircuits:
+                if not TrackCircuit.instances[TC].occstatus:
+                    section.occstatus = 0
+                else:
+                    section.occstatus = 1
+                    break
+
         # TODO add in other detection modes logic i.e. treadle and track circuit
         # Determine if logging is required
         if section.occstatus != old_occstatus:
@@ -428,7 +465,9 @@ def startup(logger, mqtt_client):
 
 def process(logger, mqtt_client):
     while True:
+        time.sleep(0.2) # to try to eliminate the overheating axlecounter which may be as a result of transmission conflict
         check_all_ACs(logger, mqtt_client)
+        check_all_trackcircuits(logger)
         section_update(logger, mqtt_client)
         interlocking(logger)
         check_points(logger, mqtt_client)

@@ -369,6 +369,19 @@
             "upcount_reg": 13
         }
     },
+    "TrackCircuits": {
+        "A": {
+            "address": 63,
+            "comms_status": "",
+            "description": "Track Circuit A",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "A",
+            "registers": {"self-latching": [8, 9]},
+            "slave": null
+        }
+    },
     "Signals": {
         "47": {
             "address": 47,

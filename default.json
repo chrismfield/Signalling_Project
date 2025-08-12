@@ -1,5 +1,26 @@
 {
     "Sections": {
+        "A": {
+            "conflictingsections": [],
+            "dectrig": {},
+            "description": "Section A",
+            "homesignal": [],
+            "protecting_points": {},
+            "inctrig": {},
+            "instances": {},
+            "mode": "trackcircuit",
+            "occstatus": 0,
+            "previousoccstatus": 0,
+            "ref": "A",
+            "routeset": false,
+            "routestatus": "",
+            "trackcircuits": "A",
+            "coords": {
+                "x": 84.53,
+                "y": 18.83,
+                "rotate": 22.5
+            }
+        },
         "Q": {
             "conflictingsections": [],
             "dectrig": {
@@ -367,6 +388,24 @@
             "slave": null,
             "upcount": 0,
             "upcount_reg": 13
+        }
+    },
+    "TrackCircuits": {
+        "A": {
+            "address": 63,
+            "comms_status": "",
+            "description": "Track Circuit A",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "A",
+            "registers": {
+                "self-latching": [
+                    8,
+                    9
+                ]
+            },
+            "slave": null
         }
     },
     "Signals": {

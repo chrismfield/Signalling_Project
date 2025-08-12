@@ -1,6 +1,22 @@
 import minimalmodbus
 
 # ---------Assets, Sections and Route instances --------------
+class InterfaceObject:
+    def __init__(self, network, address, ref, description, slave = None):
+        self.network = network
+        self.address = address
+        self.ref = ref
+        self.description = description
+        self.slave = slave
+
+class TrackCircuit(InterfaceObject):
+    """Track Circuit object containing static and dynamic variables"""
+    instances = {}
+    def __init__(self, network, address, ref, description, slave=None, registers=None, mode="self-latching"):
+        super().__init__(network, address, ref, description, slave)
+        self.registers = registers #coil registers that activate the track circuit e.g. {"self-latching":[1,2] "latch":[3], "unlatch":[4]}
+        self.mode = mode #self-latching or non-latching"
+        self.occstatus = True
 
 class AxleCounter:
     """Axle-counter object containing static and dynamic variables"""
@@ -65,7 +81,7 @@ class Signal:
 class Section:
     """Section object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, ref, description, mode, inctrig, dectrig, homesignal, conflictingsections, protecting_points={}):
+    def __init__(self, ref, description, mode, inctrig=None, dectrig=None, trackcircuits=None, homesignal=None, conflictingsections=None, protecting_points={}):
         #static variables
         self.ref = ref  # Freetext Ref
         self.description = description  # Freetext description
@@ -73,6 +89,7 @@ class Section:
         self.mode = mode  # mode: axlecounter, trackcircuit, magnet (input trigger) or RFID
         self.inctrig = inctrig  # increment triggers
         self.dectrig = dectrig  # decrement triggers
+        self.trackcircuits = trackcircuits
         self.homesignal = homesignal  # protecting signals
         self.protecting_points = protecting_points # dict of dict: homesignal: {point:direction, point:direction}
         self.conflictingsections = conflictingsections
