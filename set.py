@@ -5,8 +5,8 @@
 - handles route setting with checks
 - handles route cancelling
 - responds to mqtt commands"""
-
-from custom_exceptions import *
+import train_tracker
+from custom_exceptions import InterlockingError
 
 main_proceed_aspects = ["clear", "caution", "doublecaution"]
 proceed_aspects = ["clear", "caution", "doublecaution", "associated_position_light", "position_light"]
@@ -403,7 +403,7 @@ def check_route_availability_for_mqtt(routes, points, sections):
 
 
 def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers, logger, mqtt_client,
-                  automatic_route_setting, axlecounters):
+                  automatic_route_setting, axlecounters, trains):
     mqtt_error = None
     command_l = command.topic.split("/")
     command_payload = str(command.payload.decode("utf-8"))
@@ -484,12 +484,24 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
     if command_l[1] == "section" and command_l[3] == "occstatus":
         sections[command_l[2]].occstatus = int(command_payload)
         logger.info(str(command_l[2]) + " set to " + str(command_payload))
+    if command_l[1] == "train": # command in form set/train/[headcode]/attribute = val
+        if command_l[2] not in trains.keys(): #if headcode does not exist:
+            if command_l[3] == "berth_section":
+                train_tracker.berth_set(trains=trains, berth_section=sections[command_payload], headcode=command_l[2])
+        else:
+            train = trains[command_l[2]] #TODO fix this reference to the Sequential ID lookup rather than headcode
+            if command_l[3] == "driver":
+                train.driver.append(command_payload)
+            if command_l[3] == "loco":
+                train.loco.append(command_payload)
+            if command_l[3] == "route":
+                train.route.append(command_payload)
     if command_l[1] == "automatic_route_settting":
         set_ARS(automatic_route_setting, command_payload)
     return mqtt_error
 
 
-def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, routes, triggers, logger, mqtt_client,
+def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, routes, triggers, trains, logger, mqtt_client,
                         mqtt_dict, automatic_route_setting, mqtt_error):
     mqtt_dict_old = mqtt_dict.copy()
 
@@ -505,6 +517,7 @@ def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, route
         mqtt_dict[("report/section/" + section.ref+"/occstatus")] = section.occstatus
         mqtt_dict[("report/section/" + section.ref+"/routeset")] = section.routeset
         mqtt_dict[("report/section/" + section.ref + "/routestatus")] = section.routestatus
+        #TODO add in headcode reporting
     # set plunger dynamic variables
     for plunger in plungers.values():
         mqtt_dict[("error/plunger/comms/" + plunger.ref)] = plunger.comms_status
@@ -521,6 +534,11 @@ def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, route
         mqtt_dict[("report/route/"+route.ref+"/available")] = route.available
         mqtt_dict[("report/route/"+route.ref+"/setting")] = route.setting
     # set trigger dynamic variables
+    for train in trains.values():
+        mqtt_dict[("report/train/" + train.headcode + "/loco")] = train.loco[0]
+        mqtt_dict[("report/train/" + train.headcode + "/driver")] = train.driver[0]
+        mqtt_dict[("report/train/" + train.headcode + "/driver")] = train.berth_section[0]
+    #add in reporting parameters
     for trigger in triggers.values():
         mqtt_dict[("report/trigger/"+trigger.ref+"/stored_request")] = trigger.stored_request
     mqtt_dict["report/automatic route setting"] = automatic_route_setting.global_active

@@ -18,6 +18,16 @@ class TrackCircuit(InterfaceObject):
         self.mode = mode #self-latching or non-latching"
         self.occstatus = True
 
+class TreadlePad(InterfaceObject):
+    """Treadle Pad or Reed Switch object containing static and dynamic variables"""
+    instances = {}
+    def __init__(self, network, address, ref, description, slave=None, registers=None, mode="self-latching"):
+        super().__init__(network, address, ref, description, slave)
+        self.registers = registers #coil registers that activate the track circuit e.g. {"self-latching":[1,2] "latch":[3], "unlatch":[4]}
+        self.mode = mode #self-latching or non-latching"
+        self.activated = False
+
+
 class AxleCounter:
     """Axle-counter object containing static and dynamic variables"""
     instances = {}
@@ -44,7 +54,7 @@ class Signal:
     def __init__(self, sigtype, address, ref, description, availableaspects,
                  directionindicator, dangerreg, cautionreg, clearreg, callingonreg,
                  bannerreg, route1reg, route2reg, route3reg, route4reg, route5reg, route6reg, doublecaution=None,
-                 nextsignal=None, board_index=0, slave=None, dynamic_variables=True, conflicting_signals=[]):
+                 nextsignal=None, board_index=0, slave=None, dynamic_variables=True, conflicting_signals=None):
         #static variables
         self.sigtype = sigtype  # mode = Semaphore or coulour light
         self.address = address  # address
@@ -52,7 +62,7 @@ class Signal:
         self.ref = ref  # Freetext Reference
         self.description = description  # Freetext description
         self.availableaspects = availableaspects  # available aspects
-        self.conflicting_signals = conflicting_signals
+        self.conflicting_signals = [] if conflicting_signals is None else conflicting_signals
         self.directionindicator = directionindicator
         self.dangerreg = dangerreg
         self.cautionreg = cautionreg
@@ -81,17 +91,17 @@ class Signal:
 class Section:
     """Section object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, ref, description, mode, inctrig=None, dectrig=None, trackcircuits=None, homesignal=None, conflictingsections=None, protecting_points={}):
+    def __init__(self, ref, description, mode, inctrig=None, dectrig=None, trackcircuits=None, homesignal=None, conflictingsections=None, protecting_points=None):
         #static variables
         self.ref = ref  # Freetext Ref
         self.description = description  # Freetext description
         # add section attributes - this comes after adding the other assets as these can be referenced by a section instance
-        self.mode = mode  # mode: axlecounter, trackcircuit, magnet (input trigger) or RFID
-        self.inctrig = inctrig  # increment triggers
-        self.dectrig = dectrig  # decrement triggers
+        self.mode = mode  # mode: axlecounter, trackcircuit, treadlepad or RFID
+        self.inctrig = inctrig  # increment triggers dict
+        self.dectrig = dectrig  # decrement triggers dict
         self.trackcircuits = trackcircuits
         self.homesignal = homesignal  # protecting signals
-        self.protecting_points = protecting_points # dict of dict: homesignal: {point:direction, point:direction}
+        self.protecting_points = {} # dict of dict: homesignal: {point:direction, point:direction}
         self.conflictingsections = conflictingsections
         #dynamic variables
         self.occstatus = 0  # occupation status
@@ -99,6 +109,7 @@ class Section:
         self.routestatus = ""  # availability status
         self.previousoccstatus = 0
         self.axle_tolerance = None #default axle tolerance is as per config file
+        self.trains = []
 
 
 class Plunger:
@@ -166,24 +177,24 @@ class Route:
 class Trigger:
     """Trigger object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, ref, description = None, override=False, sections_occupied=[], sections_clear=[], plungers=[], lever=None,
-                 timer=None, MQTT=None, routes_to_set=[], routes_to_cancel=[], priority=10, retain_request = False, conditions = ["True"], trigger_expressions = [], trigger_special_actions = []):
+    def __init__(self, ref, description = None, override=False, sections_occupied=None, sections_clear=None, plungers=None, lever=None,
+                 timer=None, MQTT=None, routes_to_set=None, routes_to_cancel=None, priority=10, retain_request = False, conditions = None, trigger_expressions = None, trigger_special_actions = None):
         #static variables
         self.ref = ref
         self.description = description
         self.override = override
-        self.sections_occupied = sections_occupied
-        self.sections_clear = sections_clear
-        self.plungers = plungers
+        self.sections_occupied = [] if sections_occupied is None else sections_occupied
+        self.sections_clear = [] if sections_clear is None else sections_clear
+        self.plungers = [] if plungers is None else plungers
         self.lever = lever
         self.timer = timer
-        self.routes_to_set = routes_to_set
-        self.routes_to_cancel = routes_to_cancel
+        self.routes_to_set = [] if routes_to_set is None else routes_to_set
+        self.routes_to_cancel = [] if routes_to_cancel is None else routes_to_cancel
         self.priority = priority
         self.retain_request = retain_request
-        self.conditions = conditions
-        self.trigger_expressions = trigger_expressions
-        self.trigger_special_actions = trigger_special_actions
+        self.conditions = ["True"] if conditions is None else conditions
+        self.trigger_expressions = [] if trigger_expressions is None else trigger_expressions
+        self.trigger_special_actions = [] if trigger_special_actions is None else trigger_special_actions
         #dyanamic variables
         self.triggered = False
         self.stored_request = False
@@ -197,3 +208,30 @@ class AutomaticRouteSetting:
     global_active = True
     def __init__(self):
         pass
+
+class Train:
+    """Contains information about train"""
+    instances = {}
+    next_ID_counter = 0
+    headcode_lookup = {}
+    headcode_counter = "1C00"
+    def __init__(self):
+        self.ID = Train.next_ID_counter
+        Train.next_ID_counter += 1
+        self.ref = None
+        self.RFID = {} # RFIDs to consist of UID of card as key and associated vehicle ID as value
+        self.headcode = None
+        self.locos = [None]
+        self.carriages = [None]
+        self.driver = [None]
+        self.guard = [None]
+        self.routes = [None]
+        self.mileage = 0
+        self.berth_section = [None]
+        self.journey_log = []
+
+    @classmethod
+    def find_by_berth(cls, berth_section):
+        for train in cls.instances:
+            if train.berth_section[0] == berth_section:
+                return train

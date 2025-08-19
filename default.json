@@ -2,11 +2,11 @@
     "Sections": {
         "A": {
             "conflictingsections": [],
-            "dectrig": {},
+            "dectrig": {"PadB": "non-directional"},
             "description": "Section A",
             "homesignal": [],
             "protecting_points": {},
-            "inctrig": {},
+            "inctrig": {"PadA": "non-directional"},
             "instances": {},
             "mode": "trackcircuit",
             "occstatus": 0,
