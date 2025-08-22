@@ -4,20 +4,27 @@
   <meta charset="utf-8">
   <title>Signalling Infrastructure Editor</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <!-- Bootstrap & FontAwesome -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <style>
+    .modal .row.g-3 > [class*="col-"] { min-width: 0; }
+    .route-point-row select, .route-signal-row select { width: 100%; }
+    .small-muted { font-size: .9rem; color: #6c757d; }
+  </style>
 </head>
 <body>
 <div class="container py-4">
   <h1 class="mb-4">Signalling Infrastructure Editor</h1>
 
-  <!-- Tab Navigation -->
+  <!-- Tabs -->
   <ul class="nav nav-tabs mb-4" role="tablist">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#file">File</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#config">Config</button>
     </li>
     {% for tab in tabs %}
     <li class="nav-item" role="presentation">
@@ -27,10 +34,11 @@
   </ul>
 
   <div class="tab-content">
+
     <!-- FILE TAB -->
     <div class="tab-pane fade show active" id="file">
       <div class="card shadow-sm mb-4">
-        <div class="card-header"><h5>File Operations</h5></div>
+        <div class="card-header"><h5 class="mb-0">File Operations</h5></div>
         <div class="card-body">
           <div class="mb-3">
             <label class="form-label">Load JSON from Server</label>
@@ -44,24 +52,84 @@
                 <i class="fa fa-download"></i> Load
               </button>
             </div>
+            <div class="form-text">Select e.g. <code>default.json</code> then click Load.</div>
           </div>
+
           <div class="mb-3">
             <label class="form-label">Upload JSON (Local File)</label>
             <input type="file" id="uploadInput" class="form-control" onchange="uploadFile()">
           </div>
+
           <div class="mb-3">
             <label class="form-label">Save Current Data As</label><br>
-            <input type="text" id="filename" class="form-control w-auto d-inline-block"
-                   value="{{ current_file }}">
-            <button class="btn btn-success ms-2" onclick="saveJSON()">
-              <i class="fa fa-save"></i> Save to Server
-            </button>
+            <input type="text" id="filename" class="form-control w-auto d-inline-block" value="{{ current_file }}">
+            <button class="btn btn-success ms-2" onclick="saveJSON()"><i class="fa fa-save"></i> Save to Server</button>
           </div>
+
           <div class="mb-3">
             <label class="form-label">Download JSON From Server</label><br>
-            <button class="btn btn-secondary" onclick="downloadFile()">
-              <i class="fa fa-file-export"></i> Download
-            </button>
+            <button class="btn btn-secondary" onclick="downloadFile()"><i class="fa fa-file-export"></i> Download</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIG TAB -->
+    <div class="tab-pane fade" id="config">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Config (config.json)</h5>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm" id="cfgReloadBtn"><i class="fa fa-rotate"></i> Reload</button>
+            <button class="btn btn-primary btn-sm" id="cfgSaveBtn"><i class="fa fa-save"></i> Save</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">layoutDB (infrastructure file)</label>
+              <input type="text" class="form-control" id="cfg_layoutDB" placeholder="default.json">
+              <div class="form-text">Shown in the File tab dropdown as well.</div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">axle_tolerance</label>
+              <input type="number" class="form-control" id="cfg_axle_tolerance">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">logging_level</label>
+              <input type="number" class="form-control" id="cfg_logging_level">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">mqtt_broker_address</label>
+              <input type="text" class="form-control" id="cfg_mqtt_broker_address">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">point_interlock_timeout</label>
+              <input type="number" class="form-control" id="cfg_point_interlock_timeout">
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <h6>Networks</h6>
+          <p class="small-muted mb-2">Use real serial devices available on this server. Suggestions come from <code>/api/ports</code>.</p>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 240px;">Network Name</th>
+                  <th>COM Port</th>
+                  <th class="text-end" style="width:100px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="cfg_networks_tbody"></tbody>
+            </table>
+          </div>
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="cfgAddNetwork"><i class="fa fa-plus"></i> Add network</button>
+          <datalist id="ports_datalist"></datalist>
+
+          <div class="mt-3">
+            <span class="small-muted">Changes here update the network dropdowns in AxleCounters / Plungers / Signals / Points.</span>
           </div>
         </div>
       </div>
@@ -73,22 +141,14 @@
       <div class="card shadow-sm mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">{{ tab }}</h5>
-          <button class="btn btn-sm btn-success" id="add{{ tab }}Btn">
-            <i class="fa fa-plus"></i> Add
-          </button>
+          <button class="btn btn-sm btn-success" id="add{{ tab }}Btn"><i class="fa fa-plus"></i> Add</button>
         </div>
+
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover mb-0">
               <thead class="table-light">
-                <tr>
-                  <th>Ref</th>
-                  <th>Description</th>
-                  <th>Address</th>
-                  <th>Mode</th>
-                  <th>Network</th>
-                  <th class="text-end">Actions</th>
-                </tr>
+                <tr><th>Ref</th><th>Description</th><th class="text-end">Actions</th></tr>
               </thead>
               <tbody id="{{ tab|lower }}TableBody"></tbody>
             </table>
@@ -106,30 +166,14 @@
             </div>
             <div class="modal-body">
               <!-- Common fields -->
-              <div class="row g-3">
-                <div class="col-md-2">
+              <div class="row g-3 align-items-end">
+                <div class="col-md-3">
                   <label class="form-label">Ref</label>
                   <input type="text" class="form-control" name="ref" required>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-9">
                   <label class="form-label">Description</label>
                   <input type="text" class="form-control" name="description">
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label">Address</label>
-                  <input type="number" class="form-control" name="address" required>
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label">Board Index</label>
-                  <select class="form-select" name="board_index">
-                    {% for i in range(4) %}
-                    <option value="{{ i }}">Board {{ i }}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label">Mode</label>
-                  <input type="number" class="form-control" name="mode">
                 </div>
               </div>
 
@@ -137,47 +181,70 @@
               {% if tab=="AxleCounters" %}
               <div class="row g-3 mt-3">
                 <div class="col-md-2">
-                  <label class="form-label">Upcount Reg</label>
+                  <label class="form-label">Address</label>
+                  <input type="number" class="form-control" name="address" required>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Mode</label>
+                  <select class="form-select" name="mode">
+                    <option value="0">Directional</option>
+                    <option value="1">Non-directional</option>
+                  </select>
+                </div>
+                <div class="col-md-7">
+                  <label class="form-label">Network</label>
+                  <select class="form-select network-select" name="network"></select>
+                </div>
+              </div>
+              <div class="row g-3 mt-2">
+                <div class="col-md-3">
+                  <label class="form-label">Upcount&nbsp;Reg</label>
                   <input type="number" class="form-control" name="upcount_reg" value="13">
                 </div>
-                <div class="col-md-2">
-                  <label class="form-label">Downcount Reg</label>
+                <div class="col-md-3">
+                  <label class="form-label">Downcount&nbsp;Reg</label>
                   <input type="number" class="form-control" name="downcount_reg" value="14">
                 </div>
-                <div class="col-md-2">
-                  <label class="form-label">Normal Coil</label>
+                <div class="col-md-3">
+                  <label class="form-label">Normal&nbsp;Coil</label>
                   <input type="number" class="form-control" name="normal_coil" value="22">
                 </div>
-                <div class="col-md-2">
-                  <label class="form-label">Reverse Coil</label>
+                <div class="col-md-3">
+                  <label class="form-label">Reverse&nbsp;Coil</label>
                   <input type="number" class="form-control" name="reverse_coil" value="23">
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Network</label>
-                  <input type="text" class="form-control" name="network" value="network_1">
                 </div>
               </div>
               {% endif %}
 
               {% if tab=="Signals" %}
               <div class="row g-3 mt-3">
-                <div class="col-md-3">
+                <div class="col-md-2">
+                  <label class="form-label">Address</label>
+                  <input type="number" class="form-control" name="address" required>
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label">Network</label>
+                  <select class="form-select network-select" name="network"></select>
+                </div>
+                <div class="col-md-2">
                   <label class="form-label">Type</label>
                   <select class="form-select" name="sigtype">
-                    <option value="1">Colour Light</option>
+                    <option value="1">Colour&nbsp;Light</option>
                     <option value="0">Semaphore</option>
                   </select>
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">Avl Aspects</label>
+                  <label class="form-label">Avl&nbsp;Aspects</label>
                   <input type="number" class="form-control" name="availableaspects">
                 </div>
+              </div>
+              <div class="row g-3 mt-2">
                 <div class="col-md-3">
-                  <label class="form-label">Dir Indicator</label>
+                  <label class="form-label">Dir&nbsp;Indicator</label>
                   <input type="number" class="form-control" name="directionindicator">
                 </div>
-                <div class="col-md-3">
-                  <label class="form-label">Next Signal</label>
+                <div class="col-md-4">
+                  <label class="form-label">Next&nbsp;Signal</label>
                   <select class="form-select" name="nextsignal">
                     <option value="">None</option>
                     {% for s in data["Signals"].keys() %}
@@ -185,36 +252,49 @@
                     {% endfor %}
                   </select>
                 </div>
+                <div class="col-md-2">
+                  <label class="form-label">Board&nbsp;Index</label>
+                  <select class="form-select" name="board_index">
+                    {% for i in range(4) %}
+                    <option value="{{ i }}">Board {{ i }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                  <button type="button" class="btn btn-outline-secondary w-100" id="signalsApplyDefaults">
+                    <i class="fa fa-wand-magic-sparkles"></i> Apply defaults
+                  </button>
+                </div>
               </div>
               <div class="row g-3 mt-2">
                 <div class="col-md-3">
-                  <label class="form-label">Danger Reg</label>
+                  <label class="form-label">Danger&nbsp;Reg</label>
                   <input type="number" class="form-control" name="dangerreg">
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">Caution Reg</label>
+                  <label class="form-label">Caution&nbsp;Reg</label>
                   <input type="number" class="form-control" name="cautionreg">
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">Clear Reg</label>
+                  <label class="form-label">Clear&nbsp;Reg</label>
                   <input type="number" class="form-control" name="clearreg">
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">Calling‑On Reg</label>
+                  <label class="form-label">Calling-On&nbsp;Reg</label>
                   <input type="number" class="form-control" name="callingonreg">
                 </div>
               </div>
               <div class="row g-3 mt-2">
                 <div class="col-md-3">
-                  <label class="form-label">Banner Reg</label>
+                  <label class="form-label">Banner&nbsp;Reg</label>
                   <input type="number" class="form-control" name="bannerreg">
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">Dbl Caution Reg</label>
+                  <label class="form-label">Dbl&nbsp;Caution&nbsp;Reg</label>
                   <input type="number" class="form-control" name="doublecautionreg">
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label">Conflicting Signals</label>
+                  <label class="form-label">Conflicting&nbsp;Signals</label>
                   <select multiple class="form-select" name="conflicting_signals">
                     {% for s in data["Signals"].keys() %}
                     <option value="{{ s }}">{{ s }}</option>
@@ -226,19 +306,25 @@
 
               {% if tab=="Points" %}
               <div class="row g-3 mt-3">
-                <div class="col-md-3">
-                  <label class="form-label">Detection Mode</label>
-                  <input type="number" class="form-control" name="detection_mode">
+                <div class="col-md-2">
+                  <label class="form-label">Address</label>
+                  <input type="number" class="form-control" name="address" required>
                 </div>
-                <div class="col-md-3">
-                  <label class="form-label">Normal Coil</label>
+                <div class="col-md-5">
+                  <label class="form-label">Network</label>
+                  <select class="form-select network-select" name="network"></select>
+                </div>
+                </div>
+              <div class="row g-3 mt-2">
+<div class="col-md-2">
+                  <label class="form-label">Normal&nbsp;Coil</label>
                   <input type="number" class="form-control" name="normal_coil">
                 </div>
-                <div class="col-md-3">
-                  <label class="form-label">Reverse Coil</label>
+                <div class="col-md-2">
+                  <label class="form-label">Reverse&nbsp;Coil</label>
                   <input type="number" class="form-control" name="reverse_coil">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <label class="form-label">Section</label>
                   <select class="form-select" name="section">
                     {% for s in data["Sections"].keys() %}
@@ -246,41 +332,65 @@
                     {% endfor %}
                   </select>
                 </div>
+                <div class="col-md-2">
+                  <label class="form-label">Board&nbsp;Index</label>
+                  <select class="form-select" name="board_index">
+                    {% for i in range(4) %}
+                    <option value="{{ i }}">Board {{ i }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              
+<div class="col-md-3 d-flex align-items-end">
+  <button type="button" class="btn btn-outline-secondary w-100" id="pointsApplyDefaults">
+    <i class="fa fa-wand-magic-sparkles"></i> Apply defaults
+  </button>
+</div>
               </div>
               {% endif %}
 
               {% if tab=="Sections" %}
               <div class="row g-3 mt-3">
                 <div class="col-md-3">
-                  <label class="form-label">Axle Tolerance</label>
+                  <label class="form-label">Axle&nbsp;Tolerance</label>
                   <input type="number" class="form-control" name="axle_tolerance">
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label">Arrival Triggers</label>
+<div class="col-md-4">
+                  <label class="form-label">Arrival&nbsp;Triggers</label>
                   <select multiple class="form-select" name="inctrig">
                     {% for ac in data["AxleCounters"].keys() %}
                     <optgroup label="{{ ac }}">
-                      <option value="{{ ac }}:Upcount">{{ ac }} – Upcount</option>
-                      <option value="{{ ac }}:Downcount">{{ ac }} – Downcount</option>
+                      <option value="{{ ac }}:Upcount">{{ ac }}&nbsp;–&nbsp;Upcount</option>
+                      <option value="{{ ac }}:Downcount">{{ ac }}&nbsp;–&nbsp;Downcount</option>
                     </optgroup>
                     {% endfor %}
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Departure Triggers</label>
+                  <label class="form-label">Departure&nbsp;Triggers</label>
                   <select multiple class="form-select" name="dectrig">
                     {% for ac in data["AxleCounters"].keys() %}
                     <optgroup label="{{ ac }}">
-                      <option value="{{ ac }}:Upcount">{{ ac }} – Upcount</option>
-                      <option value="{{ ac }}:Downcount">{{ ac }} – Downcount</option>
+                      <option value="{{ ac }}:Upcount">{{ ac }}&nbsp;–&nbsp;Upcount</option>
+                      <option value="{{ ac }}:Downcount">{{ ac }}&nbsp;–&nbsp;Downcount</option>
                     </optgroup>
                     {% endfor %}
                   </select>
                 </div>
               </div>
               <div class="row g-3 mt-2">
+                
+<div class="col-md-3">
+  <label class="form-label">Mode</label>
+  <select class="form-select" name="mode">
+    <option value="axlecounter">axlecounter</option>
+    <option value="trackcircuit">trackcircuit</option>
+    <option value="treadlepad">treadlepad</option>
+  </select>
+</div>
+
                 <div class="col-md-4">
-                  <label class="form-label">Home Signals</label>
+                  <label class="form-label">Home&nbsp;Signals</label>
                   <select multiple class="form-select" name="homesignal">
                     {% for s in data["Signals"].keys() %}
                     <option value="{{ s }}">{{ s }}</option>
@@ -288,7 +398,7 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Conflicting Sections</label>
+                  <label class="form-label">Conflicting&nbsp;Sections</label>
                   <select multiple class="form-select" name="conflictingsections">
                     {% for s in data["Sections"].keys() %}
                     <option value="{{ s }}">{{ s }}</option>
@@ -300,22 +410,30 @@
 
               {% if tab=="Plungers" %}
               <div class="row g-3 mt-3">
-                <div class="col-md-3">
-                  <label class="form-label">Register</label>
-                  <input type="number" class="form-control" name="register">
+                <div class="col-md-2">
+                  <label class="form-label">Address</label>
+                  <input type="number" class="form-control" name="address" required>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <label class="form-label">Mode</label>
                   <select class="form-select" name="mode">
-                    <option value="0">Request Store</option>
-                    <option value="1">No Request Store</option>
+                    <option value="0">Request&nbsp;Store</option>
+                    <option value="1">No&nbsp;Request&nbsp;Store</option>
                   </select>
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Network</label>
-                  <input type="text" class="form-control" name="network" value="network_1">
+                  <select class="form-select network-select" name="network"></select>
                 </div>
               </div>
+
+<div class="row g-3 mt-2">
+  <div class="col-md-3">
+    <label class="form-label">Register</label>
+    <input type="number" class="form-control" name="register">
+  </div>
+</div>
+
               {% endif %}
 
               {% if tab=="Routes" %}
@@ -323,8 +441,8 @@
                 <div class="col-md-3">
                   <label class="form-label">Mode</label>
                   <select class="form-select" name="mode">
-                    <option value="1">Store Request</option>
-                    <option value="0">Do Not Store Request</option>
+                    <option value="1">Store&nbsp;Request</option>
+                    <option value="0">Do&nbsp;Not&nbsp;Store&nbsp;Request</option>
                   </select>
                 </div>
                 <div class="col-md-3">
@@ -340,21 +458,20 @@
                   </select>
                 </div>
               </div>
-              <div class="row g-3 mt-2">
-                <div class="col-md-6">
-                  <label class="form-label">Points (to set)</label>
-                  <select multiple class="form-select" name="points">
-                    {% for p in data["Points"].keys() %}
-                    <option value="{{ p }}">{{ p }}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label">Signals→Aspects</label>
-                  <textarea class="form-control" name="signals" rows="2"
-                    placeholder='{"48":["clear","route2"],"47":["caution"]}'></textarea>
-                </div>
-              </div>
+
+              <hr class="my-3">
+
+              <h6 class="mt-2">Points → Direction</h6>
+              <div class="route-points mb-2"></div>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-add-point>
+                <i class="fa fa-plus"></i> Add point
+              </button>
+
+              <h6 class="mt-4">Signals → Aspects</h6>
+              <div class="route-signals mb-2"></div>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-add-signal>
+                <i class="fa fa-plus"></i> Add signal
+              </button>
               {% endif %}
 
               {% if tab=="Triggers" %}
@@ -364,15 +481,16 @@
                   <input type="number" step="0.1" class="form-control" name="priority">
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">Retain Request</label><br>
+                  <label class="form-label">Retain&nbsp;Request</label><br>
                   <input type="checkbox" name="retain_request" value="1">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Conditions</label>
-                  <textarea class="form-control" name="conditions" rows="3"
-                    placeholder='Section.instances["Q"].occstatus>0'></textarea>
+                  <textarea class="form-control" name="conditions" rows="3" placeholder='True'></textarea>
+                  <div class="form-text">Default is the string <code>True</code>.</div>
                 </div>
               </div>
+
               <div class="row g-3 mt-2">
                 <div class="col-md-4">
                   <label class="form-label">Plungers</label>
@@ -383,7 +501,7 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Sections Occupied</label>
+                  <label class="form-label">Sections&nbsp;Occupied</label>
                   <select multiple class="form-select" name="sections_occupied">
                     {% for s in data["Sections"].keys() %}
                     <option value="{{ s }}">{{ s }}</option>
@@ -391,7 +509,7 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Sections Clear</label>
+                  <label class="form-label">Sections&nbsp;Clear</label>
                   <select multiple class="form-select" name="sections_clear">
                     {% for s in data["Sections"].keys() %}
                     <option value="{{ s }}">{{ s }}</option>
@@ -399,9 +517,10 @@
                   </select>
                 </div>
               </div>
+
               <div class="row g-3 mt-2">
                 <div class="col-md-4">
-                  <label class="form-label">Routes To Set</label>
+                  <label class="form-label">Routes&nbsp;To&nbsp;Set</label>
                   <select multiple class="form-select" name="routes_to_set">
                     {% for r in data["Routes"].keys() %}
                     <option value="{{ r }}">{{ r }}</option>
@@ -409,22 +528,41 @@
                   </select>
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label">Routes To Cancel</label>
+                  <label class="form-label">Routes&nbsp;To&nbsp;Cancel</label>
                   <select multiple class="form-select" name="routes_to_cancel">
                     {% for r in data["Routes"].keys() %}
                     <option value="{{ r }}">{{ r }}</option>
                     {% endfor %}
                   </select>
                 </div>
+
+                <!-- NEW: Stored requests to cancel (from existing Triggers) -->
                 <div class="col-md-4">
-                  <label class="form-label">Special Actions</label>
-                  <textarea class="form-control" name="trigger_special_actions" rows="2"
-                    placeholder='Section.instances["Q"].occstatus=0'></textarea>
+                  <label class="form-label">Stored&nbsp;Requests&nbsp;to&nbsp;Cancel</label>
+                  <select multiple class="form-select" name="stored_requests_to_cancel"></select>
+                  <div class="form-text">Choose Trigger refs whose stored requests should be cancelled.</div>
+                </div>
+              </div>
+
+              <!-- NEW: Special actions list UI -->
+              <div class="row g-3 mt-2">
+                <div class="col-md-12">
+                  <label class="form-label">Special&nbsp;Actions</label>
+                  <div class="input-group mb-2">
+                    <input type="text" class="form-control" placeholder='Section.instances["Q"].occstatus=0' data-special-action-input>
+                    <button type="button" class="btn btn-outline-secondary" data-add-special-action>
+                      <i class="fa fa-plus"></i> Add
+                    </button>
+                  </div>
+                  <ul class="list-group small" data-special-actions-list></ul>
+                  <!-- No textarea: values are stored as a list in JSON -->
+                  <div class="form-text">Starts empty. Add each action as its own item.</div>
                 </div>
               </div>
               {% endif %}
 
             </div>
+
             <div class="modal-footer">
               <button type="submit" class="btn btn-primary">Save</button>
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -438,207 +576,731 @@
 </div>
 
 <script>
-// Entity setup
+// ====== Globals / Stores ======
 const entityTypes = {{ tabs|tojson }};
 const dataStore   = {};
 const bsModals    = {};
+let   configStore = {};       // config.json
+let   signalMapping = {};     // function_to_coil_mapping.json
+const currentFile = "{{ current_file or '' }}";
 
-// Load initial data
+// Start infra from server only if a file is loaded; else keep empty until user clicks "Load"
 {% for tab in tabs %}
-dataStore["{{ tab }}"] = {{ data[tab]|tojson }};
+dataStore["{{ tab }}"] = {% if current_file %}{{ data[tab]|tojson }}{% else %}{}{% endif %};
 {% endfor %}
 
+// ====== Small utilities ======
+const $byId = id => document.getElementById(id);
+function num(v, fallback=0){ if (v === "" || v === null || v === undefined) return fallback; const n = Number(v); return Number.isFinite(n) ? n : fallback; }
+function getFormValues(formEl){
+  const fd = new FormData(formEl), vals={}, multi={};
+  formEl.querySelectorAll('select[multiple]').forEach(el=> multi[el.name] = true);
+  formEl.querySelectorAll('select[multiple]').forEach(el=>{ if(!(el.name in vals)) vals[el.name] = []; });
+  for (const [k,v] of fd.entries()){
+    if (multi[k]) (vals[k] ||= []).push(v);
+    else if (k in vals){ if(!Array.isArray(vals[k])) vals[k] = [vals[k]]; vals[k].push(v); }
+    else vals[k] = v;
+  }
+  return vals;
+}
+function safeParseJSON(text, label=""){ if (!text || !String(text).trim()) return {}; try { return JSON.parse(text); } catch(e){ alert(`Invalid JSON in "${label}": ${e.message}`); throw e; } }
+function buildAcDirMap(arr){ const out = {}; (arr||[]).forEach(s=>{ const [ac,dir]=String(s).split(":"); if(ac&&dir) (out[ac] ||= []).push(dir);}); return out; }
+function flattenAcDirMap(map){ const out=[]; Object.entries(map||{}).forEach(([ac,dirs])=>{ (Array.isArray(dirs)?dirs:[dirs]).forEach(d=>out.push(`${ac}:${d}`));}); return out; }
+function arrify(v){ return Array.isArray(v) ? v : (v ? [v] : []); }
+
+// ====== Ports datalist (live from server) ======
+function addStaticPorts(dl){
+  for(let i=1;i<=32;i++) dl.append(`<option value="COM${i}">`);
+  for(let i=0;i<32;i++) dl.append(`<option value="/dev/ttyS${i}">`);
+  for(let i=0;i<32;i++) dl.append(`<option value="/dev/ttyUSB${i}">`);
+  for(let i=0;i<16;i++) dl.append(`<option value="/dev/ttyACM${i}">`);
+}
+function buildPortsDatalist(){
+  const dl = $('#ports_datalist').empty();
+  fetch('/api/ports')
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(d => {
+      const ports = (d && d.ports) || [];
+      if(ports.length === 0){ addStaticPorts(dl); return; }
+      ports.forEach(p => dl.append(`<option value="${p}">`));
+    })
+    .catch(() => addStaticPorts(dl));
+}
+
+// ====== Config load/save & networks UI ======
+function loadConfig(){
+  return fetch('/api/load?filename=config.json')
+    .then(r => r.ok ? r.json() : Promise.reject(new Error('config.json not found')))
+    .then(cfg => {
+      configStore = cfg || {};
+      // fill fields
+      $('#cfg_layoutDB').val(cfg.layoutDB || '');
+      $('#cfg_axle_tolerance').val(cfg.axle_tolerance ?? '');
+      $('#cfg_logging_level').val(cfg.logging_level ?? '');
+      $('#cfg_mqtt_broker_address').val(cfg.mqtt_broker_address ?? '');
+      $('#cfg_point_interlock_timeout').val(cfg.point_interlock_timeout ?? '');
+      // networks table
+      renderNetworksTable();
+      // push to entity modals
+      populateNetworkSelects();
+                // Default file selection from config.layoutDB
+      try {
+        const desired = (configStore.layoutDB || '').trim();
+        if (desired) {
+          $('#serverFiles').val(desired);
+          if (!currentFile || !currentFile.trim()) {
+            // nothing preloaded — set filename and auto-load
+            $('#filename').val(desired);
+            loadFromServer();
+          } else {
+            // something already loaded — just reflect desired into filename if it's empty
+            if (!($('#filename').val()||'').trim()) { $('#filename').val(desired); }
+          }
+        }
+      } catch(e){ console.warn('layoutDB default handling failed', e); }
+
+})
+    .catch(err => {
+      console.warn('Config load failed:', err);
+      configStore = {};
+      renderNetworksTable(); // empty
+      populateNetworkSelects();
+    });
+}
+function saveConfig(){
+  // collect
+  const portsMap = {};
+  $('#cfg_networks_tbody tr').each(function(){
+    const name = $(this).find('.cfg-netname').val().trim();
+    const port = $(this).find('.cfg-port').val().trim();
+    if(name) portsMap[name] = port || '';
+  });
+  const payload = {
+    layoutDB: $('#cfg_layoutDB').val().trim(),
+    axle_tolerance: num($('#cfg_axle_tolerance').val(), 0),
+    logging_level: num($('#cfg_logging_level').val(), 20),
+    mqtt_broker_address: $('#cfg_mqtt_broker_address').val().trim(),
+    point_interlock_timeout: num($('#cfg_point_interlock_timeout').val(), 5),
+    network_ports: portsMap
+  };
+  fetch('/api/save?filename=config.json', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  }).then(r=>r.json()).then(()=> {
+    alert('Config saved.');
+    configStore = payload;
+    populateNetworkSelects();
+  });
+}
+function renderNetworksTable(){
+  const tb = $('#cfg_networks_tbody').empty();
+  const np = (configStore.network_ports) || {};
+  const entries = Object.entries(np);
+  if(entries.length === 0){
+    addNetworkRow(); // at least one row
+  } else {
+    entries.forEach(([name,port])=> addNetworkRow(name, port));
+  }
+}
+function addNetworkRow(name="", port=""){
+  const rowId = `row_${Math.random().toString(36).slice(2)}`;
+  const $row = $(`
+    <tr id="${rowId}">
+      <td><input type="text" class="form-control cfg-netname" placeholder="network_x" value="${name}"></td>
+      <td><input type="text" class="form-control cfg-port" list="ports_datalist" placeholder="COM6 or /dev/ttyUSB0" value="${port}"></td>
+      <td class="text-end"><button type="button" class="btn btn-sm btn-outline-danger"><i class="fa fa-trash"></i></button></td>
+    </tr>
+  `);
+  $row.find('button').on('click', ()=> { $row.remove(); populateNetworkSelects(); });
+  $('#cfg_networks_tbody').append($row);
+}
+
+// Populate all <select class="network-select"> with config networks
+function populateNetworkSelects(){
+  const nets = Object.keys((configStore && configStore.network_ports) || {});
+  const $els = $('select.network-select');
+  $els.each(function(){
+    const cur = $(this).val();
+    $(this).empty();
+    if(nets.length === 0){
+      $(this).append(`<option value="network_1">network_1</option>`);
+    } else {
+      nets.forEach(n=> $(this).append(`<option value="${n}">${n}</option>`));
+    }
+    if(cur && nets.includes(cur)) $(this).val(cur);
+  });
+}
+
+// ====== Mapping file (Signals auto defaults) ======
+function loadSignalMapping(){
+  return fetch('/api/load?filename=function_to_coil_mapping.json')
+    .then(r => r.ok ? r.json() : {})
+    .then(m => { signalMapping = m || {}; })
+    .catch(() => { signalMapping = {}; });
+}
+function mapForBoard(boardIndex){
+  return signalMapping[`board_index_${Number(boardIndex)}`] || {};
+}
+function applySignalDefaults(formEl, { force=false } = {}){
+  const $f  = $(formEl);
+  const bi  = $f.find('[name=board_index]').val();
+  const map = mapForBoard(bi);
+  if(!map || !Object.keys(map).length) return;
+
+  const pairs = [
+    ['dangerreg',        'danger_aspect'],
+    ['cautionreg',       'caution_aspect'],
+    ['clearreg',         'clear_aspect'],
+    ['callingonreg',     'calling_on'],
+    ['bannerreg',        'banner_repeater'],
+    ['doublecautionreg', 'double_caution_aspect']
+  ];
+  pairs.forEach(([field, key]) => {
+    const $inp = $f.find(`[name=${field}]`);
+    if(!$inp.length || map[key] == null) return;
+    const cur = $inp.val();
+    if(force || cur === '' || cur == null) $inp.val(Number(map[key]));
+  });
+  for(let i=1;i<=6;i++){
+    const kJson = `route_${i}`;
+    const $inp  = $f.find(`[name=route${i}reg]`);
+    if($inp.length && map[kJson] != null){
+      if(force || $inp.val()==='') $inp.val(Number(map[kJson]));
+    }
+
+function applyPointDefaults(formEl, { force=false } = {}){
+  const $f  = $(formEl);
+  const bi  = $f.find('[name=board_index]').val();
+  const map = mapForBoard(bi);
+  if(!map || !Object.keys(map).length) return;
+  const pairs = [
+    ['normal_coil',  'normal_direction'],
+    ['reverse_coil', 'reverse_direction'],
+  ];
+  pairs.forEach(([field, key]) => {
+    const $inp = $f.find(`[name=${field}]`);
+    const have = String(($inp.val()||'').trim());
+    const val  = map[key];
+    if(val != null && (force || have === '' || have === '0')){
+      $inp.val(val);
+    }
+  });
+}
+
+  }
+}
+
+// ====== Allowed aspects for Routes -> Signals builder ======
+function allowedAspectsForSignal(sigRef){
+  const s = (dataStore["Signals"] || {})[sigRef];
+  if(!s) return [];
+  const a = [];
+  if(s.dangerreg != null)  a.push("danger");
+  if(s.cautionreg != null) a.push("caution");
+  if(s.clearreg != null)   a.push("clear");
+  if(s.bannerreg != null)  a.push("banner");
+  if(s.callingonreg != null){
+    a.push("position_light","associated_position_light","calling_on");
+  }
+  if(s.doublecautionreg != null || s.doublecaution != null) a.push("double_caution");
+  for(let i=1;i<=6;i++){
+    if(s[`route${i}reg`] != null) a.push(`route${i}`);
+  }
+  return [new Set(a)];
+}
+
+// ====== Table column config (lightweight) ======
+const tableCols = {
+  default: [ { key:'ref', label:'Ref' }, { key:'description', label:'Description' } ],
+  Signals: [
+    { key:'ref',         label:'Ref' },
+    { key:'description', label:'Description' },
+    { key:'sigtype',     label:'Type', formatter:v=> v===1 ? 'Colour Light' : (v===0 ? 'Semaphore' : v) },
+    { key:'nextsignal',  label:'Next Signal' },
+    { key:'address',     label:'Address' },
+    { key:'network',     label:'Network' }
+  ],
+  Points: [
+    { key:'ref', label:'Ref' },
+    { key:'section', label:'Section' },
+    { key:'normal_coil', label:'Normal Coil' },
+    { key:'reverse_coil', label:'Reverse Coil' },
+    { key:'address', label:'Address' },
+    { key:'network', label:'Network' },
+    { key:'description', label:'Description' }
+  ],
+  AxleCounters: [
+    { key:'ref',          label:'Ref' },
+    { key:'upcount_reg',  label:'Up Reg' },
+    { key:'downcount_reg',label:'Down Reg' },
+    { key:'normal_coil',  label:'N Coil' },
+    { key:'reverse_coil', label:'R Coil' },
+    { key:'address',      label:'Address' },
+    { key:'network',      label:'Network' },
+    { key:'mode',         label:'Mode', formatter:v=> v===0? 'Directional' : (v===1? 'Non-directional': v) }
+  ],
+  Plungers: [
+    { key:'ref',        label:'Ref' },
+    { key:'register',   label:'Register' },
+    { key:'mode',       label:'Mode' },
+    { key:'network',    label:'Network' },
+    { key:'address',    label:'Address' },
+    { key:'description',label:'Description' }
+  ],
+  Sections: [
+    { key:'ref',             label:'Ref' },
+    { key:'axle_tolerance',  label:'Axle Tol' },
+    { key:'mode',            label:'Mode' },
+    { key:'homesignal',      label:'Home Signals', formatter:v=> (v||[]).length },
+    { key:'conflictingsections', label:'Conflicts', formatter:v=> (v||[]).length },
+    { key:'description',     label:'Description' }
+  ],
+  Routes: [
+    { key:'ref',        label:'Ref' },
+    { key:'priority',   label:'Priority' },
+    { key:'sections',   label:'Sections', formatter:v=> (v||[]).join(', ') },
+    { key:'points',     label:'Points', formatter:v=> Object.keys(v||{}).length },
+    { key:'mode',       label:'Store' }
+  ],
+  Triggers: [
+    { key:'ref',                 label:'Ref' },
+    { key:'priority',            label:'Priority' },
+    { key:'retain_request',      label:'Retain', formatter:v=> v? 'Yes':'No' },
+    { key:'routes_to_set',       label:'Set Routes', formatter:v=> (v||[]).length },
+    { key:'routes_to_cancel',    label:'Cancel Routes', formatter:v=> (v||[]).length }
+  ]
+};
+
+// ====== Routes builders ======
+function addPointRow($form, pointRef=null, dir="normal"){
+  const row = $(`
+    <div class="d-flex align-items-center gap-2 route-point-row mb-2">
+      <select class="form-select form-select-sm route-point" style="max-width:220px">
+        <option value="">Select point…</option>
+        ${Object.keys(dataStore["Points"]||{}).map(p=>`<option value="${p}">${p}</option>`).join('')}
+      </select>
+      <select class="form-select form-select-sm route-point-dir" style="max-width:160px">
+        <option value="normal">normal</option>
+        <option value="reverse">reverse</option>
+      </select>
+      <button type="button" class="btn btn-sm btn-outline-danger route-remove-point">
+        <i class="fa fa-trash"></i>
+      </button>
+    </div>
+  `);
+  if(pointRef){ row.find('.route-point').val(pointRef); }
+  row.find('.route-point-dir').val(dir||"normal");
+  $form.find('.route-points').append(row);
+}
+function addSignalRow($form, sigRef=null, aspects=[]){
+  const row = $(`
+    <div class="row g-2 align-items-center route-signal-row mb-2">
+      <div class="col-md-3">
+        <select class="form-select form-select-sm route-signal">
+          <option value="">Select signal…</option>
+          ${Object.keys(dataStore["Signals"]||{}).map(s=>`<option value="${s}">${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="col-md-8">
+        <select multiple class="form-select form-select-sm route-signal-aspects"></select>
+        <div class="form-text">Tip: Ctrl/Cmd-click to select multiple aspects.</div>
+      </div>
+      <div class="col-md-1 text-end">
+        <button type="button" class="btn btn-sm btn-outline-danger route-remove-signal">
+          <i class="fa fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  `);
+
+  function refreshAspects(){
+    const ref = row.find('.route-signal').val();
+    const opts = allowedAspectsForSignal(ref);
+    const $as = row.find('.route-signal-aspects');
+    const prev = $as.val() || [];
+    $as.empty();
+    opts.forEach(x => $as.append(`<option value="${x}">${x}</option>`));
+    const next = (aspects && aspects.length) ? aspects : prev;
+    $as.val((next||[]).filter(v=>opts.includes(v)));
+  }
+
+  row.on('change','.route-signal', refreshAspects);
+  $form.find('.route-signals').append(row);
+
+  if(sigRef){ row.find('.route-signal').val(sigRef); }
+  refreshAspects();
+}
+
+
+function toggleSectionsFields(formEl){
+  const $f = $(formEl);
+  const mode = $f.find('[name=mode]').val();
+  const $axle = $f.find('[name=axle_tolerance]').closest('.col-md-3');
+  const showAxle = (mode === 'axlecounter');
+  $axle.toggleClass('d-none', !showAxle);
+  $f.find('[name=axle_tolerance]').prop('disabled', !showAxle);
+}
+
+// ====== Init ======
 $(function(){
+  // Config tab controls
+  $('#cfgAddNetwork').on('click', ()=> { addNetworkRow(); });
+  $('#cfgReloadBtn').on('click', ()=> loadConfig());
+  $('#cfgSaveBtn').on('click', ()=> saveConfig());
+
+  // Load supporting data
+  buildPortsDatalist();
+  loadConfig();
+  loadSignalMapping();
+
+  // Entities
   entityTypes.forEach(type => {
     const lc = type.toLowerCase();
-    bsModals[type] = new bootstrap.Modal(document.getElementById(`${lc}Modal`));
+    bsModals[type] = new bootstrap.Modal($byId(`${lc}Modal`));
     renderTable(type);
 
     // Add button
-    $(`#add${type}Btn`).click(()=>{
+    $(`#add${type}Btn`).off('click').on('click', ()=>{
       const form = $(`.${lc}Form`);
       form[0].reset();
-      form.find('[name=ref]').prop('disabled', false);
+      form.find('[name=ref]').prop('readonly', false).prop('disabled', false);
+      // ensure network dropdowns are fresh
+      populateNetworkSelects();
+
+      // Routes: start with one blank point/signal row
+      if(type==="Routes"){
+        form.find('.route-points').empty();
+        form.find('.route-signals').empty();
+        addPointRow(form);
+        addSignalRow(form);
+      }
+
+      // Signals: default a board index and prefill from mapping
+      if(type==="Signals"){
+        form.find('[name=board_index]').val(0);
+        applySignalDefaults(form[0], { force:false });
+      }
+
+      if (type === "Triggers"){
+        // default conditions to "True"
+        form.find('[name=conditions]').val('True');
+        // empty special actions UI
+        clearSpecialActionsUI(form[0]);
+        // populate "stored requests to cancel" from current Trigger refs
+        refreshTriggerRefSelects(/* exclude = */ null);
+      const $trigForm = $(`.${'Triggers'.toLowerCase()}Form`);
+      $trigForm.on('click','[data-add-special-action]', function(){
+        const form = $(this).closest('form')[0];
+        const v = $(form).find('[data-special-action-input]').val().trim();
+        if(!v) return;
+        addSpecialAction(form, v);
+        $(form).find('[data-special-action-input]').val('');
+      });
+      $trigForm.on('click','[data-remove-special-action]', function(){
+        $(this).closest('li').remove();
+      });
+  
+      }
+
+
       $(`#${lc}Modal .modal-title`).text(`Add ${type.slice(0,-1)}`);
+      if(type==="Sections"){ toggleSectionsFields($(`.${lc}Form`)[0]); }
       bsModals[type].show();
     });
 
-    // Submit form
-    $(`.${lc}Form`).submit(function(e){
+    // Submit
+    $(`.${lc}Form`).off('submit').on('submit', function(e){
       e.preventDefault();
-      let vals = Object.fromEntries(new FormData(this).entries());
-      let ref  = vals.ref.trim();
-      if(!ref) return alert("Reference required");
-      let entry = {
-        ref,
-        description: vals.description||"",
-        address: +vals.address||0,
-        mode: +vals.mode||0,
-        board_index: +vals.board_index||0,
-        network: vals.network||"network_1"
-      };
-      // Merge type-specific
+      const vals = getFormValues(this);
+      const ref  = (vals.ref||"").trim(); if(!ref){ alert('Reference required'); return; }
+
+      const entry = { ref, description: vals.description || "" };
+
+      // Physical: address + network
+      if(type==="Signals" || type==="Points" || type==="AxleCounters" || type==="Plungers"){
+        entry.address = num(vals.address);
+        entry.network = vals.network || "network_1";
+      }
+
+      // Modes per entity
+      if(type==="AxleCounters"){ entry.mode = num(vals.mode); }       // 0 dir / 1 non-dir
+      
+      if(type==="Plungers"){ entry.mode = num(vals.mode); }
+      if(type==="Routes"){ entry.mode = num(vals.mode); }
+
+      // Type specifics
       if(type==="AxleCounters"){
-        ["upcount_reg","downcount_reg","normal_coil","reverse_coil"]
-          .forEach(k=>entry[k]=+vals[k]||0);
+        ["upcount_reg","downcount_reg","normal_coil","reverse_coil"].forEach(k=> entry[k]=num(vals[k]));
       }
-      if(type==="Signals"){
-        ["sigtype","availableaspects","directionindicator",
-         "dangerreg","cautionreg","clearreg","callingonreg",
-         "bannerreg","doublecautionreg","route1reg","route2reg",
-         "route3reg","route4reg","route5reg","route6reg"]
-          .forEach(k=>entry[k]=+vals[k]||null);
-        entry.nextsignal = vals.nextsignal||"";
-        entry.conflicting_signals = vals.conflicting_signals||[];
-      }
-      if(type==="Points"){
-        ["detection_mode","normal_coil","reverse_coil"]
-          .forEach(k=>entry[k]=+vals[k]||0);
-        entry.section = vals.section||"";
-      }
+
+      
+if(type==="Signals"){
+  // Save numeric registers or null when blank
+  const regFields = ["dangerreg","cautionreg","clearreg","callingonreg","bannerreg","doublecautionreg",
+                     "route1reg","route2reg","route3reg","route4reg","route5reg","route6reg"];
+  regFields.forEach(k => entry[k] = (vals[k]==="" || vals[k]===undefined) ? null : num(vals[k], null));
+  // Other fields
+  entry.sigtype = num(vals.sigtype, 0);
+  entry.availableaspects = num(vals.availableaspects, 3);
+  entry.directionindicator = num(vals.directionindicator, 0);
+  entry.nextsignal = vals.nextsignal || "";
+  entry.conflicting_signals = arrify(vals.conflicting_signals);
+  entry.board_index = num(vals.board_index);
+}
+
+
+      if(type==="Points"){ ['normal_coil','reverse_coil'].forEach(k=> entry[k]=num(vals[k])); entry.section = vals.section || ''; entry.board_index = num(vals.board_index); }
+
       if(type==="Sections"){
-        entry.axle_tolerance      = +vals.axle_tolerance||0;
-        entry.inctrig             = (vals.inctrig||[]).reduce((o,v)=>{
-                                     let [ac,d]=v.split(":");o[ac]=d;return o;
-                                   },{});
-        entry.dectrig             = (vals.dectrig||[]).reduce((o,v)=>{
-                                     let [ac,d]=v.split(":");o[ac]=d;return o;
-                                   },{});
-        entry.homesignal          = vals.homesignal||[];
-        entry.conflictingsections = vals.conflictingsections||[];
+        entry.mode = vals.mode || 'axlecounter';
+        entry.axle_tolerance = num(vals.axle_tolerance);
+        entry.inctrig = buildAcDirMap(vals.inctrig || []);
+        entry.dectrig = buildAcDirMap(vals.dectrig || []);
+        entry.homesignal = arrify(vals.homesignal);
+        entry.conflictingsections = arrify(vals.conflictingsections);
       }
+
       if(type==="Plungers"){
-        entry.register = +vals.register||0;
+        entry.register = num(vals.register);
       }
+
       if(type==="Routes"){
-        entry.mode     = +vals.mode||0;
-        entry.priority = +vals.priority||0;
-        entry.sections = vals.sections||[];
-        entry.points   = vals.points
-                          ? Object.fromEntries(vals.points.map(p=>[p,"normal"]))
-                          : {};
-        entry.signals  = vals.signals
-                          ? JSON.parse(vals.signals)
-                          : {};
+        entry.priority = num(vals.priority);
+        entry.sections = arrify(vals.sections);
+
+        // Points → { pointRef: "normal"|"reverse" }
+        const points = {};
+        $(`.${lc}Form .route-point-row`).each(function(){
+          const p = $(this).find('.route-point').val();
+          const d = $(this).find('.route-point-dir').val() || "normal";
+          if(p) points[p] = d;
+        });
+        entry.points = points;
+
+        // Signals → { signalRef: [aspect,] } (only allowed aspects)
+        const signals = {};
+        $(`.${lc}Form .route-signal-row`).each(function(){
+          const sRef = $(this).find('.route-signal').val();
+          let aspects = $(this).find('.route-signal-aspects').val() || [];
+          if(sRef){
+            const allowed = new Set(allowedAspectsForSignal(sRef));
+            aspects = aspects.filter(a => allowed.has(a));
+            if(aspects.length) signals[sRef] = aspects;
+          }
+        });
+        entry.signals = signals;
       }
+
       if(type==="Triggers"){
-        entry.priority                = +vals.priority||0;
-        entry.retain_request          = vals.retain_request?1:0;
-        entry.conditions              = vals.conditions? vals.conditions.split("\n") : [];
-        entry.plungers                = vals.plungers||[];
-        entry.sections_occupied       = vals.sections_occupied||[];
-        entry.sections_clear          = vals.sections_clear||[];
-        entry.routes_to_set           = vals.routes_to_set||[];
-        entry.routes_to_cancel        = vals.routes_to_cancel||[];
-        entry.trigger_special_actions = vals.trigger_special_actions
-                                          ? vals.trigger_special_actions.split("\n")
-                                          : [];
+        entry.priority       = num(vals.priority);
+        entry.retain_request = vals.retain_request ? 1 : 0;
+
+        // default to string "True" when empty
+        entry.conditions = vals.conditions
+          ? String(vals.conditions).split("\n").filter(Boolean)
+          : ["True"];
+
+        entry.plungers          = arrify(vals.plungers);
+        entry.sections_occupied = arrify(vals.sections_occupied);
+        entry.sections_clear    = arrify(vals.sections_clear);
+        entry.routes_to_set     = arrify(vals.routes_to_set);
+        entry.routes_to_cancel  = arrify(vals.routes_to_cancel);
+
+        // NEW: from the list UI
+        entry.trigger_special_actions   = getSpecialActionsArray(this);
+        // NEW: stored requests to cancel (Trigger refs)
+        entry.stored_requests_to_cancel = arrify(vals.stored_requests_to_cancel);
       }
+
 
       dataStore[type][ref] = entry;
       bsModals[type].hide();
+      if(type==="Signals") refreshDependentSelects();
       renderTable(type);
     });
 
-    // Edit/Delete handlers
-    $(`#${lc}TableBody`)
-      .on('click','.edit-btn', function(){
-        const row = $(this).closest('tr'), ref = row.data('ref'), it = dataStore[type][ref];
-        const form = $(`.${lc}Form`);
-        form.find('[name=ref]').val(it.ref).prop('disabled', true);
-        form.find('[name=description]').val(it.description);
-        form.find('[name=address]').val(it.address);
-        form.find('[name=mode]').val(it.mode);
-        form.find('[name=board_index]').val(it.board_index);
-        form.find('[name=network]').val(it.network);
-        if(type==="AxleCounters"){
-          ["upcount_reg","downcount_reg","normal_coil","reverse_coil"]
-            .forEach(k=>form.find(`[name=${k}]`).val(it[k]));
-        }
-        if(type==="Signals"){
-          ["sigtype","availableaspects","directionindicator","dangerreg",
-           "cautionreg","clearreg","callingonreg","bannerreg","doublecautionreg",
-           "route1reg","route2reg","route3reg","route4reg","route5reg","route6reg"]
-            .forEach(k=>form.find(`[name=${k}]`).val(it[k]));
-          form.find('[name=nextsignal]').val(it.nextsignal);
-          form.find('[name=conflicting_signals]').val(it.conflicting_signals);
-        }
-        if(type==="Points"){
-          ["detection_mode","normal_coil","reverse_coil"]
-            .forEach(k=>form.find(`[name=${k}]`).val(it[k]));
-          form.find('[name=section]').val(it.section);
-        }
-        if(type==="Sections"){
-          form.find('[name=axle_tolerance]').val(it.axle_tolerance);
-          form.find('[name=homesignal]').val(it.homesignal);
-          form.find('[name=conflictingsections]').val(it.conflictingsections);
-          form.find('[name=inctrig]').val(Object.entries(it.inctrig).map(([ac,d])=>`${ac}:${d}`));
-          form.find('[name=dectrig]').val(Object.entries(it.dectrig).map(([ac,d])=>`${ac}:${d}`));
-        }
-        if(type==="Plungers"){
-          form.find('[name=register]').val(it.register);
-          form.find('[name=mode]').val(it.mode);
-        }
-        if(type==="Routes"){
-          form.find('[name=mode]').val(it.mode);
-          form.find('[name=priority]').val(it.priority);
-          form.find('[name=sections]').val(it.sections);
-          form.find('[name=points]').val(Object.keys(it.points));
-          form.find('[name=signals]').val(JSON.stringify(it.signals));
-        }
-        if(type==="Triggers"){
-          form.find('[name=priority]').val(it.priority);
-          form.find('[name=retain_request]').prop('checked', it.retain_request);
-          form.find('[name=conditions]').val((it.conditions||[]).join("\n"));
-          form.find('[name=plungers]').val(it.plungers);
-          form.find('[name=sections_occupied]').val(it.sections_occupied);
-          form.find('[name=sections_clear]').val(it.sections_clear);
-          form.find('[name=routes_to_set]').val(it.routes_to_set);
-          form.find('[name=routes_to_cancel]').val(it.routes_to_cancel);
-          form.find('[name=trigger_special_actions]').val((it.trigger_special_actions||[]).join("\n"));
-        }
+    // Routes extra handlers
+    if (type === "Routes"){
+      const $form = $(`.${lc}Form`);
+      $form.on('click','[data-add-point]', ()=> addPointRow($form));
+      $form.on('click','[data-add-signal]', ()=> addSignalRow($form));
+      $form.on('click','.route-remove-point', function(){ $(this).closest('.route-point-row').remove(); });
+      $form.on('click','.route-remove-signal', function(){ $(this).closest('.route-signal-row').remove(); });
+    }
 
-        $(`#${lc}Modal .modal-title`).text(`Edit ${type.slice(0,-1)}`);
-        bsModals[type].show();
-      })
+    // Signals Apply defaults + board change
+
+// Points Apply defaults + board change
+
+// Sections mode change → toggle axle tolerance visibility
+$('body').on('change', '.sectionsForm [name=mode]', function(){
+  toggleSectionsFields(this.form);
+});
+
+$('body').on('click', '#pointsApplyDefaults', function(){
+  const form = $(this).closest('form')[0];
+  applyPointDefaults(form, { force:true });
+});
+$('body').on('change', '.pointsForm [name=board_index]', function(){
+  applyPointDefaults(this.form, { force:false });
+});
+
+    $('body').on('click', '#signalsApplyDefaults', function(){
+      const form = $(this).closest('form')[0];
+      applySignalDefaults(form, { force:true });
+    });
+    $('body').on('change', '.signalsForm [name=board_index]', function(){
+      applySignalDefaults(this.form, { force:false });
+    });
+
+    // Edit / Delete
+    const $tbody = $(`#${lc}TableBody`);
+    $tbody.off('click')
+      .on('click','.edit-btn', function(){ const ref = $(this).closest('tr').data('ref'); openEditorForRow(type, ref); })
+      .on('dblclick','tr', function(e){ if($(e.target).closest('.text-end').length) return; openEditorForRow(type, $(this).data('ref')); })
       .on('click','.delete-btn', function(){
         const ref = $(this).closest('tr').data('ref');
         if(confirm(`Delete ${type.slice(0,-1)} "${ref}"?`)){
           delete dataStore[type][ref];
           renderTable(type);
+          if(type==="Signals") refreshDependentSelects();
+          if (type === "Triggers") refreshTriggerRefSelects();
+         
         }
       });
   });
 });
 
-// Render table helper
+// ====== Render tables ======
 function renderTable(type){
   const lc = type.toLowerCase();
+  const $table = $(`#${lc}TableBody`).closest('table');
+  const $theadRow = $table.find('thead tr').empty();
+  const cols = tableCols[type] || tableCols.default;
+  cols.forEach(c => $theadRow.append(`<th>${c.label}</th>`));
+  $theadRow.append('<th class="text-end">Actions</th>');
+
   const tbody = $(`#${lc}TableBody`).empty();
-  Object.values(dataStore[type]).forEach(item=>{
-    tbody.append(`
-      <tr data-ref="${item.ref}">
-        <td>${item.ref}</td>
-        <td>${item.description}</td>
-        <td>${item.address}</td>
-        <td>${item.mode}</td>
-        <td>${item.network}</td>
-        <td class="text-end">
-          <button class="btn btn-sm btn-outline-primary edit-btn me-1">
-            <i class="fa fa-edit"></i>
-          </button>
-          <button class="btn btn-sm btn-outline-danger delete-btn">
-            <i class="fa fa-trash"></i>
-          </button>
-        </td>
-      </tr>
-    `);
+  const items = Object.values(dataStore[type]).sort((a,b)=> String(a.ref).localeCompare(String(b.ref), undefined, {numeric:true, sensitivity:'base'}));
+  if(items.length===0){
+    tbody.append(`<tr><td colspan="${cols.length+1}" class="text-center text-muted py-4">No ${type} yet.</td></tr>`);
+    return;
+  }
+  items.forEach(item=>{
+    const tds = cols.map(c=>{
+      const raw = item[c.key];
+      const txt = c.formatter ? c.formatter(raw, item) : (Array.isArray(raw) ? raw.join(', ') : (raw ?? ''));
+      return `<td>${txt}</td>`;
+    }).join('');
+    tbody.append(`<tr data-ref="${item.ref}">${tds}<td class="text-end"><button class="btn btn-sm btn-outline-primary edit-btn me-1"><i class="fa fa-edit"></i></button><button class="btn btn-sm btn-outline-danger delete-btn"><i class="fa fa-trash"></i></button></td></tr>`);
   });
 }
 
-// File tab helpers
+// ====== Open editor with data ======
+function openEditorForRow(type, ref){
+  const it = dataStore[type][ref]; if(!it) return;
+  const lc = type.toLowerCase(); const form = $(`.${lc}Form`);
+  form[0].reset();
+  populateNetworkSelects(); // in case networks changed
+  form.find('[name=ref]').val(it.ref).prop('readonly', true).prop('disabled', false);
+  form.find('[name=description]').val(it.description);
+
+  if(type==="Signals" || type==="Points" || type==="AxleCounters" || type==="Plungers"){
+    form.find('[name=address]').val(it.address);
+    form.find('[name=network]').val(it.network);
+  form.find('[name=register]').val(it.register);
+    }
+
+  if(type==="AxleCounters"){
+    form.find('[name=mode]').val(it.mode);
+    ["upcount_reg","downcount_reg","normal_coil","reverse_coil"].forEach(k=> form.find(`[name=${k}]`).val(it[k]));
+  }
+
+  if(type==="Signals"){
+    ["sigtype","availableaspects","directionindicator","dangerreg","cautionreg","clearreg",
+     "callingonreg","bannerreg","doublecautionreg","route1reg","route2reg","route3reg",
+     "route4reg","route5reg","route6reg"].forEach(k=> form.find(`[name=${k}]`).val(it[k]));
+    form.find('[name=nextsignal]').val(it.nextsignal || "");
+    form.find('[name=conflicting_signals]').val(it.conflicting_signals || []);
+    form.find('[name=board_index]').val(it.board_index ?? 0);
+    // Prefill from mapping where empty
+    applySignalDefaults(form[0], { force:false });
+  }
+
+  if(type==="Points"){
+    form.find('[name=mode]').val(String(!!it.mode));
+    ["detection_mode","normal_coil","reverse_coil"].forEach(k=> form.find(`[name=${k}]`).val(it[k]));
+    form.find('[name=section]').val(it.section || "");
+    form.find('[name=board_index]').val(it.board_index ?? 0);
+  
+    applyPointDefaults(form[0], { force:false });
+  }
+
+  if(type==="Sections"){
+    form.find('[name=axle_tolerance]').val(it.axle_tolerance);
+    form.find('[name=mode]').val(it.mode || 'axlecounter');
+    toggleSectionsFields(form[0]);
+    form.find('[name=homesignal]').val(it.homesignal || []);
+    form.find('[name=conflictingsections]').val(it.conflictingsections || []);
+    form.find('[name=inctrig]').val(flattenAcDirMap(it.inctrig));
+    form.find('[name=dectrig]').val(flattenAcDirMap(it.dectrig));
+  }
+
+  if(type==="Plungers"){
+    form.find('[name=mode]').val(it.mode);
+    form.find('[name=register]').val(it.register);
+  }
+
+  if(type==="Routes"){
+    form.find('[name=mode]').val(it.mode);
+    form.find('[name=priority]').val(it.priority);
+    form.find('[name=sections]').val(it.sections || []);
+    // rebuild builders
+    form.find('.route-points').empty();
+    form.find('.route-signals').empty();
+    const pts = it.points || {};
+    if(Object.keys(pts).length){
+      Object.entries(pts).forEach(([p,dir])=> addPointRow(form, p, dir));
+    } else { addPointRow(form); }
+    const sigs = it.signals || {};
+    if(Object.keys(sigs).length){
+      Object.entries(sigs).forEach(([s,aspects])=> addSignalRow(form, s, aspects));
+    } else { addSignalRow(form); }
+  }
+
+  if(type==="Triggers"){
+    form.find('[name=priority]').val(it.priority);
+    form.find('[name=retain_request]').prop('checked', !!it.retain_request);
+
+    // conditions as newline list; default to "True" if missing/empty
+    const conds = (it.conditions && it.conditions.length) ? it.conditions : ["True"];
+    form.find('[name=conditions]').val(conds.join("\n"));
+
+    form.find('[name=plungers]').val(it.plungers || []);
+    form.find('[name=sections_occupied]').val(it.sections_occupied || []);
+    form.find('[name=sections_clear]').val(it.sections_clear || []);
+    form.find('[name=routes_to_set]').val(it.routes_to_set || []);
+    form.find('[name=routes_to_cancel]').val(it.routes_to_cancel || []);
+
+    // refresh trigger refs and set stored_requests_to_cancel (exclude self)
+    refreshTriggerRefSelects(it.ref);
+    form.find('[name=stored_requests_to_cancel]').val(it.stored_requests_to_cancel || []);
+
+    // rebuild special actions list UI
+    clearSpecialActionsUI(form[0]);
+    (it.trigger_special_actions || []).forEach(v => addSpecialAction(form[0], v));
+  }
+
+
+  $(`#${lc}Modal .modal-title`).text(`Edit ${type.slice(0,-1)}`);
+  bsModals[type].show();
+}
+
+// ====== File helpers ======
 function loadFromServer(){
   const f = $('#serverFiles').val();
+  if(!f){ alert('Select a file to load.'); return; }
   window.location = `/?file=${encodeURIComponent(f)}`;
 }
 function uploadFile(){
@@ -651,18 +1313,75 @@ function uploadFile(){
 }
 function saveJSON(){
   const fn = $('#filename').val().trim()||'default.json';
-  let payload = {};
+  const payload = {};
   entityTypes.forEach(t=>payload[t]=dataStore[t]);
   fetch(`/api/save?filename=${encodeURIComponent(fn)}`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload)
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
   }).then(r=>r.json()).then(d=>alert(`Saved to "${d.filename}"`));
 }
 function downloadFile(){
   const fn = $('#filename').val().trim()||'default.json';
   window.location = `/api/download?filename=${encodeURIComponent(fn)}`;
 }
+
+// Update selects that depend on Signals existing (nextsignal, conflicting, homesignal)
+function refreshDependentSelects(){
+  const signalKeys = Object.keys(dataStore["Signals"] || {});
+  $('select[name=nextsignal]').each(function(){
+    const cur=$(this).val();
+    $(this).empty().append(`<option value="">None</option>`);
+    signalKeys.forEach(s=> $(this).append(`<option value="${s}">${s}</option>`));
+    if(signalKeys.includes(cur)) $(this).val(cur);
+  });
+  $('select[name=conflicting_signals], select[name=homesignal]').each(function(){
+    const cur=$(this).val()||[];
+    $(this).empty();
+    signalKeys.forEach(s=> $(this).append(`<option value="${s}">${s}</option>`));
+    $(this).val(arrify(cur).filter(v=>signalKeys.includes(v)));
+  });
+}
+
+// ----- Triggers helpers -----
+function refreshTriggerRefSelects(exclude=null){
+  const refs = Object.keys(dataStore["Triggers"] || {});
+  $('select[name=stored_requests_to_cancel]').each(function(){
+    const $sel = $(this);
+    const current = Array.isArray($sel.val()) ? $sel.val() : ($sel.val() ? [$sel.val()] : []);
+    $sel.empty();
+    refs.forEach(r => {
+      if (exclude && r === exclude) return; // don't allow cancelling itself
+      $sel.append(`<option value="${r}">${r}</option>`);
+    });
+    // re-apply selections that still exist
+    $sel.val(current.filter(v => refs.includes(v) && v !== exclude));
+  });
+}
+
+function clearSpecialActionsUI(form){
+  $(form).find('[data-special-actions-list]').empty();
+  $(form).find('[data-special-action-input]').val('');
+}
+function addSpecialAction(form, value){
+  if(!value) return;
+  const $list = $(form).find('[data-special-actions-list]');
+  const $li = $(`
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <code class="me-2"></code>
+      <button type="button" class="btn btn-sm btn-outline-danger" data-remove-special-action>
+        <i class="fa fa-trash"></i>
+      </button>
+    </li>
+  `);
+  $li.find('code').text(value);
+  $li.data('val', value);
+  $list.append($li);
+}
+function getSpecialActionsArray(form){
+  return $(form).find('[data-special-actions-list] li').map(function(){
+    return $(this).data('val');
+  }).get();
+}
+
 </script>
 </body>
 </html>

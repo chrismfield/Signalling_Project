@@ -14,7 +14,7 @@
             "ref": "A",
             "routeset": false,
             "routestatus": "",
-            "trackcircuits": "A",
+            "trackcircuits": ["ZZ"],
             "coords": {
                 "x": 84.53,
                 "y": 18.83,
@@ -391,14 +391,14 @@
         }
     },
     "TrackCircuits": {
-        "A": {
+        "ZZ": {
             "address": 63,
             "comms_status": "",
             "description": "Track Circuit A",
             "instances": {},
             "mode": "self-latching",
             "network": "network_1",
-            "ref": "A",
+            "ref": "ZZ",
             "registers": {
                 "self-latching": [
                     8,

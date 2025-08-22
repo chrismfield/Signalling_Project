@@ -486,7 +486,7 @@ def startup(logger, mqtt_client):
 
     return
 
-def process(logger, mqtt_client):
+def process(logger, mqtt_client, step_dict, feeder_dict):
     while True:
         time.sleep(0.2) # to try to eliminate the overheating axlecounter which may be as a result of transmission conflict
         check_all_ACs(logger, mqtt_client)
@@ -520,9 +520,9 @@ def main():
     logger = setup_logger(config["logging_level"])
     mqtt_client = setup_mqtt()
     loadlayoutjson(logger, mqtt_client)
-    step_dict.update(train_tracker.step_setup())
+    step_dict, feeder_dict = train_tracker.step_setup()
     startup(logger, mqtt_client)
-    process(logger, mqtt_client)
+    process(logger, mqtt_client, step_dict, feeder_dict)
 
 
 

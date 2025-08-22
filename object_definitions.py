@@ -16,7 +16,7 @@ class TrackCircuit(InterfaceObject):
         super().__init__(network, address, ref, description, slave)
         self.registers = registers #coil registers that activate the track circuit e.g. {"self-latching":[1,2] "latch":[3], "unlatch":[4]}
         self.mode = mode #self-latching or non-latching"
-        self.occstatus = True
+        self.occstatus = False #TODO should this be true by default? It would create a lot of trains.
 
 class TreadlePad(InterfaceObject):
     """Treadle Pad or Reed Switch object containing static and dynamic variables"""
@@ -223,15 +223,15 @@ class Train:
         self.headcode = None
         self.locos = [None]
         self.carriages = [None]
-        self.driver = [None]
+        self.drivers = [None]
         self.guard = [None]
         self.routes = [None]
         self.mileage = 0
-        self.berth_section = [None]
+        self.berth_section = None
         self.journey_log = []
 
     @classmethod
     def find_by_berth(cls, berth_section):
-        for train in cls.instances:
-            if train.berth_section[0] == berth_section:
+        for train in cls.instances.values():
+            if train.berth_section == berth_section:
                 return train
