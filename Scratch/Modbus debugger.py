@@ -1,6 +1,5 @@
 import minimalmodbus
-import serial.tools.list_ports
-from Comselector import Comselector
+from Archive.Comselector import Comselector
 
 rs485port = Comselector()
 print(rs485port)
