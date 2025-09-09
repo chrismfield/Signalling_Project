@@ -73,6 +73,7 @@ coil_mapping = load_json_file(os.path.join(UPLOAD_FOLDER, MAPPING_FILE))
 def empty_layout():
     return {
         "AxleCounters": {},
+        "TrackCircuits" :{},
         "Signals": {},
         "Points": {},
         "Sections": {},
@@ -111,7 +112,7 @@ def index():
     # Show all JSON files for the picker
     server_files = [f for f in os.listdir(UPLOAD_FOLDER) if f.lower().endswith(".json")]
 
-    tabs = ["AxleCounters","Signals","Points","Sections","Plungers","Routes","Triggers"]
+    tabs = ["AxleCounters","TrackCircuits","Signals","Points","Plungers","Sections","Routes","Triggers"]
 
     return render_template(
         "index.html",
@@ -121,6 +122,21 @@ def index():
         current_file=filename or "",
         config=cfg
     )
+@app.route("/diagnostics")
+def diagnostics():
+    return render_template("diagnostics.html")
+
+@app.route("/graphic")
+def graphic():
+    return render_template("graphic.html")
+
+# Route to serve the JSON file
+@app.route("/routes-data")
+def routes_data():
+    json_path = os.path.join(app.root_path, "routes.json")
+    with open(json_path) as f:
+        data = json.load(f)
+    return jsonify(data)
 
 @app.route("/api/save", methods=["POST"])
 def save_json():

@@ -1,0 +1,254 @@
+body {
+	margin:0;
+	height:100vh;
+	font-family:sans-serif;
+	display:flex;
+	flex-direction:column;
+}
+h1 {
+	position: absolute;
+	width:100%;
+	text-align: center;
+}
+.flexcontainer {
+	display:flex;
+	flex-wrap: wrap;
+	flex:1 1 auto;
+}
+#routes {
+	flex: 0 0 270px;
+	background-color: #040;
+	color:#fff;
+	padding:5px;
+	border-radius: 5px;
+	h2 {
+		text-align: center;
+	}
+	td._set {
+		color: #000;
+		background-color: #ff0;
+		& ~ td {
+			color: #000;
+			background-color: #ff0;
+		}
+	}
+	td._section {
+		width:20px;
+	}
+	td._btnCell {
+		white-space: nowrap;
+	}
+	td ._desc {
+		font-size:8pt;
+	}
+	overflow-y:auto;
+	max-height:95vh;
+}
+#layout {
+	flex: 1 1 66%;
+	position:relative;
+	min-height:80vh;
+	#background {
+		position: absolute;
+		background-image: url("layout.png");
+		width:100%;
+		height:100%;
+		background-repeat: no-repeat;
+		background-size: 100% 100%;
+		filter: grayscale(100%) brightness(100%);
+	}
+	#container {
+		position: absolute;
+		width:100%;
+		height:100%;
+		._signal {
+			position: absolute;
+			margin:-1.1%;
+			border-radius: 40px;
+			border:4px solid black;
+			box-sizing:content-box;
+			width:2%;
+			padding:1% 0%; /* force circular as padding ratio based on width */
+			background-color: #888; /* default for loading */
+			font-size:0pt;
+			&.state_danger {
+				background-color: #f00;
+			}
+			&.state_caution {
+				background-color: #ff0;
+			}
+			&.state_clear {
+				background-color: #0f0;
+			}
+			&.state_associated_position_light {
+				background-color: #fff; /* Show as white for assoc red */
+			}
+			&.state_position_light {
+				background-color: #fff; /* Show as white */
+			}
+			&.state_route2::after,
+			&.state_route3::after,
+			&.state_route4::after {
+				position:absolute;
+				display:block;
+				margin-top:-25%;
+				width:100%;
+				height:100%;
+				text-align:center;
+				font-size:10pt;
+			}
+			&.state_route2::after {
+				content: '2';
+			}
+			&.state_route3::after {
+				content: '3';
+			}
+			&.state_route4::after {
+				content: '4';
+			}
+		}
+		._point {
+			position:absolute;
+			width:7%;
+			height:1.5%;
+			transform-origin: 0%;
+			margin-top:-0.75%;
+			font-size:0;
+			&:after {
+				content: '';
+				display:block;
+				background-color:#0ff;
+				box-sizing:content-box;
+				width:100%;
+				height:100%;
+				transform-origin: 0%;
+				/*border-top:4px solid white;
+				border-bottom:4px solid white;*/
+			}
+		}
+		._point.rh.state_reverse:after {
+			transform: rotate(15deg);
+		}
+		._point.lh.state_reverse:after {
+			transform: rotate(345deg);
+		}
+		._section {
+			position: absolute;
+			margin:-0.75% -1.5%;
+			border-radius: 40px;
+			border:4px solid black;
+			box-sizing:content-box;
+			width:3%;
+			height:1.5%;
+			background-color: #888; /* default for loading */
+			text-align:center;
+			font-weight:bold;
+			&.state_true {
+				background-color: #f0f;
+			}
+			&.state_0 {
+				background-color: #000;
+			}
+		}
+		._plunger {
+			position: absolute;
+			margin:-0.75% -0.75%;
+			border-radius: 40px;
+			border:4px solid black;
+			box-sizing:content-box;
+			width:1.5%;
+			padding:0.75% 0%; /* force circular as padding ratio based on width */
+			background-color: #00f;
+		}
+		._cb {
+			display: none;
+		}
+		._popout {
+			position:absolute;
+			bottom: 0px;
+			left:0px;
+			right:0px;
+			padding:5px;
+			align-items:center;
+			display: none;
+		}
+		._cb:checked + ._item {
+			border-color: #0ff;
+		}
+		._cb:checked + ._item + ._popout {
+			display: flex;
+		}
+		._popout {
+			background-color: #444;
+			color: #fff;
+			border-top: 2px solid black;
+			._popoutlbl {
+				display:inline-block;
+				width:12vw;
+				._key {
+					font-size: 16pt;
+				}
+			}
+			button {
+				height:50px;
+				font-size: 12pt;
+			}
+			._container {
+				padding:0 10px;
+			}
+		}
+	}
+}
+.btn_fs {
+	display: block;
+	margin: 10px auto;
+	padding: 10px;
+}
+
+/* Signal replication */
+.repSignals {
+	display:flex;
+	width:100%;
+	height:100%;
+	flex-direction: row;
+}
+.repSignals .repSignal {
+	height:100%;
+	flex: 1 1 auto;
+	box-sizing:border-box;
+	border: 5px solid black;
+	color: black;
+	text-align:center;
+	font-size: 10rem;
+	&.state_danger {
+		background-color: #f00;
+	}
+	&.state_caution {
+		background-color: #ff0;
+	}
+	&.state_clear {
+		background-color: #0f0;
+	}
+	&.state_associated_position_light {
+		background-color: #fff; /* Show as white for assoc red */
+	}
+	&.state_position_light {
+		background-color: #fff; /* Show as white */
+	}
+	&.state_route2::after,
+	&.state_route3::after,
+	&.state_route4::after {
+		display:block;
+		text-align:center;
+		font-size:15rem;
+	}
+	&.state_route2::after {
+		content: '2';
+	}
+	&.state_route3::after {
+		content: '3';
+	}
+	&.state_route4::after {
+		content: '4';
+	}
+}

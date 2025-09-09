@@ -161,9 +161,8 @@ class Point:
 class Route:
     """Route object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, ref, description, mode, sections, points, signals, priority):
+    def __init__(self, ref, description, sections, points, signals, priority):
         #static variables
-        self.mode = mode  # mode: store request (=1) or not store request (=0)
         self.ref = ref  # Freetext reference
         self.description = description  # Freetext description
         self.sections = sections  # ordered list of sections

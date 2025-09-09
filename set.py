@@ -48,6 +48,10 @@ def set_point(point, direction, sections, logger, mqtt_client, route=None):
             except (OSError, ValueError) as error:
                 comms_status = (" Comms failure " + str(error))
 
+        if not point.detection_mode:
+            point.detection_boolean = True
+            point.detection_status = direction
+
         # Determine if logging is required due to state change
         if point.comms_status != comms_status:
             logger.info(point.ref + comms_status)

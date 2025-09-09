@@ -1,4 +1,205 @@
 {
+    "Sections": {
+        "A": {
+            "conflictingsections": [],
+            "dectrig": {"PadB": "non-directional"},
+            "description": "Section A",
+            "homesignal": [],
+            "protecting_points": {},
+            "inctrig": {"PadA": "non-directional"},
+            "instances": {},
+            "mode": "trackcircuit",
+            "occstatus": 0,
+            "previousoccstatus": 0,
+            "ref": "A",
+            "routeset": false,
+            "routestatus": "",
+            "trackcircuits": ["ZZ"],
+            "coords": {
+                "x": 84.53,
+                "y": 18.83,
+                "rotate": 22.5
+            }
+        },
+        "Q": {
+            "conflictingsections": [],
+            "dectrig": {
+                "A1": "Downcount",
+                "A2": "Upcount"
+            },
+            "description": "Between level crossing and 47",
+            "homesignal": [],
+            "protecting_points": {},
+            "inctrig": {
+                "A1": "Upcount",
+                "A2": "Downcount"
+            },
+            "instances": {},
+            "mode": "axlecounter",
+            "occstatus": 0,
+            "previousoccstatus": 0,
+            "ref": "Q",
+            "routeset": false,
+            "routestatus": "",
+            "coords": {
+                "x": 84.53,
+                "y": 18.83,
+                "rotate": 22.5
+            }
+        },
+        "R": {
+            "conflictingsections": [],
+            "dectrig": {
+                "A2": "Downcount",
+                "A3": "Upcount",
+                "A4": "Downcount"
+            },
+            "description": "Between 47 and 48",
+            "homesignal": [
+                "47",
+                "42",
+                "43",
+                "44",
+                "45",
+                "46"
+            ],
+            "protecting_points":
+                {},
+            "inctrig": {
+                "A2": "Upcount",
+                "A3": "Downcount",
+                "A4": "Upcount"
+            },
+            "instances": {},
+            "mode": "axlecounter",
+            "occstatus": 0,
+            "previousoccstatus": 0,
+            "ref": "R",
+            "routeset": false,
+            "routestatus": "",
+            "coords": {
+                "x": 52.58,
+                "y": 16.00
+            }
+        },
+        "S": {
+            "axle_tolerance": 4,
+            "conflictingsections": [],
+            "dectrig": {
+                "A3": "Downcount",
+                "A8": "Upcount",
+                "A9": "Upcount",
+                "A10": "Upcount"
+            },
+            "description": "Points Section",
+            "homesignal": [
+                "48",
+                "42",
+                "43",
+                "44"
+            ],
+            "protecting_points": {},
+            "inctrig": {
+                "A3": "Upcount",
+                "A8": "Downcount",
+                "A9": "Downcount",
+                "A10": "Downcount"
+            },
+            "instances": {},
+            "mode": "axlecounter",
+            "occstatus": 1,
+            "previousoccstatus": 0,
+            "ref": "S",
+            "routeset": false,
+            "routestatus": "",
+            "coords": {
+                "x": 47.07,
+                "y": 16.00
+            }
+        },
+        "T": {
+            "conflictingsections": [],
+            "dectrig": {
+                "A8": "Downcount",
+                "A5": "Upcount",
+                "A7": "Downcount"
+            },
+            "description": "Platform 2 Section",
+            "homesignal": [
+                "48"
+            ],
+            "protecting_points":
+                {"48": {"100": "normal"}},
+            "inctrig": {
+                "A8": "Upcount",
+                "A7": "Upcount"
+            },
+            "instances": {},
+            "mode": "axlecounter",
+            "occstatus": 0,
+            "previousoccstatus": 0,
+            "ref": "T",
+            "routeset": false,
+            "routestatus": "",
+            "coords": {
+                "x": 21.23,
+                "y": 3.77
+            }
+        },
+        "U": {
+            "conflictingsections": [],
+            "dectrig": {
+                "A9": "Downcount",
+                "A6": "Upcount"
+            },
+            "description": "Platform 3 Section",
+            "homesignal": [
+                "48"
+            ],
+            "protecting_points":
+                {"48": {"100": "reverse", "300": "normal"}},
+            "inctrig": {
+                "A9": "Upcount"
+            },
+            "instances": {},
+            "mode": "axlecounter",
+            "occstatus": 0,
+            "previousoccstatus": 0,
+            "ref": "U",
+            "routeset": false,
+            "routestatus": "",
+            "coords": {
+                "x": 28.91,
+                "y": 16.35
+            }
+        },
+        "V": {
+            "conflictingsections": [],
+            "dectrig": {
+                "A10": "Downcount"
+            },
+            "description": "Platform 4 Section",
+            "homesignal": [
+                "48"
+            ],
+            "protecting_points":
+                {"48": {"100": "reverse", "300": "reverse"}},
+            "inctrig": {
+                "A10": "Upcount"
+            },
+            "instances": {},
+            "mode": "axlecounter",
+            "occstatus": 0,
+            "previousoccstatus": 0,
+            "ref": "V",
+            "routeset": false,
+            "routestatus": "",
+            "coords": {
+                "x": 18.88,
+                "y": 22.64
+            }
+        }
+    },
     "AxleCounters": {
         "A1": {
             "address": 1,
@@ -13,27 +214,8 @@
             "normal_coil": 22,
             "ref": "A1",
             "reverse_coil": 23,
-            "sessiondowncount": 0,
             "sessionupcount": 0,
-            "slave": null,
-            "upcount": 0,
-            "upcount_reg": 13
-        },
-        "A10": {
-            "address": 10,
-            "board_index": 0,
-            "comms_status": "",
-            "description": "Entrance to Platform 4",
-            "downcount": 0,
-            "downcount_reg": 14,
-            "instances": {},
-            "mode": 0,
-            "network": "network_1",
-            "normal_coil": 22,
-            "ref": "A10",
-            "reverse_coil": 23,
             "sessiondowncount": 0,
-            "sessionupcount": 0,
             "slave": null,
             "upcount": 0,
             "upcount_reg": 13
@@ -51,8 +233,8 @@
             "normal_coil": 22,
             "ref": "A2",
             "reverse_coil": 23,
-            "sessiondowncount": 0,
             "sessionupcount": 0,
+            "sessiondowncount": 0,
             "slave": null,
             "upcount": 0,
             "upcount_reg": 13
@@ -70,8 +252,8 @@
             "normal_coil": 22,
             "ref": "A3",
             "reverse_coil": 23,
-            "sessiondowncount": 0,
             "sessionupcount": 0,
+            "sessiondowncount": 0,
             "slave": null,
             "upcount": 0,
             "upcount_reg": 13
@@ -87,8 +269,8 @@
             "mode": 0,
             "network": "network_1",
             "ref": "A4",
-            "sessiondowncount": 0,
             "sessionupcount": 0,
+            "sessiondowncount": 0,
             "slave": null,
             "upcount": 0,
             "upcount_reg": 13
@@ -106,8 +288,8 @@
             "normal_coil": 22,
             "ref": "A5",
             "reverse_coil": 23,
-            "sessiondowncount": 0,
             "sessionupcount": 0,
+            "sessiondowncount": 0,
             "slave": null,
             "upcount": 0,
             "upcount_reg": 13
@@ -125,8 +307,8 @@
             "normal_coil": 22,
             "ref": "A6",
             "reverse_coil": 23,
-            "sessiondowncount": 0,
             "sessionupcount": 0,
+            "sessiondowncount": 0,
             "slave": null,
             "upcount": 0,
             "upcount_reg": 13
@@ -144,8 +326,8 @@
             "normal_coil": 22,
             "ref": "A7",
             "reverse_coil": 23,
-            "sessiondowncount": 0,
             "sessionupcount": 0,
+            "sessiondowncount": 0,
             "slave": null,
             "upcount": 0,
             "upcount_reg": 13
@@ -163,8 +345,8 @@
             "normal_coil": 22,
             "ref": "A8",
             "reverse_coil": 23,
-            "sessiondowncount": 0,
             "sessionupcount": 0,
+            "sessiondowncount": 0,
             "slave": null,
             "upcount": 0,
             "upcount_reg": 13
@@ -182,237 +364,51 @@
             "normal_coil": 22,
             "ref": "A9",
             "reverse_coil": 23,
-            "sessiondowncount": 0,
             "sessionupcount": 0,
+            "sessiondowncount": 0,
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        },
+        "A10": {
+            "address": 10,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "Entrance to Platform 4",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A10",
+            "reverse_coil": 23,
+            "sessionupcount": 0,
+            "sessiondowncount": 0,
             "slave": null,
             "upcount": 0,
             "upcount_reg": 13
         }
     },
+    "TrackCircuits": {
+        "ZZ": {
+            "address": 63,
+            "comms_status": "",
+            "description": "Track Circuit A",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "ZZ",
+            "registers": {
+                "self-latching": [
+                    8,
+                    9
+                ]
+            },
+            "slave": null
+        }
+    },
     "Signals": {
-        "12": {
-            "address": 12,
-            "availableaspects": 3,
-            "bannerreg": null,
-            "board_index": 0,
-            "callingonreg": null,
-            "cautionreg": 2,
-            "clearreg": 4,
-            "conflicting_signals": [],
-            "dangerreg": 1,
-            "description": "12",
-            "directionindicator": 0,
-            "doublecautionreg": null,
-            "mode": 0,
-            "network": "network_1",
-            "nextsignal": "47",
-            "ref": "12",
-            "route1reg": null,
-            "route2reg": null,
-            "route3reg": null,
-            "route4reg": null,
-            "route5reg": null,
-            "route6reg": null,
-            "sigtype": 0
-        },
-        "42": {
-            "address": 42,
-            "aspect": [
-                "danger"
-            ],
-            "availableaspects": 0,
-            "bannerreg": null,
-            "board_index": 0,
-            "callingonreg": 5,
-            "cautionreg": null,
-            "clearreg": null,
-            "comms_status": "",
-            "conflicting_signals": [
-                "48",
-                "43",
-                "44"
-            ],
-            "coords": {
-                "x": 33,
-                "y": 6.5
-            },
-            "dangerreg": 1,
-            "description": "42 - Ground Position Signal - Shunt P2",
-            "directionindicator": 0,
-            "doublecaution": null,
-            "illumination": "On",
-            "instances": {},
-            "network": "network_1",
-            "nextsignal": null,
-            "ref": "42",
-            "route1reg": null,
-            "route2reg": null,
-            "route3reg": null,
-            "route4reg": null,
-            "route5reg": null,
-            "route6reg": null,
-            "routeset": null,
-            "sigtype": 1,
-            "slave": null
-        },
-        "43": {
-            "address": 42,
-            "aspect": [
-                "danger"
-            ],
-            "availableaspects": 0,
-            "bannerreg": null,
-            "board_index": 1,
-            "callingonreg": 1005,
-            "cautionreg": null,
-            "clearreg": null,
-            "comms_status": "",
-            "conflicting_signals": [
-                "42",
-                "48",
-                "44"
-            ],
-            "coords": {
-                "x": 33,
-                "y": 15.72
-            },
-            "dangerreg": 1001,
-            "description": "43 - Ground Position Signal - Shunt P3",
-            "directionindicator": 0,
-            "doublecaution": null,
-            "illumination": "On",
-            "instances": {},
-            "network": "network_1",
-            "nextsignal": null,
-            "ref": "43",
-            "route1reg": null,
-            "route2reg": null,
-            "route3reg": null,
-            "route4reg": null,
-            "route5reg": null,
-            "route6reg": null,
-            "routeset": null,
-            "sigtype": 0,
-            "slave": null
-        },
-        "44": {
-            "address": 42,
-            "aspect": [
-                "danger"
-            ],
-            "availableaspects": 0,
-            "bannerreg": null,
-            "board_index": 2,
-            "callingonreg": 2005,
-            "cautionreg": null,
-            "clearreg": null,
-            "comms_status": "",
-            "conflicting_signals": [
-                "42",
-                "43",
-                "48"
-            ],
-            "coords": {
-                "x": 33,
-                "y": 19.39
-            },
-            "dangerreg": 2001,
-            "description": "44 - Ground Position Signal - Shunt P4",
-            "directionindicator": 0,
-            "doublecaution": null,
-            "illumination": "On",
-            "instances": {},
-            "network": "network_1",
-            "nextsignal": null,
-            "ref": "44",
-            "route1reg": null,
-            "route2reg": null,
-            "route3reg": null,
-            "route4reg": null,
-            "route5reg": null,
-            "route6reg": null,
-            "routeset": null,
-            "sigtype": 0,
-            "slave": null
-        },
-        "45": {
-            "address": 45,
-            "aspect": [
-                "danger"
-            ],
-            "availableaspects": 0,
-            "bannerreg": null,
-            "board_index": 0,
-            "callingonreg": null,
-            "cautionreg": 2,
-            "clearreg": 4,
-            "comms_status": "",
-            "conflicting_signals": [
-                "47",
-                "46"
-            ],
-            "coords": {
-                "x": 78.82,
-                "y": 28.93
-            },
-            "dangerreg": 1,
-            "description": "45 Yard Exit",
-            "directionindicator": 0,
-            "doublecaution": null,
-            "illumination": "On",
-            "instances": {},
-            "network": "network_1",
-            "nextsignal": "48",
-            "ref": "45",
-            "route1reg": null,
-            "route2reg": null,
-            "route3reg": null,
-            "route4reg": null,
-            "route5reg": null,
-            "route6reg": null,
-            "routeset": null,
-            "sigtype": 1,
-            "slave": null
-        },
-        "46": {
-            "address": 45,
-            "aspect": [
-                "danger"
-            ],
-            "availableaspects": 0,
-            "bannerreg": null,
-            "board_index": 1,
-            "callingonreg": null,
-            "cautionreg": 1002,
-            "clearreg": 1004,
-            "comms_status": "",
-            "conflicting_signals": [
-                "45",
-                "47"
-            ],
-            "coords": {
-                "x": 78.82,
-                "y": 22.54
-            },
-            "dangerreg": 1001,
-            "description": "46 Yard Exit",
-            "directionindicator": 0,
-            "doublecaution": null,
-            "illumination": "On",
-            "instances": {},
-            "network": "network_1",
-            "nextsignal": "48",
-            "ref": "46",
-            "route1reg": null,
-            "route2reg": null,
-            "route3reg": null,
-            "route4reg": null,
-            "route5reg": null,
-            "route6reg": null,
-            "routeset": null,
-            "sigtype": 1,
-            "slave": null
-        },
         "47": {
             "address": 47,
             "aspect": [
@@ -425,14 +421,7 @@
             "cautionreg": 2,
             "clearreg": 4,
             "comms_status": "",
-            "conflicting_signals": [
-                "45",
-                "46"
-            ],
-            "coords": {
-                "x": 78.82,
-                "y": 16.14
-            },
+            "conflicting_signals": ["45", "46"],
             "dangerreg": 1,
             "description": "Outer Home Signal",
             "directionindicator": 0,
@@ -450,7 +439,11 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 1,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 78.82,
+                "y": 16.14
+            }
         },
         "48": {
             "address": 48,
@@ -464,15 +457,7 @@
             "cautionreg": 3002,
             "clearreg": 3004,
             "comms_status": "",
-            "conflicting_signals": [
-                "42",
-                "43",
-                "44"
-            ],
-            "coords": {
-                "x": 49.95,
-                "y": 15.83
-            },
+            "conflicting_signals": ["42", "43", "44"],
             "dangerreg": 3001,
             "description": "Platform home signal",
             "directionindicator": 0,
@@ -490,7 +475,385 @@
             "route6reg": null,
             "routeset": null,
             "sigtype": 1,
-            "slave": null
+            "slave": null,
+            "coords": {
+                "x": 49.95,
+                "y": 15.83
+            }
+        },
+        "42": {
+            "address": 42,
+            "aspect": [
+                "danger"
+            ],
+            "availableaspects": 0,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": 5,
+            "cautionreg": null,
+            "clearreg": null,
+            "comms_status": "",
+            "conflicting_signals": ["48", "43", "44"],
+            "dangerreg": 1,
+            "description": "42 - Ground Position Signal - Shunt P2",
+            "directionindicator": 0,
+            "doublecaution": null,
+            "illumination": "On",
+            "instances": {},
+            "network": "network_1",
+            "nextsignal": null,
+            "ref": "42",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "routeset": null,
+            "sigtype": 1,
+            "slave": null,
+            "coords": {
+                "x": 33.00,
+                "y": 6.50
+            }
+        },
+        "43": {
+            "address": 42,
+            "aspect": [
+                "danger"
+            ],
+            "availableaspects": 0,
+            "bannerreg": null,
+            "board_index": 1,
+            "callingonreg": 1005,
+            "cautionreg": null,
+            "clearreg": null,
+            "comms_status": "",
+            "conflicting_signals": ["42", "48", "44"],
+            "dangerreg": 1001,
+            "description": "43 - Ground Position Signal - Shunt P3",
+            "directionindicator": 0,
+            "doublecaution": null,
+            "illumination": "On",
+            "instances": {},
+            "network": "network_1",
+            "nextsignal": null,
+            "ref": "43",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "routeset": null,
+            "sigtype": 0,
+            "slave": null,
+            "coords": {
+                "x": 33.00,
+                "y": 15.72
+            }
+        },
+        "44": {
+            "address": 42,
+            "aspect": [
+                "danger"
+            ],
+            "availableaspects": 0,
+            "bannerreg": null,
+            "board_index": 2,
+            "callingonreg": 2005,
+            "cautionreg": null,
+            "clearreg": null,
+            "comms_status": "",
+            "conflicting_signals": ["42", "43", "48"],
+            "dangerreg": 2001,
+            "description": "44 - Ground Position Signal - Shunt P4",
+            "directionindicator": 0,
+            "doublecaution": null,
+            "illumination": "On",
+            "instances": {},
+            "network": "network_1",
+            "nextsignal": null,
+            "ref": "44",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "routeset": null,
+            "sigtype": 0,
+            "slave": null,
+            "coords": {
+                "x": 33.00,
+                "y": 19.39
+            }
+        },
+        "45": {
+            "address": 45,
+            "aspect": [
+                "danger"
+            ],
+            "availableaspects": 0,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "comms_status": "",
+            "conflicting_signals": ["47", "46"],
+            "dangerreg": 1,
+            "description": "45 Yard Exit",
+            "directionindicator": 0,
+            "doublecaution": null,
+            "illumination": "On",
+            "instances": {},
+            "network": "network_1",
+            "nextsignal": "48",
+            "ref": "45",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "routeset": null,
+            "sigtype": 1,
+            "slave": null,
+            "coords": {
+                "x": 78.82,
+                "y": 28.93
+            }
+        },
+        "46": {
+            "address": 45,
+            "aspect": [
+                "danger"
+            ],
+            "availableaspects": 0,
+            "bannerreg": null,
+            "board_index": 1,
+            "callingonreg": null,
+            "cautionreg": 1002,
+            "clearreg": 1004,
+            "comms_status": "",
+            "conflicting_signals": ["45", "47"],
+            "dangerreg": 1001,
+            "description": "46 Yard Exit",
+            "directionindicator": 0,
+            "doublecaution": null,
+            "illumination": "On",
+            "instances": {},
+            "network": "network_1",
+            "nextsignal": "48",
+            "ref": "46",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "routeset": null,
+            "sigtype": 1,
+            "slave": null,
+            "coords": {
+                "x": 78.82,
+                "y": 22.54
+            }
+        }
+    },
+    "Plungers": {
+        "P5": {
+            "address": 21,
+            "comms_status": "",
+            "description": "Select Platform 2",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P5",
+            "register": 0,
+            "slave": null,
+            "status": 0,
+            "coords": {
+                "x": 54.23,
+                "y": 18.87
+            }
+        },
+        "P3": {
+            "address": 23,
+            "comms_status": "",
+            "description": "Shunt from Platform 4",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P3",
+            "register": 2,
+            "slave": null,
+            "status": 0,
+            "coords": {
+                "x": 29.94,
+                "y": 24.11
+            }
+        },
+        "P6": {
+            "address": 21,
+            "comms_status": "",
+            "description": "Select Platform 3",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P6",
+            "register": 1,
+            "slave": null,
+            "status": 0,
+            "coords": {
+                "x": 54.23,
+                "y": 21.87
+            }
+        },
+        "P7": {
+            "address": 21,
+            "comms_status": "",
+            "description": "Select Platform 4",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P7",
+            "register": 7,
+            "slave": null,
+            "status": 0,
+            "coords": {
+                "x": 54.23,
+                "y": 24.87
+            }
+        },
+        "P2": {
+            "address": 23,
+            "comms_status": "",
+            "description": "Shunt from Platform 3",
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "ref": "P2",
+            "register": 1,
+            "slave": null,
+            "status": 0,
+            "coords": {
+                "x": 29.94,
+                "y": 12.68
+            }
+        },
+        "P1": {
+            "address": 23,
+            "comms_status": "",
+            "description": "Shunt from Platform 2",
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "ref": "P1",
+            "register": 0,
+            "slave": null,
+            "status": 0,
+            "coords": {
+                "x": 29.94,
+                "y": 6.60
+            }
+        },
+        "P13": {
+            "address": 47,
+            "comms_status": "",
+            "description": "Signal 47 Plunger",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P13",
+            "register": 41,
+            "slave": null,
+            "status": 0,
+            "coords": {
+                "x": 81.86,
+                "y": 19.81
+            }
+        },
+        "P11": {
+            "address": 45,
+            "comms_status": "",
+            "description": "45 Signal Plunger",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P11",
+            "register": 41,
+            "slave": null,
+            "status": 0,
+            "coords": {
+                "x": 81.86,
+                "y": 33.12
+            }
+        },
+        "P12": {
+            "address": 45,
+            "comms_status": "",
+            "description": "46 Signal Plunger",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P12",
+            "register": 42,
+            "slave": null,
+            "status": 0,
+            "coords": {
+                "x": 81.86,
+                "y": 26.10
+            }
+        },
+        "P8": {
+            "address": 22,
+            "comms_status": "",
+            "description": "Select Platform 2",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P8",
+            "register": 0,
+            "slave": null,
+            "status": 0,
+            "coords": {
+                "x": 46.23,
+                "y": 18.87
+            }
+        },
+        "P9": {
+            "address": 22,
+            "comms_status": "",
+            "description": "Select Platform 3",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P9",
+            "register": 1,
+            "slave": null,
+            "status": 0,
+            "coords": {
+                "x": 46.23,
+                "y": 21.87
+            }
+        },
+        "P10": {
+            "address": 22,
+            "comms_status": "",
+            "description": "Select Platform 4",
+            "instances": {},
+            "mode": 1,
+            "network": "network_1",
+            "ref": "P10",
+            "register": 7,
+            "slave": null,
+            "status": 0,
+            "coords": {
+                "x": 46.23,
+                "y": 24.87
+            }
         }
     },
     "Points": {
@@ -498,12 +861,6 @@
             "address": 100,
             "board_index": 0,
             "comms_status": "",
-            "coords": {
-                "dir": "lh",
-                "rotate": 195,
-                "x": 46.55,
-                "y": 16.56
-            },
             "description": "Points Platform 2/3",
             "detection_boolean": false,
             "detection_mode": 1,
@@ -519,18 +876,18 @@
             "section": "S",
             "set_direction": "",
             "slave": null,
-            "unlocked": true
+            "unlocked": true,
+            "coords": {
+                "x": 46.55,
+                "y": 16.56,
+                "rotate": 195,
+                "dir": "lh"
+            }
         },
         "300": {
             "address": 100,
             "board_index": 1,
             "comms_status": "",
-            "coords": {
-                "dir": "lh",
-                "rotate": 180,
-                "x": 39.64,
-                "y": 16.56
-            },
             "description": "Points Platform 3/4",
             "detection_boolean": false,
             "detection_mode": 1,
@@ -546,430 +903,79 @@
             "section": "S",
             "set_direction": "",
             "slave": null,
-            "unlocked": true
-        }
-    },
-    "Plungers": {
-        "P1": {
-            "address": 23,
-            "comms_status": "",
+            "unlocked": true,
             "coords": {
-                "x": 29.94,
-                "y": 6.6
-            },
-            "description": "Shunt from Platform 2",
-            "instances": {},
-            "mode": 0,
-            "network": "network_1",
-            "ref": "P1",
-            "register": 0,
-            "slave": null,
-            "status": 0
-        },
-        "P10": {
-            "address": 22,
-            "comms_status": "",
-            "coords": {
-                "x": 46.23,
-                "y": 24.87
-            },
-            "description": "Select Platform 4",
-            "instances": {},
-            "mode": 1,
-            "network": "network_1",
-            "ref": "P10",
-            "register": 7,
-            "slave": null,
-            "status": 0
-        },
-        "P11": {
-            "address": 45,
-            "comms_status": "",
-            "coords": {
-                "x": 81.86,
-                "y": 33.12
-            },
-            "description": "45 Signal Plunger",
-            "instances": {},
-            "mode": 1,
-            "network": "network_1",
-            "ref": "P11",
-            "register": 41,
-            "slave": null,
-            "status": 0
-        },
-        "P12": {
-            "address": 45,
-            "comms_status": "",
-            "coords": {
-                "x": 81.86,
-                "y": 26.1
-            },
-            "description": "46 Signal Plunger",
-            "instances": {},
-            "mode": 1,
-            "network": "network_1",
-            "ref": "P12",
-            "register": 42,
-            "slave": null,
-            "status": 0
-        },
-        "P13": {
-            "address": 47,
-            "comms_status": "",
-            "coords": {
-                "x": 81.86,
-                "y": 19.81
-            },
-            "description": "Signal 47 Plunger",
-            "instances": {},
-            "mode": 1,
-            "network": "network_1",
-            "ref": "P13",
-            "register": 41,
-            "slave": null,
-            "status": 0
-        },
-        "P2": {
-            "address": 23,
-            "comms_status": "",
-            "coords": {
-                "x": 29.94,
-                "y": 12.68
-            },
-            "description": "Shunt from Platform 3",
-            "instances": {},
-            "mode": 0,
-            "network": "network_1",
-            "ref": "P2",
-            "register": 1,
-            "slave": null,
-            "status": 0
-        },
-        "P3": {
-            "address": 23,
-            "comms_status": "",
-            "coords": {
-                "x": 29.94,
-                "y": 24.11
-            },
-            "description": "Shunt from Platform 4",
-            "instances": {},
-            "mode": 1,
-            "network": "network_1",
-            "ref": "P3",
-            "register": 2,
-            "slave": null,
-            "status": 0
-        },
-        "P5": {
-            "address": 21,
-            "comms_status": "",
-            "coords": {
-                "x": 54.23,
-                "y": 18.87
-            },
-            "description": "Select Platform 2",
-            "instances": {},
-            "mode": 1,
-            "network": "network_1",
-            "ref": "P5",
-            "register": 0,
-            "slave": null,
-            "status": 0
-        },
-        "P6": {
-            "address": 21,
-            "comms_status": "",
-            "coords": {
-                "x": 54.23,
-                "y": 21.87
-            },
-            "description": "Select Platform 3",
-            "instances": {},
-            "mode": 1,
-            "network": "network_1",
-            "ref": "P6",
-            "register": 1,
-            "slave": null,
-            "status": 0
-        },
-        "P7": {
-            "address": 21,
-            "comms_status": "",
-            "coords": {
-                "x": 54.23,
-                "y": 24.87
-            },
-            "description": "Select Platform 4",
-            "instances": {},
-            "mode": 1,
-            "network": "network_1",
-            "ref": "P7",
-            "register": 7,
-            "slave": null,
-            "status": 0
-        },
-        "P8": {
-            "address": 22,
-            "comms_status": "",
-            "coords": {
-                "x": 46.23,
-                "y": 18.87
-            },
-            "description": "Select Platform 2",
-            "instances": {},
-            "mode": 1,
-            "network": "network_1",
-            "ref": "P8",
-            "register": 0,
-            "slave": null,
-            "status": 0
-        },
-        "P9": {
-            "address": 22,
-            "comms_status": "",
-            "coords": {
-                "x": 46.23,
-                "y": 21.87
-            },
-            "description": "Select Platform 3",
-            "instances": {},
-            "mode": 1,
-            "network": "network_1",
-            "ref": "P9",
-            "register": 1,
-            "slave": null,
-            "status": 0
-        }
-    },
-    "Sections": {
-        "A": {
-            "conflictingsections": [],
-            "coords": {
-                "rotate": 22.5,
-                "x": 84.53,
-                "y": 18.83
-            },
-            "dectrig": {
-                "PadB": "non-directional"
-            },
-            "description": "Section A",
-            "homesignal": [],
-            "inctrig": {
-                "PadA": "non-directional"
-            },
-            "instances": {},
-            "mode": "trackcircuit",
-            "occstatus": 0,
-            "previousoccstatus": 0,
-            "protecting_points": {},
-            "ref": "A",
-            "routeset": false,
-            "routestatus": "",
-            "trackcircuits": [
-                "ZZ"
-            ]
-        },
-        "Q": {
-            "conflictingsections": [],
-            "coords": {
-                "rotate": 22.5,
-                "x": 84.53,
-                "y": 18.83
-            },
-            "dectrig": {
-                "A1": "Downcount",
-                "A2": "Upcount"
-            },
-            "description": "Between level crossing and 47",
-            "homesignal": [],
-            "inctrig": {
-                "A1": "Upcount",
-                "A2": "Downcount"
-            },
-            "instances": {},
-            "mode": "axlecounter",
-            "occstatus": 0,
-            "previousoccstatus": 0,
-            "protecting_points": {},
-            "ref": "Q",
-            "routeset": false,
-            "routestatus": ""
-        },
-        "R": {
-            "conflictingsections": [],
-            "coords": {
-                "x": 52.58,
-                "y": 16
-            },
-            "dectrig": {
-                "A2": "Downcount",
-                "A3": "Upcount",
-                "A4": "Downcount"
-            },
-            "description": "Between 47 and 48",
-            "homesignal": [
-                "47",
-                "42",
-                "43",
-                "44",
-                "45",
-                "46"
-            ],
-            "inctrig": {
-                "A2": "Upcount",
-                "A3": "Downcount",
-                "A4": "Upcount"
-            },
-            "instances": {},
-            "mode": "axlecounter",
-            "occstatus": 0,
-            "previousoccstatus": 0,
-            "protecting_points": {},
-            "ref": "R",
-            "routeset": false,
-            "routestatus": ""
-        },
-        "S": {
-            "axle_tolerance": 4,
-            "conflictingsections": [],
-            "coords": {
-                "x": 47.07,
-                "y": 16
-            },
-            "dectrig": {
-                "A10": "Upcount",
-                "A3": "Downcount",
-                "A8": "Upcount",
-                "A9": "Upcount"
-            },
-            "description": "Points Section",
-            "homesignal": [
-                "48",
-                "42",
-                "43",
-                "44"
-            ],
-            "inctrig": {
-                "A10": "Downcount",
-                "A3": "Upcount",
-                "A8": "Downcount",
-                "A9": "Downcount"
-            },
-            "instances": {},
-            "mode": "axlecounter",
-            "occstatus": 1,
-            "previousoccstatus": 0,
-            "protecting_points": {},
-            "ref": "S",
-            "routeset": false,
-            "routestatus": ""
-        },
-        "T": {
-            "conflictingsections": [],
-            "coords": {
-                "x": 21.23,
-                "y": 3.77
-            },
-            "dectrig": {
-                "A5": "Upcount",
-                "A7": "Downcount",
-                "A8": "Downcount"
-            },
-            "description": "Platform 2 Section",
-            "homesignal": [
-                "48"
-            ],
-            "inctrig": {
-                "A7": "Upcount",
-                "A8": "Upcount"
-            },
-            "instances": {},
-            "mode": "axlecounter",
-            "occstatus": 0,
-            "previousoccstatus": 0,
-            "protecting_points": {
-                "48": {
-                    "100": "normal"
-                }
-            },
-            "ref": "T",
-            "routeset": false,
-            "routestatus": ""
-        },
-        "U": {
-            "conflictingsections": [],
-            "coords": {
-                "x": 28.91,
-                "y": 16.35
-            },
-            "dectrig": {
-                "A6": "Upcount",
-                "A9": "Downcount"
-            },
-            "description": "Platform 3 Section",
-            "homesignal": [
-                "48"
-            ],
-            "inctrig": {
-                "A9": "Upcount"
-            },
-            "instances": {},
-            "mode": "axlecounter",
-            "occstatus": 0,
-            "previousoccstatus": 0,
-            "protecting_points": {
-                "48": {
-                    "100": "reverse",
-                    "300": "normal"
-                }
-            },
-            "ref": "U",
-            "routeset": false,
-            "routestatus": ""
-        },
-        "V": {
-            "conflictingsections": [],
-            "coords": {
-                "x": 18.88,
-                "y": 22.64
-            },
-            "dectrig": {
-                "A10": "Downcount"
-            },
-            "description": "Platform 4 Section",
-            "homesignal": [
-                "48"
-            ],
-            "inctrig": {
-                "A10": "Upcount"
-            },
-            "instances": {},
-            "mode": "axlecounter",
-            "occstatus": 0,
-            "previousoccstatus": 0,
-            "protecting_points": {
-                "48": {
-                    "100": "reverse",
-                    "300": "reverse"
-                }
-            },
-            "ref": "V",
-            "routeset": false,
-            "routestatus": ""
+                "x": 39.64,
+                "y": 16.56,
+                "rotate": 180,
+                "dir": "lh"
+            }
         }
     },
     "Routes": {
-        "99": {
-            "ref": "99",
-            "description": "99",
+        "48intoP4(occupied)": {
+            "available": false,
+            "description": "R Into P4 (occupied)",
+            "instances": {},
             "mode": 0,
+            "points": {
+                "100": "reverse",
+                "300": "reverse"
+            },
+            "ref": "48intoP4(occupied)",
             "sections": [
-                "A"
+                "S",
+                "V"
             ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "associated_position_light",
+                    "route4"
+                ]
+            }
+        },
+        "47IntoR": {
+            "available": false,
+            "description": "47 Into R",
+            "instances": {},
+            "mode": 0,
             "points": {},
-            "signals": {}
+            "ref": "47IntoR",
+            "sections": [
+                "R"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "47": [
+                    "clear"
+                ]
+            }
+        },
+        "48intoP4(unoccupied)": {
+            "available": false,
+            "description": "48 into P4 (unoccupied)",
+            "instances": {},
+            "mode": 0,
+            "points": {
+                "100": "reverse",
+                "300": "reverse"
+            },
+            "ref": "48intoP4(unoccupied)",
+            "sections": [
+                "S",
+                "V"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {
+                "48": [
+                    "caution",
+                    "route4"
+                ]
+            }
         },
         "45intoR": {
             "available": false,
@@ -1007,21 +1013,26 @@
                 ]
             }
         },
-        "47IntoR": {
+        "48intoP2(unoccupied)": {
             "available": false,
-            "description": "47 Into R",
+            "description": "48 into Platform 2 (unoccupied)",
             "instances": {},
             "mode": 0,
-            "points": {},
-            "ref": "47IntoR",
+            "points": {
+                "100": "normal",
+                "300": "normal"
+            },
+            "ref": "48intoP2(unoccupied)",
             "sections": [
-                "R"
+                "S",
+                "T"
             ],
             "set": false,
             "setting": false,
             "signals": {
-                "47": [
-                    "clear"
+                "48": [
+                    "caution",
+                    "route2"
                 ]
             }
         },
@@ -1044,29 +1055,6 @@
             "signals": {
                 "48": [
                     "associated_position_light",
-                    "route2"
-                ]
-            }
-        },
-        "48intoP2(unoccupied)": {
-            "available": false,
-            "description": "48 into Platform 2 (unoccupied)",
-            "instances": {},
-            "mode": 0,
-            "points": {
-                "100": "normal",
-                "300": "normal"
-            },
-            "ref": "48intoP2(unoccupied)",
-            "sections": [
-                "S",
-                "T"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "48": [
-                    "caution",
                     "route2"
                 ]
             }
@@ -1114,52 +1102,6 @@
                 "48": [
                     "caution",
                     "route3"
-                ]
-            }
-        },
-        "48intoP4(occupied)": {
-            "available": false,
-            "description": "R Into P4 (occupied)",
-            "instances": {},
-            "mode": 0,
-            "points": {
-                "100": "reverse",
-                "300": "reverse"
-            },
-            "ref": "48intoP4(occupied)",
-            "sections": [
-                "S",
-                "V"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "48": [
-                    "associated_position_light",
-                    "route4"
-                ]
-            }
-        },
-        "48intoP4(unoccupied)": {
-            "available": false,
-            "description": "48 into P4 (unoccupied)",
-            "instances": {},
-            "mode": 0,
-            "points": {
-                "100": "reverse",
-                "300": "reverse"
-            },
-            "ref": "48intoP4(unoccupied)",
-            "sections": [
-                "S",
-                "V"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {
-                "48": [
-                    "caution",
-                    "route4"
                 ]
             }
         },
@@ -1229,20 +1171,6 @@
                 ]
             }
         },
-        "R_only": {
-            "available": false,
-            "description": "Route R only to reserve route",
-            "instances": {},
-            "mode": 0,
-            "points": {},
-            "ref": "R_only",
-            "sections": [
-                "R"
-            ],
-            "set": false,
-            "setting": false,
-            "signals": {}
-        },
         "S_only": {
             "available": false,
             "description": "Dummy to clear S",
@@ -1252,6 +1180,20 @@
             "ref": "S_only",
             "sections": [
                 "S"
+            ],
+            "set": false,
+            "setting": false,
+            "signals": {}
+        },
+        "R_only": {
+            "available": false,
+            "description": "Route R only to reserve route",
+            "instances": {},
+            "mode": 0,
+            "points": {},
+            "ref": "R_only",
+            "sections": [
+                "R"
             ],
             "set": false,
             "setting": false,
@@ -1274,90 +1216,9 @@
                     "caution"
                 ]
             }
-        },
-        "11 to 47": {
-            "ref": "11 to 47",
-            "description": "11 to 47",
-            "mode": 0,
-            "sections": [
-                "A"
-            ],
-            "points": {
-                "100": "reverse"
-            },
-            "signals": {
-                "12": [
-                    "caution",
-                    "clear"
-                ]
-            }
         }
     },
     "Triggers": {
-        "45_yard_exit": {
-            "axlecount": {},
-            "conditions": [
-                "True"
-            ],
-            "description": "Plunger 11 at Signal 45",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P11"
-            ],
-            "priority": 1,
-            "ref": "45_yard_exit",
-            "retain_request": true,
-            "routes_to_cancel": [
-                "46intoR"
-            ],
-            "routes_to_set": [
-                "45intoR"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "stored_request": false,
-            "stored_requests_to_cancel": [
-                "46_yard_exit"
-            ],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "46_yard_exit": {
-            "axlecount": {},
-            "conditions": [
-                "True"
-            ],
-            "description": "Plunger 12 at Signal 46",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P12"
-            ],
-            "priority": 1,
-            "ref": "46_yard_exit",
-            "retain_request": true,
-            "routes_to_cancel": [
-                "45intoR"
-            ],
-            "routes_to_set": [
-                "46intoR"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "stored_request": false,
-            "stored_requests_to_cancel": [
-                "45_yard_exit"
-            ],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
         "47toP2": {
             "axlecount": {},
             "conditions": [
@@ -1370,7 +1231,6 @@
             "plungers": [],
             "priority": 2,
             "ref": "47toP2",
-            "retain_request": 0,
             "routes_to_cancel": [
                 "S_only"
             ],
@@ -1382,6 +1242,7 @@
             "sections_occupied": [
                 "Q"
             ],
+            "retain_request": 0,
             "stored_request": false,
             "stored_requests_to_cancel": [],
             "timer": null,
@@ -1391,9 +1252,7 @@
         },
         "47toP2clear": {
             "axlecount": {},
-            "conditions": [
-                "True"
-            ],
+            "conditions": ["True"],
             "description": "47 to Plat 2 based on Q occupancy",
             "instances": {},
             "lever": null,
@@ -1401,7 +1260,6 @@
             "plungers": [],
             "priority": 3.1,
             "ref": "47toP2",
-            "retain_request": 0,
             "routes_to_cancel": [
                 "S_only"
             ],
@@ -1413,6 +1271,7 @@
             "sections_occupied": [
                 "Q"
             ],
+            "retain_request": 0,
             "stored_request": false,
             "stored_requests_to_cancel": [],
             "timer": null,
@@ -1432,7 +1291,6 @@
             "plungers": [],
             "priority": 2,
             "ref": "47toP3",
-            "retain_request": 0,
             "routes_to_cancel": [
                 "S_only"
             ],
@@ -1444,6 +1302,7 @@
             "sections_occupied": [
                 "Q"
             ],
+            "retain_request": 0,
             "stored_request": false,
             "stored_requests_to_cancel": [],
             "timer": null,
@@ -1453,9 +1312,7 @@
         },
         "47toP3clear": {
             "axlecount": {},
-            "conditions": [
-                "True"
-            ],
+            "conditions": ["True"],
             "description": "47 to Plat 3 based on Q occupancy",
             "instances": {},
             "lever": null,
@@ -1463,7 +1320,6 @@
             "plungers": [],
             "priority": 3,
             "ref": "47toP3",
-            "retain_request": 0,
             "routes_to_cancel": [
                 "S_only"
             ],
@@ -1475,6 +1331,7 @@
             "sections_occupied": [
                 "Q"
             ],
+            "retain_request": 0,
             "stored_request": false,
             "stored_requests_to_cancel": [],
             "timer": null,
@@ -1484,9 +1341,7 @@
         },
         "47toP4": {
             "axlecount": {},
-            "conditions": [
-                "True"
-            ],
+            "conditions": ["True"],
             "description": "47 to Plat 4 For use in web interface only",
             "instances": {},
             "lever": null,
@@ -1494,7 +1349,6 @@
             "plungers": [],
             "priority": 1,
             "ref": "47toP4",
-            "retain_request": 0,
             "routes_to_cancel": [
                 "S_only"
             ],
@@ -1504,6 +1358,7 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
+            "retain_request": 0,
             "stored_request": false,
             "stored_requests_to_cancel": [],
             "timer": null,
@@ -1513,9 +1368,7 @@
         },
         "47toP4clear": {
             "axlecount": {},
-            "conditions": [
-                "True"
-            ],
+            "conditions": ["True"],
             "description": "47 to Plat 4 For use in web interface only",
             "instances": {},
             "lever": null,
@@ -1523,7 +1376,6 @@
             "plungers": [],
             "priority": 2,
             "ref": "47toP4",
-            "retain_request": 0,
             "routes_to_cancel": [
                 "S_only"
             ],
@@ -1533,6 +1385,7 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
+            "retain_request": 0,
             "stored_request": false,
             "stored_requests_to_cancel": [],
             "timer": null,
@@ -1540,419 +1393,57 @@
             "trigger_special_actions": [],
             "triggered": false
         },
-        "Cancel_P2_shunt": {
-            "axlecount": {
-                "A8": "upcount"
-            },
-            "conditions": [
-                "True"
-            ],
-            "description": "Cancel P2 Shunt if train arrives into P2",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [],
-            "priority": 10,
-            "ref": "Cancel_P2_shunt",
-            "retain_request": 0,
-            "routes_to_cancel": [],
-            "routes_to_set": [],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "stored_request": false,
-            "stored_requests_to_cancel": [
-                "ShuntP2"
-            ],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "Cancel_P3_shunt": {
-            "axlecount": {
-                "A9": "upcount"
-            },
-            "conditions": [
-                "True"
-            ],
-            "description": "Cancel P3 Shunt if train arrives into P3",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [],
-            "priority": 10,
-            "ref": "Cancel_P3_shunt",
-            "retain_request": 0,
-            "routes_to_cancel": [],
-            "routes_to_set": [],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "stored_request": false,
-            "stored_requests_to_cancel": [
-                "ShuntP3"
-            ],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "Cancel_P4_shunt": {
-            "axlecount": {
-                "A10": "upcount"
-            },
-            "conditions": [
-                "True"
-            ],
-            "description": "Cancel P4 Shunt if train arrives into P2",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [],
-            "priority": 10,
-            "ref": "Cancel_P4_shunt",
-            "retain_request": 0,
-            "routes_to_cancel": [],
-            "routes_to_set": [],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "stored_request": false,
-            "stored_requests_to_cancel": [
-                "ShuntP4"
-            ],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "Clear_S": {
-            "axlecount": {},
-            "conditions": [
-                "Section.instances[\"S\"].occstatus != 0"
-            ],
-            "description": "Clear S when using plunger 8,9 or 10",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P8",
-                "P9",
-                "P10"
-            ],
-            "priority": 10,
-            "ref": "Clear_S",
-            "retain_request": 0,
-            "routes_to_cancel": [
-                "48intoP4(occupied)",
-                "47IntoR",
-                "48intoP4(unoccupied)",
-                "45intoR",
-                "46intoR",
-                "48intoP2(unoccupied)",
-                "48intoP2(occupied)",
-                "48intoP3(occupied)",
-                "48intoP3(unoccupied)",
-                "P2shunt",
-                "P3shunt",
-                "P4shunt",
-                "S_only",
-                "R_only",
-                "Startup"
-            ],
-            "routes_to_set": [],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "stored_request": false,
-            "stored_requests_to_cancel": [],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [
-                "Section.instances[\"S\"].occstatus = 0",
-                "Point.instances[\"100\"].unlocked = True",
-                "Point.instances[\"300\"].unlocked = True"
-            ],
-            "triggered": false
-        },
-        "P10cleartrig": {
-            "axlecount": {},
-            "conditions": [
-                "Section.instances[\"V\"].occstatus == 0"
-            ],
-            "description": "Plunger P10 Trigger",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P10"
-            ],
-            "priority": 5,
-            "ref": "P10trig",
-            "retain_request": 0,
-            "routes_to_cancel": [
-                "48intoP4(occupied)",
-                "48intoP4(unoccupied)",
-                "48intoP2(unoccupied)",
-                "48intoP2(occupied)",
-                "48intoP3(occupied)",
-                "48intoP3(unoccupied)",
-                "P4shunt",
-                "P3shunt",
-                "P2shunt",
-                "Startup",
-                "S_only"
-            ],
-            "routes_to_set": [
-                "48intoP4(unoccupied)"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "stored_request": false,
-            "stored_requests_to_cancel": [],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "P10trig": {
-            "axlecount": {},
-            "conditions": [
-                "Section.instances[\"V\"].occstatus != 0"
-            ],
-            "description": "Plunger P10 Trigger",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P10"
-            ],
-            "priority": 10,
-            "ref": "P10trig",
-            "retain_request": 0,
-            "routes_to_cancel": [
-                "48intoP4(occupied)",
-                "48intoP4(unoccupied)",
-                "48intoP2(unoccupied)",
-                "48intoP2(occupied)",
-                "48intoP3(occupied)",
-                "48intoP3(unoccupied)",
-                "P4shunt",
-                "P3shunt",
-                "P2shunt",
-                "Startup",
-                "S_only"
-            ],
-            "routes_to_set": [
-                "48intoP4(occupied)"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "stored_request": false,
-            "stored_requests_to_cancel": [],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "P13_clear_all": {
+        "46_yard_exit": {
             "axlecount": {},
             "conditions": [
                 "True"
             ],
-            "description": "P13 Clear all sections and routes",
+            "description": "Plunger 12 at Signal 46",
             "instances": {},
             "lever": null,
             "override": false,
             "plungers": [
-                "P13"
+                "P12"
             ],
-            "priority": 0,
-            "ref": "P13_clear_all",
-            "retain_request": 0,
-            "routes_to_cancel": [
-                "48intoP4(occupied)",
-                "48intoP4(unoccupied)",
-                "45intoR",
-                "46intoR",
-                "47IntoR",
-                "48intoP2(unoccupied)",
-                "48intoP2(occupied)",
-                "48intoP3(occupied)",
-                "48intoP3(unoccupied)",
-                "P2shunt",
-                "P3shunt",
-                "P4shunt",
-                "S_only",
-                "R_only",
-                "Startup"
-            ],
-            "routes_to_set": [],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "stored_request": false,
-            "stored_requests_to_cancel": [],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [
-                "Section.instances[\"Q\"].occstatus = 0",
-                "Section.instances[\"R\"].occstatus = 0",
-                "Section.instances[\"S\"].occstatus = 0"
-            ],
-            "triggered": false
-        },
-        "P8_clear_trig": {
-            "axlecount": {},
-            "conditions": [
-                "Section.instances[\"T\"].occstatus == 0"
-            ],
-            "description": "Plunger P8 Trigger",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P8"
-            ],
-            "priority": 5,
-            "ref": "P8trig",
-            "retain_request": 0,
-            "routes_to_cancel": [
-                "48intoP4(occupied)",
-                "48intoP4(unoccupied)",
-                "48intoP2(unoccupied)",
-                "48intoP2(occupied)",
-                "48intoP3(occupied)",
-                "48intoP3(unoccupied)",
-                "P4shunt",
-                "P3shunt",
-                "P2shunt",
-                "Startup",
-                "S_only"
-            ],
+            "priority": 1,
+            "ref": "46_yard_exit",
+            "routes_to_cancel": ["45intoR"],
             "routes_to_set": [
-                "48intoP2(unoccupied)"
+                "46intoR"
             ],
             "sections_clear": null,
             "sections_occupied": [],
+            "retain_request": true,
             "stored_request": false,
-            "stored_requests_to_cancel": [],
+            "stored_requests_to_cancel": ["45_yard_exit"],
             "timer": null,
             "trigger_expressions": [],
             "trigger_special_actions": [],
             "triggered": false
         },
-        "P8trig": {
+        "45_yard_exit": {
             "axlecount": {},
             "conditions": [
-                "Section.instances[\"T\"].occstatus != 0"
+                "True"
             ],
-            "description": "Plunger P8 Trigger",
+            "description": "Plunger 11 at Signal 45",
             "instances": {},
             "lever": null,
             "override": false,
             "plungers": [
-                "P8"
+                "P11"
             ],
-            "priority": 5,
-            "ref": "P8trig",
-            "retain_request": 0,
-            "routes_to_cancel": [
-                "48intoP4(occupied)",
-                "48intoP4(unoccupied)",
-                "48intoP2(unoccupied)",
-                "48intoP2(occupied)",
-                "48intoP3(occupied)",
-                "48intoP3(unoccupied)",
-                "P4shunt",
-                "P3shunt",
-                "P2shunt",
-                "Startup",
-                "S_only"
-            ],
+            "priority": 1,
+            "ref": "45_yard_exit",
+            "routes_to_cancel": ["46intoR"],
             "routes_to_set": [
-                "48intoP2(occupied)"
+                "45intoR"
             ],
             "sections_clear": null,
             "sections_occupied": [],
+            "retain_request": true,
             "stored_request": false,
-            "stored_requests_to_cancel": [],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "P9cleartrig": {
-            "axlecount": {},
-            "conditions": [
-                "Section.instances[\"U\"].occstatus == 0"
-            ],
-            "description": "Plunger P9 Trigger",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P9"
-            ],
-            "priority": 5,
-            "ref": "P9trig",
-            "retain_request": 0,
-            "routes_to_cancel": [
-                "48intoP4(occupied)",
-                "48intoP4(unoccupied)",
-                "48intoP2(unoccupied)",
-                "48intoP2(occupied)",
-                "48intoP3(occupied)",
-                "48intoP3(unoccupied)",
-                "P4shunt",
-                "P3shunt",
-                "P2shunt",
-                "Startup",
-                "S_only"
-            ],
-            "routes_to_set": [
-                "48intoP3(unoccupied)"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "stored_request": false,
-            "stored_requests_to_cancel": [],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "P9trig": {
-            "axlecount": {},
-            "conditions": [
-                "Section.instances[\"U\"].occstatus != 0"
-            ],
-            "description": "Plunger P9 Trigger",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P9"
-            ],
-            "priority": 5,
-            "ref": "P9trig",
-            "retain_request": 0,
-            "routes_to_cancel": [
-                "48intoP4(occupied)",
-                "48intoP4(unoccupied)",
-                "48intoP2(unoccupied)",
-                "48intoP2(occupied)",
-                "48intoP3(occupied)",
-                "48intoP3(unoccupied)",
-                "P4shunt",
-                "P3shunt",
-                "P2shunt",
-                "Startup",
-                "S_only"
-            ],
-            "routes_to_set": [
-                "48intoP3(occupied)"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "stored_request": false,
-            "stored_requests_to_cancel": [],
+            "stored_requests_to_cancel": ["46_yard_exit"],
             "timer": null,
             "trigger_expressions": [],
             "trigger_special_actions": [],
@@ -1972,7 +1463,6 @@
             ],
             "priority": 5,
             "ref": "RintoP2",
-            "retain_request": 0,
             "routes_to_cancel": [
                 "48intoP4(occupied)",
                 "47IntoR",
@@ -1995,6 +1485,7 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
+            "retain_request": 0,
             "stored_request": false,
             "stored_requests_to_cancel": [],
             "timer": null,
@@ -2016,7 +1507,6 @@
             ],
             "priority": 5,
             "ref": "RintoP2",
-            "retain_request": 0,
             "routes_to_cancel": [
                 "48intoP4(occupied)",
                 "47IntoR",
@@ -2039,6 +1529,7 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
+            "retain_request": 0,
             "stored_request": false,
             "stored_requests_to_cancel": [],
             "timer": null,
@@ -2060,7 +1551,6 @@
             ],
             "priority": 5,
             "ref": "RintoP3",
-            "retain_request": 0,
             "routes_to_cancel": [
                 "48intoP4(occupied)",
                 "47IntoR",
@@ -2083,6 +1573,7 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
+            "retain_request": 0,
             "stored_request": false,
             "stored_requests_to_cancel": [],
             "timer": null,
@@ -2104,7 +1595,6 @@
             ],
             "priority": 5,
             "ref": "RintoP3",
-            "retain_request": 0,
             "routes_to_cancel": [
                 "48intoP4(occupied)",
                 "47IntoR",
@@ -2127,6 +1617,7 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
+            "retain_request": 0,
             "stored_request": false,
             "stored_requests_to_cancel": [],
             "timer": null,
@@ -2148,7 +1639,6 @@
             ],
             "priority": 5,
             "ref": "RintoP4",
-            "retain_request": 0,
             "routes_to_cancel": [
                 "48intoP4(occupied)",
                 "47IntoR",
@@ -2171,6 +1661,7 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
+            "retain_request": 0,
             "stored_request": false,
             "stored_requests_to_cancel": [],
             "timer": null,
@@ -2192,7 +1683,6 @@
             ],
             "priority": 5,
             "ref": "RintoP4",
-            "retain_request": 0,
             "routes_to_cancel": [
                 "48intoP4(occupied)",
                 "47IntoR",
@@ -2215,6 +1705,7 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
+            "retain_request": 0,
             "stored_request": false,
             "stored_requests_to_cancel": [],
             "timer": null,
@@ -2222,85 +1713,9 @@
             "trigger_special_actions": [],
             "triggered": false
         },
-        "ShuntP2": {
-            "axlecount": {},
-            "conditions": [
-                "True"
-            ],
-            "description": "Shunt from P2",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P1"
-            ],
-            "priority": 3,
-            "ref": "ShuntP2",
-            "retain_request": 1,
-            "routes_to_cancel": [
-                "P2shunt",
-                "P3shunt",
-                "P4shunt",
-                "R_only",
-                "S_only"
-            ],
-            "routes_to_set": [
-                "P2shunt"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "stored_request": false,
-            "stored_requests_to_cancel": [
-                "ShuntP3",
-                "ShuntP4"
-            ],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "ShuntP3": {
-            "axlecount": {},
-            "conditions": [
-                "True"
-            ],
-            "description": "Shunt from P3",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P2"
-            ],
-            "priority": 3,
-            "ref": "ShuntP3",
-            "retain_request": 1,
-            "routes_to_cancel": [
-                "P2shunt",
-                "P3shunt",
-                "P4shunt",
-                "R_only",
-                "S_only"
-            ],
-            "routes_to_set": [
-                "P3shunt"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "stored_request": false,
-            "stored_requests_to_cancel": [
-                "ShuntP2",
-                "ShuntP4"
-            ],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
         "ShuntP4": {
             "axlecount": {},
-            "conditions": [
-                "True"
-            ],
+            "conditions": ["True"],
             "description": "Shunt from P4",
             "instances": {},
             "lever": null,
@@ -2310,7 +1725,6 @@
             ],
             "priority": 3,
             "ref": "ShuntP4",
-            "retain_request": 1,
             "routes_to_cancel": [
                 "P2shunt",
                 "P3shunt",
@@ -2323,6 +1737,7 @@
             ],
             "sections_clear": null,
             "sections_occupied": [],
+            "retain_request": 1,
             "stored_request": false,
             "stored_requests_to_cancel": [
                 "ShuntP2",
@@ -2331,6 +1746,122 @@
             "timer": null,
             "trigger_expressions": [],
             "trigger_special_actions": [],
+            "triggered": false
+        },
+        "ShuntP3": {
+            "axlecount": {},
+            "conditions": ["True"],
+            "description": "Shunt from P3",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P2"
+            ],
+            "priority": 3,
+            "ref": "ShuntP3",
+            "routes_to_cancel": [
+                "P2shunt",
+                "P3shunt",
+                "P4shunt",
+                "R_only",
+                "S_only"
+            ],
+            "routes_to_set": [
+                "P3shunt"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": 1,
+            "stored_request": false,
+            "stored_requests_to_cancel": [
+                "ShuntP2",
+                "ShuntP4"
+            ],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "ShuntP2": {
+            "axlecount": {},
+            "conditions": ["True"],
+            "description": "Shunt from P2",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P1"
+            ],
+            "priority": 3,
+            "ref": "ShuntP2",
+            "routes_to_cancel": [
+                "P2shunt",
+                "P3shunt",
+                "P4shunt",
+                "R_only",
+                "S_only"
+            ],
+            "routes_to_set": [
+                "P2shunt"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": 1,
+            "stored_request": false,
+            "stored_requests_to_cancel": [
+                "ShuntP3",
+                "ShuntP4"
+            ],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "P13_clear_all": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "P13 Clear all sections and routes",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P13"
+            ],
+            "priority": 0,
+            "ref": "P13_clear_all",
+            "routes_to_cancel": [
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "45intoR",
+                "46intoR",
+                "47IntoR",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P2shunt",
+                "P3shunt",
+                "P4shunt",
+                "S_only",
+                "R_only",
+                "Startup"
+            ],
+            "routes_to_set": [],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": 0,
+            "stored_request": false,
+            "stored_requests_to_cancel": [],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [
+                "Section.instances[\"Q\"].occstatus = 0",
+                "Section.instances[\"R\"].occstatus = 0",
+                "Section.instances[\"S\"].occstatus = 0"
+            ],
             "triggered": false
         },
         "Startup": {
@@ -2345,20 +1876,379 @@
             "plungers": [],
             "priority": 0,
             "ref": "Startup",
-            "retain_request": 0,
             "routes_to_cancel": [],
             "routes_to_set": [
                 "Startup"
             ],
             "sections_clear": null,
             "sections_occupied": [],
+            "retain_request": 0,
             "stored_request": false,
             "stored_requests_to_cancel": [],
             "timer": null,
             "trigger_expressions": [],
             "trigger_special_actions": [],
             "triggered": false
+        },
+        "P8trig": {
+            "axlecount": {},
+            "conditions": [
+                "Section.instances[\"T\"].occstatus != 0"
+            ],
+            "description": "Plunger P8 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P8"
+            ],
+            "priority": 5,
+            "ref": "P8trig",
+            "routes_to_cancel": [
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
+                "Startup",
+                "S_only"
+            ],
+            "routes_to_set": [
+                "48intoP2(occupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": 0,
+            "stored_request": false,
+            "stored_requests_to_cancel": [],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "P8_clear_trig": {
+            "axlecount": {},
+            "conditions": [
+                "Section.instances[\"T\"].occstatus == 0"
+            ],
+            "description": "Plunger P8 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P8"
+            ],
+            "priority": 5,
+            "ref": "P8trig",
+            "routes_to_cancel": [
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
+                "Startup",
+                "S_only"
+            ],
+            "routes_to_set": [
+                "48intoP2(unoccupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": 0,
+            "stored_request": false,
+            "stored_requests_to_cancel": [],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "P9trig": {
+            "axlecount": {},
+            "conditions": [
+                "Section.instances[\"U\"].occstatus != 0"
+            ],
+            "description": "Plunger P9 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P9"
+            ],
+            "priority": 5,
+            "ref": "P9trig",
+            "routes_to_cancel": [
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
+                "Startup",
+                "S_only"
+            ],
+            "routes_to_set": [
+                "48intoP3(occupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": 0,
+            "stored_request": false,
+            "stored_requests_to_cancel": [],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "P9cleartrig": {
+            "axlecount": {},
+            "conditions": [
+                "Section.instances[\"U\"].occstatus == 0"
+            ],
+            "description": "Plunger P9 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P9"
+            ],
+            "priority": 5,
+            "ref": "P9trig",
+            "routes_to_cancel": [
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
+                "Startup",
+                "S_only"
+            ],
+            "routes_to_set": [
+                "48intoP3(unoccupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": 0,
+            "stored_request": false,
+            "stored_requests_to_cancel": [],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "P10trig": {
+            "axlecount": {},
+            "conditions": [
+                "Section.instances[\"V\"].occstatus != 0"
+            ],
+            "description": "Plunger P10 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P10"
+            ],
+            "priority": 10,
+            "ref": "P10trig",
+            "routes_to_cancel": [
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
+                "Startup",
+                "S_only"
+            ],
+            "routes_to_set": [
+                "48intoP4(occupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": 0,
+            "stored_request": false,
+            "stored_requests_to_cancel": [],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "P10cleartrig": {
+            "axlecount": {},
+            "conditions": [
+                "Section.instances[\"V\"].occstatus == 0"
+            ],
+            "description": "Plunger P10 Trigger",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P10"
+            ],
+            "priority": 5,
+            "ref": "P10trig",
+            "routes_to_cancel": [
+                "48intoP4(occupied)",
+                "48intoP4(unoccupied)",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P4shunt",
+                "P3shunt",
+                "P2shunt",
+                "Startup",
+                "S_only"
+            ],
+            "routes_to_set": [
+                "48intoP4(unoccupied)"
+            ],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": 0,
+            "stored_request": false,
+            "stored_requests_to_cancel": [],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "Clear_S": {
+            "axlecount": {},
+            "conditions": [
+                "Section.instances[\"S\"].occstatus != 0"
+            ],
+            "description": "Clear S when using plunger 8,9 or 10",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [
+                "P8",
+                "P9",
+                "P10"
+            ],
+            "priority": 10,
+            "ref": "Clear_S",
+            "routes_to_cancel": [
+                "48intoP4(occupied)",
+                "47IntoR",
+                "48intoP4(unoccupied)",
+                "45intoR",
+                "46intoR",
+                "48intoP2(unoccupied)",
+                "48intoP2(occupied)",
+                "48intoP3(occupied)",
+                "48intoP3(unoccupied)",
+                "P2shunt",
+                "P3shunt",
+                "P4shunt",
+                "S_only",
+                "R_only",
+                "Startup"
+            ],
+            "routes_to_set": [],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": 0,
+            "stored_request": false,
+            "stored_requests_to_cancel": [],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [
+                "Section.instances[\"S\"].occstatus = 0",
+                "Point.instances[\"100\"].unlocked = True",
+                "Point.instances[\"300\"].unlocked = True"
+            ],
+            "triggered": false
+        },
+        "Cancel_P2_shunt": {
+            "axlecount": {"A8": "upcount"},
+            "conditions": [
+                "True"
+            ],
+            "description": "Cancel P2 Shunt if train arrives into P2",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [],
+            "priority": 10,
+            "ref": "Cancel_P2_shunt",
+            "routes_to_cancel": [],
+            "routes_to_set": [],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": 0,
+            "stored_request": false,
+            "stored_requests_to_cancel": ["ShuntP2"],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "Cancel_P3_shunt": {
+            "axlecount": {"A9": "upcount"},
+            "conditions": [
+                "True"
+            ],
+            "description": "Cancel P3 Shunt if train arrives into P3",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [],
+            "priority": 10,
+            "ref": "Cancel_P3_shunt",
+            "routes_to_cancel": [],
+            "routes_to_set": [],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": 0,
+            "stored_request": false,
+            "stored_requests_to_cancel": ["ShuntP3"],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
+        },
+        "Cancel_P4_shunt": {
+            "axlecount": {"A10": "upcount"},
+            "conditions": [
+                "True"
+            ],
+            "description": "Cancel P4 Shunt if train arrives into P2",
+            "instances": {},
+            "lever": null,
+            "override": false,
+            "plungers": [],
+            "priority": 10,
+            "ref": "Cancel_P4_shunt",
+            "routes_to_cancel": [],
+            "routes_to_set": [],
+            "sections_clear": null,
+            "sections_occupied": [],
+            "retain_request": 0,
+            "stored_request": false,
+            "stored_requests_to_cancel": ["ShuntP4"],
+            "timer": null,
+            "trigger_expressions": [],
+            "trigger_special_actions": [],
+            "triggered": false
         }
-    },
-    "TrackCircuits": {}
+    }
 }

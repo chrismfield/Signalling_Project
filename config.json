@@ -1,6 +1,6 @@
 {
     "axle_tolerance": 4,
-    "layoutDB": "default.json",
+    "layoutDB": "Web_Interface/web_infrastructure_editor/WDSME.json",
     "network_ports":
     {
         "network_1": "COM6",
