@@ -1,8 +1,10 @@
 import os
 import json
 from json import JSONDecodeError
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, Blueprint, Response, stream_with_context
 import sys, os, glob
+import subprocess
+import time
 
 try:
     from serial.tools import list_ports
@@ -18,6 +20,81 @@ DEFAULT_FILE  = "default.json"
 CONFIG_FILE   = "config.json"
 MAPPING_FILE  = "function_to_coil_mapping.json"
 
+def _stream_journal(unit: str, lines: int, priority: str | None, grep: str | None):
+    """
+    Stream journalctl output as Server-Sent Events (SSE).
+    Equivalent of: journalctl -u <unit> -n <lines> -f -o cat [-p <priority>]
+    """
+    cmd = ["journalctl", "--unit", unit, "--no-pager", "-f", "-n", str(lines), "-o", "cat"]
+    if priority:
+        cmd.extend(["-p", priority])  # debug | info | warning | err | crit | alert | emerg
+
+    proc = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+        universal_newlines=True,
+    )
+
+    last_heartbeat = time.time()
+
+    def cleanup():
+        if proc and proc.poll() is None:
+            try:
+                proc.terminate()
+                try:
+                    proc.wait(timeout=1.0)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+            except Exception:
+                pass
+
+    try:
+        if proc.stdout is None:
+            yield "event: error\ndata: Failed to open journalctl\n\n"
+            cleanup()
+            return
+
+        for raw in proc.stdout:
+            line = raw.rstrip("\n")
+            if grep and grep not in line:
+                # skip
+                pass
+            else:
+                yield f"data: {line}\n\n"
+
+            # keep-alive heartbeat every ~15s
+            now = time.time()
+            if now - last_heartbeat > 15:
+                last_heartbeat = now
+                yield f": ping {int(now)}\n\n"  # SSE comment line
+        rc = proc.poll()
+        yield f"event: done\ndata: journalctl exited with code {rc}\n\n"
+    finally:
+        cleanup()
+
+@app.route("/logs")
+def logs_index():
+    unit = request.args.get("unit", os.environ.get("DEFAULT_UNIT", "interlocking.service"))
+    lines = int(request.args.get("lines", 200))
+    return render_template("logs.html", unit=unit, lines=lines)
+
+@app.route("/logs/stream")
+def logs_stream():
+    unit = request.args.get("unit", os.environ.get("DEFAULT_UNIT", "interlocking.service"))
+    lines = int(request.args.get("lines", 200))
+    priority = request.args.get("priority")  # e.g. info, warning, err
+    grep = request.args.get("grep")
+    generator = stream_with_context(_stream_journal(unit, lines, priority, grep))
+    headers = {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no",
+        "Connection": "keep-alive",
+    }
+    return Response(generator, headers=headers)
 
 def _list_serial_ports():
     # 1) Prefer pyserial for robust cross-platform listing
@@ -129,6 +206,15 @@ def diagnostics():
 @app.route("/graphic")
 def graphic():
     return render_template("graphic.html")
+
+@app.route("/non-graphic")
+def non_graphic():
+    return render_template("non-graphic.html")
+
+@app.route("/mqtt")
+def mqtt_page():
+    return render_template("mqtt.html", title="MQTT Errors")
+
 
 # Route to serve the JSON file
 @app.route("/routes-data")

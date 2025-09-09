@@ -181,7 +181,8 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                         next_signal_MPA = True
                 if next_signal_MPA:
                     try:
-                        signal.slave.write_bit(signal.dangerreg, 0)
+                        if signal.dangerreg: # only set danger if there is a danger aspect to set
+                            signal.slave.write_bit(signal.dangerreg, 0)
                         if signal.cautionreg:  # only turn off caution reg if there is a caution aspect to turn off
                             signal.slave.write_bit(signal.cautionreg, 0)
                         if signal.callingonreg:
