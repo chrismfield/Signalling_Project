@@ -744,33 +744,6 @@
         }
     },
     "Sections": {
-        "A": {
-            "conflictingsections": [],
-            "coords": {
-                "rotate": 22.5,
-                "x": 84.53,
-                "y": 18.83
-            },
-            "dectrig": {
-                "PadB": "non-directional"
-            },
-            "description": "Section A",
-            "homesignal": [],
-            "inctrig": {
-                "PadA": "non-directional"
-            },
-            "instances": {},
-            "mode": "trackcircuit",
-            "occstatus": 0,
-            "previousoccstatus": 0,
-            "protecting_points": {},
-            "ref": "A",
-            "routeset": false,
-            "routestatus": "",
-            "trackcircuits": [
-                "ZZ"
-            ]
-        },
         "Q": {
             "conflictingsections": [],
             "coords": {
@@ -961,16 +934,6 @@
         }
     },
     "Routes": {
-        "99": {
-            "ref": "99",
-            "description": "99",
-            "mode": 0,
-            "sections": [
-                "A"
-            ],
-            "points": {},
-            "signals": {}
-        },
         "45intoR": {
             "available": false,
             "description": "Yard 45 Signal into R",
@@ -1272,23 +1235,6 @@
             "signals": {
                 "47": [
                     "caution"
-                ]
-            }
-        },
-        "11 to 47": {
-            "ref": "11 to 47",
-            "description": "11 to 47",
-            "mode": 0,
-            "sections": [
-                "A"
-            ],
-            "points": {
-                "100": "reverse"
-            },
-            "signals": {
-                "12": [
-                    "caution",
-                    "clear"
                 ]
             }
         }

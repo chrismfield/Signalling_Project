@@ -1,7 +1,9 @@
-{% extends "base.html" %}
-{% block head %}
-    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/paho-mqtt.js') }}"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Merley Arrivals Control</title>
+    <script src="paho-mqtt.js"></script>
     <style>
       body { font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; margin: 16px; }
       section { margin-block: 20px; }
@@ -14,9 +16,9 @@
       .inline-help { color: #666; font-size: 0.9rem; margin-left: 8px; }
       .muted { color: #666; }
     </style>
-{% endblock %}
+</head>
+<body>
 
-{% block content %}
 <!-- Train headcode command UI -->
 <section id="train-headcode">
   <h2>Train Headcode Command</h2>
@@ -28,7 +30,7 @@
   </div>
 </section>
 
-<!-- Dynamic list of trains -->
+<!-- Dynamic list of trains (from report/train aggregate) -->
 <section id="trains">
   <h2>Trains</h2>
   <p class="muted">Populated from MQTT topic <code>report/train</code>.</p>
@@ -49,37 +51,10 @@
   </table>
 </section>
 
-<!-- MQTT Errors -->
-<hr style="margin:24px 0">
-
-<section id="mqtt-errors">
-  <h2>MQTT Errors</h2>
-  <p class="muted">Showing messages where topic or payload contains “error” (case-insensitive). Rows are cleared automatically when payload is “OK”.</p>
-  <table style="width:100%; border-collapse:collapse;">
-    <thead>
-      <tr>
-        <th style="text-align:left; padding:6px 10px; border-bottom:1px solid #eee; width:170px;">Time</th>
-        <th style="text-align:left; padding:6px 10px; border-bottom:1px solid #eee;">Topic</th>
-        <th style="text-align:left; padding:6px 10px; border-bottom:1px solid #eee;">Payload</th>
-      </tr>
-    </thead>
-    <tbody id="errorsTbody"></tbody>
-  </table>
-</section>
-
-
-
-{% endblock %}
-
-{% block scripts %}
 <script>
-  const broker = window.location.hostname;
+  const broker = "127.0.0.1";
   const clientId = 'webpage-client-' + Math.random().toString(16).slice(2,8);
   var client = new Paho.Client(broker, Number(9001), clientId);
-  const ERROR_MAX_ROWS = 500;        // keep last 500 to avoid runaway DOM
-  const errorRegex = /error/i;       // case-insensitive "error"
-  const okRegex    = /ok/i;       // match "OK" (any case)
-  const errorRowsByTopic = new Map(); // Track errors by topic so we can clear them later
 
   client.onConnectionLost = onConnectionLost;
   client.onMessageArrived = onMessageArrived;
@@ -152,53 +127,14 @@
     });
   }
 
-function upsertErrorRow(ts, topic, payload){
-  const tbody = document.getElementById('errorsTbody');
-  if (!tbody) return;
+  function onMessageArrived(message) {
+    var topic = message.destinationName || '';
+    var payload = message.payloadString || '';
 
-  let tr = errorRowsByTopic.get(topic);
-  if (!tr) {
-    tr = tbody.insertRow(0);
-    tr.dataset.topic = topic;
-    tr.insertCell(0); tr.insertCell(1); tr.insertCell(2);
-    tr.style.background = 'rgba(255,0,0,0.06)';
-    errorRowsByTopic.set(topic, tr);
-  }
-
-  tr.cells[0].textContent = ts.toLocaleString();
-  tr.cells[1].textContent = topic;
-  tr.cells[2].textContent = payload;
-}
-
-function removeErrorRow(topic){
-  const tr = errorRowsByTopic.get(topic);
-  if (tr && tr.parentNode) tr.parentNode.removeChild(tr);
-  errorRowsByTopic.delete(topic);
-}
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('clearErrorsBtn');
-    if (btn) btn.addEventListener('click', clearErrors);
-  });
-
-   function onMessageArrived(message) {
-    const topic = message.destinationName || '';
-    const payload = message.payloadString || '';
-    const now = new Date();
-
-    if (okRegex.test(payload)) {
-      removeErrorRow(topic);
-      } // if topic had an error row, clear it when payload becomes OK
-      else if (errorRegex.test(topic) || errorRegex.test(payload)) {
-        upsertErrorRow(now, topic, payload);
-      }
-      
-
-    // --- existing train handling ---
     if (topic === 'report/train') {
       try {
-        const data = JSON.parse(payload);
-        trains = data;
+        var data = JSON.parse(payload);
+        trains = data; // expected dict of id -> attributes
         renderTrains();
       } catch (e) {
         console.warn('Invalid JSON on', topic, e);
@@ -206,9 +142,9 @@ function removeErrorRow(topic){
       return;
     }
 
-    const parts = topic.split('/');
-    const currentAttributeKey = parts[parts.length - 1];
-    const currentAssetKey = parts[parts.length - 2];
+    var parts = topic.split('/');
+    var currentAttributeKey = parts[parts.length - 1];
+    var currentAssetKey = parts[parts.length - 2];
     updateDynamicValue(currentAssetKey + '_' + currentAttributeKey, payload);
   }
 
@@ -238,25 +174,17 @@ function removeErrorRow(topic){
   });
 </script>
 
-<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script src="jquery.min.js"></script>
 <script>
+  async function getJSON() {
+    const response = await fetch('default.json');
+    const json = await response.json();
+    console.log(json);
+    return json;
+  }
 
-  function gotJSON(jsonData){
-      createButtonsInSection('Signals', jsonData.Signals);
-      createButtonsInSection('Points', jsonData.Points);
-      createButtonsInSection('Routes', jsonData.Routes);
-      createButtonsInSection('Sections', jsonData.Sections);
-      createButtonsInSection('Plungers', jsonData.Plungers);
-    }
-
-  $.getJSON("/layout-json", function(json) {
-    console.log("Loaded layout.json");
-    gotJSON(json);
-  }).fail(function(xhr, s, e){
-    console.error("Failed to load layout.json", xhr.status, s, e, xhr.responseText);
-    alert("Could not load layout.json");
-  });
-
+  const jsonData = getJSON();
+  console.log(jsonData);
 
   function createButtonsInSection(sectionName, data) {
     const section = document.createElement('section');
@@ -332,8 +260,19 @@ function removeErrorRow(topic){
     }
   }
 
-  
+  function gotJSON(jsonData){
+    createButtonsInSection('Signals', jsonData.Signals);
+    createButtonsInSection('Points', jsonData.Points);
+    createButtonsInSection('Routes', jsonData.Routes);
+    createButtonsInSection('Sections', jsonData.Sections);
+    createButtonsInSection('Plungers', jsonData.Plungers);
+  }
 
-
+  $.getJSON('default.json', function(json) {
+    console.log(json);
+    gotJSON(json);
+  });
 </script>
-{% endblock %}
+
+</body>
+</html>

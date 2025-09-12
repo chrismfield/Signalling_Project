@@ -517,13 +517,15 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
     return mqtt_error
 
 
-def send_status_to_mqtt(axlecounters, signals, sections, plungers, points, routes, triggers, trains, logger, mqtt_client,
+def send_status_to_mqtt(axlecounters, trackcircuits, signals, sections, plungers, points, routes, triggers, trains, logger, mqtt_client,
                         mqtt_dict, automatic_route_setting, mqtt_error):
     mqtt_dict_old = mqtt_dict.copy()
 
     # set axlecounter dynamic variables
     for axlecounter in axlecounters.values():
         mqtt_dict[("error/axlecounter/comms/" + axlecounter.ref)] = axlecounter.comms_status
+    for trackcircuit in trackcircuits.values():
+        mqtt_dict[("error/trackcircuit/comms/" + trackcircuit.ref)] = trackcircuit.comms_status
     # set signal dynamic variables
     for signal in signals.values():
         mqtt_dict[("report/signal/" + signal.ref + "/aspect")] = (",".join(signal.aspect))

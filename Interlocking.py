@@ -502,6 +502,7 @@ def process(logger, mqtt_client, step_dict, feeder_dict):
         set_setting_routes(logger, mqtt_client)
         mqtt_error = check_mqtt(logger, mqtt_client) # sets from MQTT and returns any error that occurs
         set.send_status_to_mqtt(axlecounters=AxleCounter.instances,
+                                trackcircuits=TrackCircuit.instances,
                                 signals=Signal.instances,
                                 sections=Section.instances,
                                 plungers=Plunger.instances,
