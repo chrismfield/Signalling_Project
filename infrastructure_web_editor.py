@@ -308,5 +308,10 @@ def save_config():
     save_json_file(os.path.join(UPLOAD_FOLDER, CONFIG_FILE), cfg)
     return jsonify(cfg)
 
+@app.post('/api/reboot')
+def api_reboot():
+    subprocess.Popen(['sudo', 'reboot'])
+    return jsonify({'status':'ok'})
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True, port=8000)

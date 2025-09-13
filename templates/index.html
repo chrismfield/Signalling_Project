@@ -82,14 +82,23 @@
           <div class="d-flex gap-2">
             <button class="btn btn-outline-secondary btn-sm" id="cfgReloadBtn"><i class="fa fa-rotate"></i> Reload</button>
             <button class="btn btn-primary btn-sm" id="cfgSaveBtn"><i class="fa fa-save"></i> Save</button>
+            <button class="btn btn-danger btn-sm" id="rebootBtn">
+              <i class="fa fa-power-off"></i> Reboot Pi
+            </button>
           </div>
         </div>
         <div class="card-body">
           <div class="row g-3">
-            <div class="col-md-4">
+            <div class="col-md-5">
               <label class="form-label">layoutDB (infrastructure file)</label>
-              <input type="text" class="form-control" id="cfg_layoutDB" placeholder="default.json">
-              <div class="form-text">Shown in the File tab dropdown as well.</div>
+              <div class="input-group">
+                <select id="cfg_layoutDB_select" class="form-select">
+                  {% for f in server_files %}
+                  <option value="{{ f }}">{{ f }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-text">Stored in <code>config.json</code>. The link button copies the currently loaded file.</div>
             </div>
             <div class="col-md-2">
               <label class="form-label">axle_tolerance</label>
@@ -615,8 +624,22 @@ function loadConfig(){
     .then(r => r.ok ? r.json() : Promise.reject(new Error('config.json not found')))
     .then(cfg => {
       configStore = cfg || {};
+      const cfgLayout = (cfg.layoutDB || '').trim();
+      const $sel = $('#cfg_layoutDB_select');
+      // If the stored file isn't already in the <option> list, add it so we can select it.
+      if (cfgLayout && $sel.find(`option[value="${cfgLayout.replace(/"/g,'\\"')}"]`).length === 0) {
+        $sel.prepend($('<option>', { value: cfgLayout, text: cfgLayout }));
+      }
+
+      // Now select it (or fall back to the first option if empty/missing)
+      if (cfgLayout) {
+        $sel.val(cfgLayout);
+      } else {
+        // optional: choose a sensible default if nothing in config.json
+        const first = $sel.find('option:first').val();
+        if (first) $sel.val(first);
+      }
       // fill fields
-      $('#cfg_layoutDB').val(cfg.layoutDB || '');
       $('#cfg_axle_tolerance').val(cfg.axle_tolerance ?? '');
       $('#cfg_logging_level').val(cfg.logging_level ?? '');
       $('#cfg_mqtt_broker_address').val(cfg.mqtt_broker_address ?? '');
@@ -658,7 +681,7 @@ function saveConfig(){
     if(name) portsMap[name] = port || '';
   });
   const payload = {
-    layoutDB: $('#cfg_layoutDB').val().trim(),
+    layoutDB: ($('#cfg_layoutDB_select').val() || '').trim(),
     axle_tolerance: num($('#cfg_axle_tolerance').val(), 0),
     logging_level: num($('#cfg_logging_level').val(), 20),
     mqtt_broker_address: $('#cfg_mqtt_broker_address').val().trim(),
@@ -1143,11 +1166,22 @@ function toggleSectionsFields(formEl){
 
 
 // ====== Init ======
+function rebootPi(){
+  if(!confirm('Reboot the Raspberry Pi now?\n\nAll services will be interrupted.\n\nAre you sure?')) return;
+  fetch('/api/reboot', { method:'POST' })
+    .then(r => r.ok ? null : r.text().then(t => { throw new Error(t || 'Request failed'); }))
+    .then(() => alert('Reboot requested. The device will go offline shortly.'))
+    .catch(err => alert('Reboot request failed: ' + err.message));
+}
+
 $(function(){
   // Config tab controls
   $('#cfgAddNetwork').on('click', ()=> { addNetworkRow(); });
   $('#cfgReloadBtn').on('click', ()=> loadConfig());
   $('#cfgSaveBtn').on('click', ()=> saveConfig());
+
+  // NEW: reboot button
+  $('#rebootBtn').on('click', rebootPi);
 
   // Load supporting data
   buildPortsDatalist();
