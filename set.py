@@ -147,18 +147,21 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                     comms_status = (" Comms failure " + str(error))
             if req_aspect == "caution":
                 try:
-                    signal.slave.write_bit(signal.dangerreg, 0)
+                    if signal.dangerreg:
+                        signal.slave.write_bit(signal.dangerreg, 0)
                     if signal.clearreg:
                         signal.slave.write_bit(signal.clearreg, 0)
                     if signal.callingonreg:
                         signal.slave.write_bit(signal.callingonreg, 0)
-                    signal.slave.write_bit(signal.cautionreg, 1)
+                    if signal.cautionreg:
+                        signal.slave.write_bit(signal.cautionreg, 1)
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
             if req_aspect == "doublecaution":
                 try:
-                    signal.slave.write_bit(signal.dangerreg, 0)
+                    if signal.dangerreg:
+                        signal.slave.write_bit(signal.dangerreg, 0)
                     if signal.clearreg:
                         signal.slave.write_bit(signal.clearreg, 0)
                     if signal.callingonreg:
@@ -196,14 +199,17 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                 else:
                     # TODO add in check of available aspects to understand if possible to clear caution aspect
                     try:
-                        signal.slave.write_bit(signal.dangerreg, 0)
-                        signal.slave.write_bit(signal.cautionreg, 1)
+                        if signal.dangerreg:
+                            signal.slave.write_bit(signal.dangerreg, 0)
+                        if signal.cautionreg:
+                            signal.slave.write_bit(signal.cautionreg, 1)
                         comms_status = " OK"
                     except (OSError, ValueError) as error:
                         comms_status = (" Comms failure " + str(error))
             if req_aspect == "associated_position_light":  # used where main danger aspect not to be turned off
                 try:
-                    signal.slave.write_bit(signal.dangerreg, 1)
+                    if signal.dangerreg:
+                        signal.slave.write_bit(signal.dangerreg, 1)
                     signal.slave.write_bit(signal.callingonreg, 1)
                     if signal.cautionreg:
                         signal.slave.write_bit(signal.cautionreg, 0)
@@ -214,7 +220,8 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                     comms_status = (" Comms failure " + str(error))
             if req_aspect == "position_light":  # used where main danger aspect to be turned off
                 try:
-                    signal.slave.write_bit(signal.dangerreg, 0)
+                    if signal.dangerreg:
+                        signal.slave.write_bit(signal.dangerreg, 0)
                     signal.slave.write_bit(signal.callingonreg, 1)
                     comms_status = " OK"
                 except (OSError, ValueError) as error:

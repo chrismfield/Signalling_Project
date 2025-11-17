@@ -309,6 +309,7 @@
                   <label class="form-label">Network</label>
                   <select class="form-select network-select" name="network"></select>
                 </div>
+
               </div>
               <div class="row g-3 mt-2">
                 <div class="col-md-2">
@@ -319,6 +320,21 @@
                   <label class="form-label">Reverse&nbsp;Coil</label>
                   <input type="number" class="form-control" name="reverse_coil">
                 </div>
+                <div class="col-md-5">
+                  <label class="form-label">Board&nbsp;Index</label>
+                  <select class="form-select" name="board_index">
+                    {% for i in range(4) %}
+                    <option value="{{ i }}">Board {{ i }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                  <button type="button" class="btn btn-outline-secondary w-100" id="pointsApplyDefaults">
+                    <i class="fa fa-wand-magic-sparkles"></i> Apply defaults
+                  </button>
+                </div>
+              </div>
+              <div class="row g-3 mt-2">
                 <div class="col-md-4">
                   <label class="form-label">Section</label>
                   <select class="form-select" name="section">
@@ -327,19 +343,13 @@
                     {% endfor %}
                   </select>
                 </div>
-                <div class="col-md-2">
-                  <label class="form-label">Board&nbsp;Index</label>
-                  <select class="form-select" name="board_index">
-                    {% for i in range(4) %}
-                    <option value="{{ i }}">Board {{ i }}</option>
-                    {% endfor %}
+                <div class="col-md-6">
+                  <label class="form-label">Detection</label>
+                  <select class="form-select" name="detection_mode">
+                    <option value="1">With detection</option>
+                    <option value="0">Without detection</option>
                   </select>
-              </div>
-              <div class="col-md-3 d-flex align-items-end">
-                <button type="button" class="btn btn-outline-secondary w-100" id="pointsApplyDefaults">
-                  <i class="fa fa-wand-magic-sparkles"></i> Apply defaults
-                </button>
-              </div>
+                </div>
               </div>
               {% endif %}
 
@@ -888,6 +898,7 @@ const tableCols = {
     { key:'ref', label:'Ref' },
     { key:'description', label:'Description' },
     { key:'section', label:'Section' },
+    { key:'detection_mode', label:'Detection Mode' },
     { key:'normal_coil', label:'Normal Coil' },
     { key:'reverse_coil', label:'Reverse Coil' },
     { key:'address', label:'Address' },
@@ -1343,7 +1354,13 @@ $(function(){
 
 
 
-      if(type==="Points"){ ['normal_coil','reverse_coil'].forEach(k=> entry[k]=num(vals[k])); entry.section = vals.section || ''; entry.board_index = num(vals.board_index); }
+      if(type==="Points"){ 
+        ['normal_coil','reverse_coil'].forEach(k=> entry[k]=num(vals[k]));
+        entry.section = vals.section || '';
+        entry.board_index = num(vals.board_index);
+        // detection_mode: 1 = With detection, 0 = Without detection
+        entry.detection_mode = Number.isFinite(Number(vals.detection_mode)) ? Number(vals.detection_mode) : 0;
+      }
 
       if(type==="Sections"){
         entry.mode = vals.mode || 'axlecounter';
