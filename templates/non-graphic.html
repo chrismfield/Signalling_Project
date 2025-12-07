@@ -314,7 +314,7 @@ function removeErrorRow(topic){
   function addButtonCell(row, text, id, clickHandler, isVisible) {
     const cell = row.insertCell();
     if (isVisible !== undefined) {
-      if (isVisible) {
+      if (isVisible || isVisible === false) {
         const button = document.createElement('button');
         button.textContent = text;
         button.id = id;

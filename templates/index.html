@@ -769,6 +769,11 @@ function refreshAspectRowsForBoard(formEl){
   const $form = $(formEl);
   $form.find('.signal-aspect-row').each(function(){
     const $row = $(this);
+    // If the row is explicitly marked "False", do not auto-fill/overwrite the register
+    if ($row.find('.signal-aspect-false').is(':checked')) {
+      // keep boolean False as-is
+      return;
+    }
     const aKey = $row.find('.signal-aspect').val();
     const mapped = getMappedRegisterForAspect($form, aKey);
     const $reg = $row.find('.signal-aspect-reg');
@@ -970,7 +975,19 @@ function addAspectRow($form, aspectKey = "", register = "") {
         <option value="">Select aspect…</option>
         ${ASPECT_OPTIONS.map(a => `<option value="${a.key}">${a.label}</option>`).join('')}
       </select>
-      <input type="number" class="form-control form-control-sm signal-aspect-reg" style="max-width:120px" placeholder="Register">
+
+      <div class="input-group" style="max-width:220px">
+        <input type="number" class="form-control form-control-sm signal-aspect-reg" placeholder="Register">
+
+        <span class="input-group-text ms-1" style="border-left:1px solid #ced4da;">
+          <input class="form-check-input signal-aspect-false me-1" 
+                type="checkbox"
+                id="sa_false_${Math.random().toString(36).slice(2)}">
+          <label class="form-check-label small mb-0">No output register</label>
+        </span>
+      </div>
+
+
       <button type="button" class="btn btn-sm btn-outline-secondary signal-aspect-reset" title="Reset to default">
         <i class="fa fa-rotate-left"></i>
       </button>
@@ -988,13 +1005,25 @@ function addAspectRow($form, aspectKey = "", register = "") {
   const mapped = getMappedRegisterForAspect($form, aKey);
 
   // If caller passed an explicit register, use it, else mapped default
-  const initialReg = (register !== "") ? register : mapped;
+  // register may be: number, null/undefined/"" or boolean false
   const $reg = row.find('.signal-aspect-reg');
-  $reg.val(initialReg);
-  $reg.data('lastMapped', mapped);
+  const $false = row.find('.signal-aspect-false');
 
-  // When aspect changes → update register (clobber-safe)
+  if (register === false) {
+    // explicit boolean False -- mark checkbox and leave number empty
+    $false.prop('checked', true);
+    $reg.val('');
+    $reg.data('lastMapped', null);
+  } else {
+    const initialReg = (register !== "" && register != null) ? register : mapped;
+    $reg.val(initialReg);
+    $reg.data('lastMapped', mapped);
+    $false.prop('checked', false);
+  }
+
+  // When aspect changes → update register (clobber-safe). Do nothing if False is checked.
   row.on('change', '.signal-aspect', function(){
+    if ($false.is(':checked')) return;
     const newKey  = $(this).val();
     const newMap  = getMappedRegisterForAspect($form, newKey);
     const cur     = $reg.val();
@@ -1004,10 +1033,29 @@ function addAspectRow($form, aspectKey = "", register = "") {
     $reg.data('lastMapped', newMap);
   });
 
-  // Per-row Reset → force mapped default into the input
+  // Toggle False checkbox: if checked clear number input; if unchecked try mapped default
+  row.on('change', '.signal-aspect-false', function(){
+    if ($(this).is(':checked')) {
+      $reg.val('');
+      // indicate lastMapped is now null so auto-fill logic won't overwrite
+      $reg.data('lastMapped', null);
+    } else {
+      // restore mapped value if present/appropriate
+      const k = row.find('.signal-aspect').val();
+      const m = getMappedRegisterForAspect($form, k);
+      // only set if input is empty
+      if (($reg.val() ?? '') === '') {
+        $reg.val(m);
+      }
+      $reg.data('lastMapped', m);
+    }
+  });
+
+  // Per-row Reset → force mapped default into the input (also clear False)
   row.on('click', '.signal-aspect-reset', function(){
     const k = row.find('.signal-aspect').val();
     const m = getMappedRegisterForAspect($form, k);
+    $false.prop('checked', false);
     $reg.val(m);
     $reg.data('lastMapped', m);
   });
@@ -1309,11 +1357,17 @@ $(function(){
         const $form = $(`.${lc}Form`);
         $form.find('.signal-aspect-row').each(function(){
           const aKey = $(this).find('.signal-aspect').val();          // e.g. "danger_aspect"
-          const raw  = ($(this).find('.signal-aspect-reg').val() || "").trim(); // e.g. "3001"
           if (!aKey) return; // skip blank aspect rows
 
-          if (raw === "") { 
-            aspects[aKey] = null; 
+          const isFalse = $(this).find('.signal-aspect-false').is(':checked');
+          if (isFalse) {
+            aspects[aKey] = false;
+            return;
+          }
+
+          const raw  = ($(this).find('.signal-aspect-reg').val() || "").trim(); // e.g. "3001"
+          if (raw === "") {
+            aspects[aKey] = null;
           } else {
             const n = Number(raw);
             aspects[aKey] = Number.isFinite(n) ? n : null; // robust parse
@@ -1344,7 +1398,12 @@ $(function(){
         Object.entries(entry.aspects).forEach(([aKey, reg]) => {
           const field = legacyFieldFromKey[aKey];
           if (!field) return;
-          entry[field] = (reg == null || reg === "") ? null : Number(reg);
+          // Preserve boolean false explicitly; otherwise convert to Number
+          if (reg === false) {
+            entry[field] = false;
+          } else {
+            entry[field] = (reg == null || reg === "") ? null : Number(reg);
+          }
         });
 
         // (Optional) keep only legacy fields by removing the aspects mirror:
@@ -1617,31 +1676,34 @@ function openEditorForRow(type, ref){
     form.find('[name=board_index]').val(it.board_index ?? 0);
 
     // Rebuild aspect rows from saved JSON.
-  // Prefer `it.aspects` if present. Otherwise derive from legacy fields in default.json.
-  const $panel = form.find('.signal-aspects').empty();
+    // Prefer `it.aspects` if present. Otherwise derive from legacy fields in default.json.
+    const $panel = form.find('.signal-aspects').empty();
 
-  const keyFromLegacy = {
-    dangerreg: 'danger_aspect',
-    cautionreg: 'caution_aspect',
-    doublecautionreg: 'double_caution_aspect',
-    clearreg: 'clear_aspect',
-    bannerreg: 'banner_repeater',
-    callingonreg: 'calling_on',
-    route1reg: 'route_1',
-    route2reg: 'route_2',
-    route3reg: 'route_3',
-    route4reg: 'route_4',
-    route5reg: 'route_5',
-    route6reg: 'route_6',
-  };
+    const keyFromLegacy = {
+      dangerreg: 'danger_aspect',
+      cautionreg: 'caution_aspect',
+      doublecautionreg: 'double_caution_aspect',
+      clearreg: 'clear_aspect',
+      bannerreg: 'banner_repeater',
+      callingonreg: 'calling_on',
+      route1reg: 'route_1',
+      route2reg: 'route_2',
+      route3reg: 'route_3',
+      route4reg: 'route_4',
+      route5reg: 'route_5',
+      route6reg: 'route_6',
+    };
 
-  let aspectsMap = it.aspects; // may be undefined in default.json
+    let aspectsMap = it.aspects; // may be undefined in default.json
 
     if (!aspectsMap) {
       aspectsMap = {};
       Object.entries(keyFromLegacy).forEach(([legacyField, aspectKey]) => {
         const v = it[legacyField];
-        if (v !== undefined && v !== null && v !== "") {
+        // Preserve explicit boolean false; otherwise convert numeric/string values to Number
+        if (v === false) {
+          aspectsMap[aspectKey] = false;
+        } else if (v !== undefined && v !== null && v !== "") {
           aspectsMap[aspectKey] = Number(v);
         }
       });

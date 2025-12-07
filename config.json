@@ -1,5 +1,5 @@
 {
-    "layoutDB": "WDSME.json",
+    "layoutDB": "default_good_copy.json",
     "axle_tolerance": 4,
     "logging_level": 20,
     "mqtt_broker_address": "127.0.0.1",

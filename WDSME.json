@@ -149,8 +149,8 @@
             "nextsignal": "109",
             "conflicting_signals": [],
             "board_index": 0,
-            "dangerreg": 1,
-            "cautionreg": null,
+            "dangerreg": false,
+            "cautionreg": 2,
             "doublecautionreg": null,
             "clearreg": 4,
             "bannerreg": null,
@@ -317,6 +317,17 @@
             "ref": "50",
             "reverse_coil": 22,
             "section": "A Section"
+        },
+        "100": {
+            "address": 100,
+            "board_index": 0,
+            "description": "100 Points",
+            "detection_mode": 1,
+            "network": "network_1",
+            "normal_coil": 21,
+            "ref": "100",
+            "reverse_coil": 22,
+            "section": "A Section"
         }
     },
     "Plungers": {
@@ -374,15 +385,15 @@
     },
     "Routes": {
         "A Route": {
-            "ref": "A Route",
             "description": "A Route",
+            "points": {
+                "50": "normal"
+            },
+            "ref": "A Route",
             "sections": [
                 "A Section",
                 "B Section"
             ],
-            "points": {
-                "50": "normal"
-            },
             "signals": {
                 "1": [
                     "clear",

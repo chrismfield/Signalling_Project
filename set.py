@@ -574,6 +574,6 @@ def send_status_to_mqtt(axlecounters, trackcircuits, signals, sections, plungers
         mqtt_dict["error/MQTT_Command"] = mqtt_error
 
     # send everything, only if anything has changed
-    if mqtt_dict != mqtt_dict_old:
+    if mqtt_dict != mqtt_dict_old and mqtt_client:
         for key, val in mqtt_dict.items():
             mqtt_client.publish(key, val)
