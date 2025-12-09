@@ -13,9 +13,9 @@
   <header class="site-header">
     <div class="nav__title"><a class="brand" href="{{ url_for('index') }}">Merley Signalling</a></div>
     <nav class="nav__links" aria-label="Primary">
-      <a class="nav__link {% if request.endpoint=='graphic' %}nav__link--active{% endif %}" href="{{ url_for('graphic') }}">SVG Diagram</a>
+      <a class="nav__link {% if request.endpoint=='graphic' %}nav__link--active{% endif %}" href="{{ url_for('graphic') }}">Track Diagram</a>
       <a class="nav__link {% if request.endpoint in ('logs_index',) %}nav__link--active{% endif %}" href="{{ url_for('logs_index') }}">Console</a>
-      <a class="nav__link {% if request.endpoint=='infra_editor' %}nav__link--active{% endif %}" href="{{ url_for('infra_editor') }}">Infrastructure Editor</a>
+      <a class="nav__link {% if request.endpoint=='editor' %}nav__link--active{% endif %}" href="{{ url_for('editor') }}">Infrastructure Editor</a>
       <a class="nav__link {% if request.endpoint=='diagnostics' %}nav__link--active{% endif %}" href="{{ url_for('diagnostics') }}">Diagnostics</a>
     </nav>
   </header>

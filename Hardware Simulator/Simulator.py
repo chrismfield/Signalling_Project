@@ -11,7 +11,7 @@ logging.basicConfig()
 log = logging.getLogger()
 log.setLevel(logging.WARN)
 
-with open("default.json") as layout_file:
+with open("default_good_copy.json") as layout_file:
     jsoninfradata = jsons.loads(layout_file.read())
 
 def setup_slaves():

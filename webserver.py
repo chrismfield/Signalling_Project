@@ -192,7 +192,7 @@ def infra_editor():
     tabs = ["AxleCounters","TrackCircuits","Signals","Points","Plungers","Sections","Routes","Triggers"]
 
     return render_template(
-        "index.html",
+        "editor.html",
         data=data,
         tabs=tabs,
         server_files=server_files,
@@ -222,7 +222,7 @@ def index():
     tabs = ["AxleCounters","TrackCircuits","Signals","Points","Plungers","Sections","Routes","Triggers"]
 
     return render_template(
-        "index.html",
+        "editor.html",
         data=data,
         tabs=tabs,
         server_files=server_files,

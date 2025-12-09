@@ -189,32 +189,25 @@
             "upcount_reg": 13
         }
     },
-    "Signals": {
-        "12": {
-            "address": 12,
-            "availableaspects": 3,
-            "bannerreg": null,
-            "board_index": 0,
-            "callingonreg": null,
-            "cautionreg": 2,
-            "clearreg": 4,
-            "conflicting_signals": [],
-            "dangerreg": 1,
-            "description": "12",
-            "directionindicator": 0,
-            "doublecautionreg": null,
-            "mode": 0,
+    "TrackCircuits": {
+        "ZZ": {
+            "address": 63,
+            "comms_status": "",
+            "description": "Track Circuit A",
+            "instances": {},
+            "mode": "self-latching",
             "network": "network_1",
-            "nextsignal": "47",
-            "ref": "12",
-            "route1reg": null,
-            "route2reg": null,
-            "route3reg": null,
-            "route4reg": null,
-            "route5reg": null,
-            "route6reg": null,
-            "sigtype": 0
-        },
+            "ref": "ZZ",
+            "registers": {
+                "self-latching": [
+                    8,
+                    9
+                ]
+            },
+            "slave": null
+        }
+    },
+    "Signals": {
         "42": {
             "address": 42,
             "aspect": [
@@ -872,35 +865,25 @@
             "routestatus": ""
         },
         "U": {
+            "ref": "U",
+            "description": "Platform 3 Section",
+            "mode": "axlecounter",
+            "inctrig": {
+                "A6": "Upcount",
+                "A9": "Upcount"
+            },
+            "dectrig": {
+                "A6": "Downcount",
+                "A9": "Downcount"
+            },
+            "homesignal": [
+                "48"
+            ],
             "conflictingsections": [],
             "coords": {
                 "x": 28.91,
                 "y": 16.35
-            },
-            "dectrig": {
-                "A6": "Upcount",
-                "A9": "Downcount"
-            },
-            "description": "Platform 3 Section",
-            "homesignal": [
-                "48"
-            ],
-            "inctrig": {
-                "A9": "Upcount"
-            },
-            "instances": {},
-            "mode": "axlecounter",
-            "occstatus": 0,
-            "previousoccstatus": 0,
-            "protecting_points": {
-                "48": {
-                    "100": "reverse",
-                    "300": "normal"
-                }
-            },
-            "ref": "U",
-            "routeset": false,
-            "routestatus": ""
+            }
         },
         "V": {
             "conflictingsections": [],
@@ -2305,6 +2288,5 @@
             "trigger_special_actions": [],
             "triggered": false
         }
-    },
-    "TrackCircuits": {}
+    }
 }

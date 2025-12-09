@@ -170,8 +170,8 @@ def default_config():
         "point_interlock_timeout": 5
     }
 
-@app.route("/infra_editor")
-def infra_editor():
+@app.route("/editor")
+def editor():
     # Do NOT auto-load a layout file unless explicitly asked
     filename = request.args.get("file")  # None if not provided
     if filename:
@@ -202,34 +202,7 @@ def infra_editor():
 
 @app.route("/")
 def index():
-    # Do NOT auto-load a layout file unless explicitly asked
-    filename = request.args.get("file")  # None if not provided
-    if filename:
-        data = load_json_file(os.path.join(UPLOAD_FOLDER, filename)) or empty_layout()
-        # ensure keys exist
-        for k in empty_layout().keys():
-            data.setdefault(k, {})
-    else:
-        data = empty_layout()
-
-    # Always load config.json by default (for the Config tab / network lists)
-    cfg_path = os.path.join(UPLOAD_FOLDER, CONFIG_FILE)
-    cfg = load_json_file(cfg_path) or default_config()
-
-    # Show all JSON files for the picker
-    server_files = [f for f in os.listdir(UPLOAD_FOLDER) if f.lower().endswith(".json")]
-
-    tabs = ["AxleCounters","TrackCircuits","Signals","Points","Plungers","Sections","Routes","Triggers"]
-
-    return render_template(
-        "editor.html",
-        data=data,
-        tabs=tabs,
-        server_files=server_files,
-        current_file=filename or "",
-        config=cfg
-    )
-
+    return render_template("graphic.html")
 
 @app.route("/diagnostics")
 def diagnostics():
@@ -308,5 +281,42 @@ def save_config():
     save_json_file(os.path.join(UPLOAD_FOLDER, CONFIG_FILE), cfg)
     return jsonify(cfg)
 
+@app.post('/api/reboot')
+def api_reboot():
+    subprocess.Popen(['sudo', 'reboot'])
+    return jsonify({'status':'ok'})
+
+# ------------------- Panel / API additions -------------------
+
+@app.route("/panel")
+def panel():
+    # default page: panel
+    return render_template("editor.html")
+
+@app.route("/api/config")
+def api_config():
+    cfg_path = os.path.join(UPLOAD_FOLDER, CONFIG_FILE)
+    cfg = load_json_file(cfg_path) or default_config()
+    # Always ensure layoutDB exists
+    if not cfg.get("layoutDB"):
+        cfg["layoutDB"] = DEFAULT_FILE
+    return jsonify(cfg)
+
+@app.route("/api/layout")
+def api_layout():
+    fn = request.args.get("file") or DEFAULT_FILE
+    path = os.path.join(UPLOAD_FOLDER, fn)
+    if not os.path.exists(path):
+        # Return a proper 404 JSON so the client shows a nice error instead of HTML
+        return jsonify({"error": f"layout file not found: {fn}"}), 404
+    data = load_json_file(path) or {}
+    # Ensure expected keys exist so the frontend never crashes
+    for key in ["Sections","Signals","Points","Plungers","Routes","TrackCircuits","AxleCounters","Triggers"]:
+        data.setdefault(key, {})
+    return jsonify(data)
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True, port=5000)
+    app.run(host="0.0.0.0", debug=True, port=8000)
+
+
+
