@@ -3,10 +3,8 @@ from tkinter import ttk
 from tkinter import messagebox
 from tkinter import filedialog
 import minimalmodbus
-import pickle
 import jsons
 import os
-import Comselector
 import serial.tools.list_ports
 
 RS485port = ""

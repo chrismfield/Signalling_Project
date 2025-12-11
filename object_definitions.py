@@ -8,6 +8,7 @@ class InterfaceObject:
         self.ref = ref
         self.description = description
         self.slave = slave
+        self.comms_status = ""
 
 class TrackCircuit(InterfaceObject):
     """Track Circuit object containing static and dynamic variables"""
@@ -17,6 +18,7 @@ class TrackCircuit(InterfaceObject):
         self.registers = registers #coil registers that activate the track circuit e.g. {"self-latching":[1,2] "latch":[3], "unlatch":[4]}
         self.mode = mode #self-latching or non-latching"
         self.occstatus = False #TODO should this be true by default? It would create a lot of trains.
+
 
 class TreadlePad(InterfaceObject):
     """Treadle Pad or Reed Switch object containing static and dynamic variables"""
@@ -161,9 +163,8 @@ class Point:
 class Route:
     """Route object containing static and dynamic variables"""
     instances = {}
-    def __init__(self, ref, description, mode, sections, points, signals, priority):
+    def __init__(self, ref, description, sections, points, signals, priority):
         #static variables
-        self.mode = mode  # mode: store request (=1) or not store request (=0)
         self.ref = ref  # Freetext reference
         self.description = description  # Freetext description
         self.sections = sections  # ordered list of sections

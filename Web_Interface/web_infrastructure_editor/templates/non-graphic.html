@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+{% block head %}
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/paho-mqtt.js') }}"></script>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; margin: 16px; }
+      section { margin-block: 20px; }
+      h2 { margin: 12px 0; }
+      table { border-collapse: collapse; width: 100%; }
+      td, th { padding: 6px 10px; border-bottom: 1px solid #eee; text-align: left; }
+      label { display: inline-flex; align-items: center; gap: 8px; margin-right: 12px; }
+      input[type="text"] { padding: 6px 8px; }
+      button { padding: 6px 10px; cursor: pointer; }
+      .inline-help { color: #666; font-size: 0.9rem; margin-left: 8px; }
+      .muted { color: #666; }
+    </style>
+{% endblock %}
+
+{% block content %}
+<!-- Train headcode command UI -->
+<section id="train-headcode">
+  <h2>Train Headcode Command</h2>
+  <div>
+    <label>Train ID <input id="trainIdInput" type="text" placeholder="e.g. 101"/></label>
+    <label>Headcode <input id="headcodeInput" type="text" placeholder="e.g. 1A23"/></label>
+    <button id="sendHeadcodeBtn">Send</button>
+    <span class="inline-help">Publishes to <code>set/train/&lt;TrainID&gt;/headcode</code> with payload = <code>&lt;Headcode&gt;</code>.</span>
+  </div>
+</section>
+
+<!-- Dynamic list of trains -->
+<section id="trains">
+  <h2>Trains</h2>
+  <p class="muted">Populated from MQTT topic <code>report/train</code>.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>berth_section</th>
+        <th>headcode</th>
+        <th>locos</th>
+        <th>drivers</th>
+        <th>routes</th>
+        <th>carriages</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="trainsTbody"></tbody>
+  </table>
+</section>
+
+<!-- MQTT Errors -->
+<hr style="margin:24px 0">
+
+<section id="mqtt-errors">
+  <h2>MQTT Errors</h2>
+  <p class="muted">Showing messages where topic or payload contains “error” (case-insensitive). Rows are cleared automatically when payload is “OK”.</p>
+  <table style="width:100%; border-collapse:collapse;">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding:6px 10px; border-bottom:1px solid #eee; width:170px;">Time</th>
+        <th style="text-align:left; padding:6px 10px; border-bottom:1px solid #eee;">Topic</th>
+        <th style="text-align:left; padding:6px 10px; border-bottom:1px solid #eee;">Payload</th>
+      </tr>
+    </thead>
+    <tbody id="errorsTbody"></tbody>
+  </table>
+</section>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const broker = window.location.hostname;
+  const clientId = 'webpage-client-' + Math.random().toString(16).slice(2,8);
+  var client = new Paho.Client(broker, Number(9001), clientId);
+  const ERROR_MAX_ROWS = 500;        // keep last 500 to avoid runaway DOM
+  const errorRegex = /error/i;       // case-insensitive "error"
+  const okRegex    = /ok/i;       // match "OK" (any case)
+  const errorRowsByTopic = new Map(); // Track errors by topic so we can clear them later
+
+  client.onConnectionLost = onConnectionLost;
+  client.onMessageArrived = onMessageArrived;
+
+  client.connect({ onSuccess: onConnect, reconnect: true, cleanSession: true, keepAliveInterval: 60 });
+
+  function onConnect() {
+    console.log('Connected to MQTT broker');
+    client.subscribe('#');
+  }
+
+  function onConnectionLost(responseObject) {
+    if (responseObject.errorCode !== 0) {
+      console.log('Connection lost: ' + responseObject.errorMessage);
+    }
+  }
+
+  function updateDynamicValue(DynamicCellId, DynamicValue) {
+    const DynamicCell = document.getElementById(DynamicCellId);
+    if (DynamicCell) {
+      DynamicCell.textContent = 'Status: ' + DynamicValue;
+    }
+  }
+
+  var trains = {}; // id -> data
+
+  function renderTrains() {
+    var tbody = document.getElementById('trainsTbody');
+    tbody.innerHTML = '';
+    Object.keys(trains).sort().forEach(function(id){
+      var t = trains[id] || {};
+      var tr = document.createElement('tr');
+
+      function td(text){ var c=document.createElement('td'); c.textContent = text; return c; }
+      function tdInput(key){
+        var c=document.createElement('td');
+        var inp=document.createElement('input');
+        inp.type='text';
+        inp.value = t[key] != null ? String(t[key]) : '';
+        inp.id = 'train_' + id + '_' + key;
+        c.appendChild(inp); return c;
+      }
+
+      tr.appendChild(td(id));
+      tr.appendChild(tdInput('berth_section'));
+      tr.appendChild(tdInput('headcode'));
+      tr.appendChild(tdInput('locos'));
+      tr.appendChild(tdInput('drivers'));
+      tr.appendChild(tdInput('routes'));
+      tr.appendChild(tdInput('carriages'));
+
+      var actionsTd = document.createElement('td');
+      var saveBtn = document.createElement('button');
+      saveBtn.textContent = 'Save';
+      saveBtn.addEventListener('click', function(){ saveTrainEdits(id); });
+      actionsTd.appendChild(saveBtn);
+      tr.appendChild(actionsTd);
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  function saveTrainEdits(id){
+    var keys = ['berth_section','headcode','locos','drivers','routes','carriages'];
+    keys.forEach(function(k){
+      var el = document.getElementById('train_' + id + '_' + k);
+      if (!el) return;
+      var val = el.value.trim();
+      publishMessage('set/train/' + id + '/' + k, val);
+    });
+  }
+
+function upsertErrorRow(ts, topic, payload){
+  const tbody = document.getElementById('errorsTbody');
+  if (!tbody) return;
+
+  let tr = errorRowsByTopic.get(topic);
+  if (!tr) {
+    tr = tbody.insertRow(0);
+    tr.dataset.topic = topic;
+    tr.insertCell(0); tr.insertCell(1); tr.insertCell(2);
+    tr.style.background = 'rgba(255,0,0,0.06)';
+    errorRowsByTopic.set(topic, tr);
+  }
+
+  tr.cells[0].textContent = ts.toLocaleString();
+  tr.cells[1].textContent = topic;
+  tr.cells[2].textContent = payload;
+}
+
+function removeErrorRow(topic){
+  const tr = errorRowsByTopic.get(topic);
+  if (tr && tr.parentNode) tr.parentNode.removeChild(tr);
+  errorRowsByTopic.delete(topic);
+}
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('clearErrorsBtn');
+    if (btn) btn.addEventListener('click', clearErrors);
+  });
+
+   function onMessageArrived(message) {
+    const topic = message.destinationName || '';
+    const payload = message.payloadString || '';
+    const now = new Date();
+
+    if (okRegex.test(payload)) {
+      removeErrorRow(topic);
+      } // if topic had an error row, clear it when payload becomes OK
+      else if (errorRegex.test(topic) || errorRegex.test(payload)) {
+        upsertErrorRow(now, topic, payload);
+      }
+      
+
+    // --- existing train handling ---
+    if (topic === 'report/train') {
+      try {
+        const data = JSON.parse(payload);
+        trains = data;
+        renderTrains();
+      } catch (e) {
+        console.warn('Invalid JSON on', topic, e);
+      }
+      return;
+    }
+
+    const parts = topic.split('/');
+    const currentAttributeKey = parts[parts.length - 1];
+    const currentAssetKey = parts[parts.length - 2];
+    updateDynamicValue(currentAssetKey + '_' + currentAttributeKey, payload);
+  }
+
+  function publishMessage(topic, payload) {
+    console.log(topic, payload);
+    var body = (typeof payload === 'string') ? payload : JSON.stringify(payload);
+    const messageObject = new Paho.Message(String(body));
+    messageObject.destinationName = topic;
+    client.send(messageObject);
+  }
+
+  function sendHeadcodeCommand() {
+    const trainId = document.getElementById('trainIdInput').value.trim();
+    const headcode = document.getElementById('headcodeInput').value.trim();
+
+    if (!trainId || !headcode) {
+      alert('Please enter both Train ID and Headcode.');
+      return;
+    }
+    const topic = 'set/train/' + trainId + '/headcode';
+    publishMessage(topic, headcode);
+  }
+
+  document.getElementById('sendHeadcodeBtn').addEventListener('click', sendHeadcodeCommand);
+  ['trainIdInput', 'headcodeInput'].forEach(function(id){
+    document.getElementById(id).addEventListener('keydown', function(e){ if (e.key === 'Enter') sendHeadcodeCommand(); });
+  });
+</script>
+
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script>
+
+  function gotJSON(jsonData){
+      createButtonsInSection('Signals', jsonData.Signals);
+      createButtonsInSection('Points', jsonData.Points);
+      createButtonsInSection('Routes', jsonData.Routes);
+      createButtonsInSection('Sections', jsonData.Sections);
+      createButtonsInSection('Plungers', jsonData.Plungers);
+    }
+
+  $.getJSON("/layout-json", function(json) {
+    console.log("Loaded layout.json");
+    gotJSON(json);
+  }).fail(function(xhr, s, e){
+    console.error("Failed to load layout.json", xhr.status, s, e, xhr.responseText);
+    alert("Could not load layout.json");
+  });
+
+
+  function createButtonsInSection(sectionName, data) {
+    const section = document.createElement('section');
+    const heading = document.createElement('h2');
+    heading.textContent = sectionName;
+    section.appendChild(heading);
+
+    const table = document.createElement('table');
+
+    for (const [key, value] of Object.entries(data)) {
+      const row = table.insertRow();
+      const labelCell = row.insertCell(0);
+      labelCell.textContent = key;
+
+      if (sectionName == 'Signals') {
+        const aspectCell = row.insertCell(1);
+        aspectCell.id = key + '_aspect';
+        aspectCell.textContent = 'Aspect: Loading...';
+        addButtonCell(row, 'Danger', sectionName.toLowerCase() + '_' + key.toLowerCase() + '_danger', function(){ publishMessage('set/signal/' + key, 'danger'); }, value.dangerreg);
+        addButtonCell(row, 'Clear', sectionName.toLowerCase() + '_' + key.toLowerCase() + '_clear', function(){ publishMessage('set/signal/' + key, 'clear'); }, value.clearreg);
+        addButtonCell(row, 'Caution', sectionName.toLowerCase() + '_' + key.toLowerCase() + '_caution', function(){ publishMessage('set/signal/' + key, 'caution'); }, value.cautionreg);
+        addButtonCell(row, 'Calling On', sectionName.toLowerCase() + '_' + key.toLowerCase() + '_callingon', function(){ publishMessage('set/signal/' + key, 'associated_position_light'); }, value.callingonreg);
+        addButtonCell(row, 'Shunt', sectionName.toLowerCase() + '_' + key.toLowerCase() + '_shunt', function(){ publishMessage('set/signal/' + key, 'position_light'); }, value.callingonreg);
+      } else if (sectionName == 'Points') {
+        const setDirectionCell = row.insertCell(1);
+        setDirectionCell.id = key + '_set_direction';
+        setDirectionCell.textContent = 'Set direction: Loading...';
+        const detectionCell = row.insertCell(1);
+        detectionCell.id = key + '_detection_status';
+        detectionCell.textContent = 'Detection: Loading...';
+        addButtonCell(row, 'Normal', sectionName.toLowerCase() + '_' + key.toLowerCase() + '_normal', function(){ publishMessage('set/point/' + key, 'normal'); });
+        addButtonCell(row, 'Reverse', sectionName.toLowerCase() + '_' + key.toLowerCase() + '_reverse', function(){ publishMessage('set/point/' + key, 'reverse'); });
+      } else if (sectionName == 'Routes') {
+        addButtonCell(row, 'Set', sectionName.toLowerCase() + '_' + key.toLowerCase() + '_set', function(){ publishMessage('set/route/' + key, 'True'); });
+        addButtonCell(row, 'Clear', sectionName.toLowerCase() + '_' + key.toLowerCase() + '_clear', function(){ publishMessage('set/route/' + key, 'False'); });
+      } else if (sectionName == 'Sections') {
+        const occupancyCell = row.insertCell(1);
+        occupancyCell.id = key + '_occstatus';
+        occupancyCell.textContent = 'Occupancy: Loading...';
+        const setStatusCell = row.insertCell(1);
+        setStatusCell.id = key + '_routeset';
+        setStatusCell.textContent = 'Occupancy: Loading...';
+        addButtonCell(row, 'Clear', sectionName.toLowerCase() + '_' + key.toLowerCase() + '_clear', function(){ publishMessage('set/section/' + key + '/occstatus', '0'); });
+        addButtonCell(row, 'Occupy', sectionName.toLowerCase() + '_' + key.toLowerCase() + '_occupy', function(){ publishMessage('set/section/' + key + '/occstatus', '1'); });
+        addButtonCell(row, 'New Train', sectionName.toLowerCase() + '_' + key.toLowerCase() + '_newtrain', function(){ publishMessage('set/train/new/berth_section', key); });
+      } else if (sectionName == 'Plungers') {
+        addButtonCell(row, 'Press', sectionName.toLowerCase() + '_' + key.toLowerCase() + '_press', function(){ publishMessage('set/plunger/' + key, '1'); });
+      }
+    }
+
+    section.appendChild(table);
+    document.body.appendChild(section);
+  }
+
+  function addButtonCell(row, text, id, clickHandler, isVisible) {
+    const cell = row.insertCell();
+    if (isVisible !== undefined) {
+      if (isVisible) {
+        const button = document.createElement('button');
+        button.textContent = text;
+        button.id = id;
+        button.addEventListener('click', clickHandler);
+        cell.appendChild(button);
+      } else {
+        cell.style.visibility = 'hidden';
+      }
+    } else {
+      const button = document.createElement('button');
+      button.textContent = text;
+      button.id = id;
+      button.addEventListener('click', clickHandler);
+      cell.appendChild(button);
+    }
+  }
+
+  
+
+
+</script>
+{% endblock %}

@@ -5,7 +5,6 @@ from tkinter import filedialog
 import minimalmodbus
 import pickle
 import os
-import Comselector
 import serial.tools.list_ports
 
 RS485port = ""

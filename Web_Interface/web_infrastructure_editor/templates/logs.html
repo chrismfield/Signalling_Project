@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Journal Log Viewer</title>
+  <style>
+    :root { --bg:#0b0c10; --panel:#16181d; --text:#e6e6e6; --muted:#9aa1a9; --accent:#3fa9f5; }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:ui-monospace,Menlo,Consolas,monospace;display:flex;flex-direction:column}
+    header{background:var(--panel);padding:10px 12px;border-bottom:1px solid #22262e}
+    h1{margin:0 0 8px 0;font-size:18px;color:var(--accent)}
+    #controls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+    #controls label{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px}
+    #controls input[type="text"],#controls input[type="number"],#controls select{background:#0f1116;color:var(--text);border:1px solid #2a2f3a;border-radius:8px;padding:6px 8px}
+    #controls button{background:#222c36;color:var(--text);border:1px solid #2f3a46;border-radius:10px;padding:6px 10px;cursor:pointer}
+    #controls button:hover{background:#293544}
+    label.autoscroll{margin-left:auto}
+    main{flex:1;display:flex;min-height:0}
+    #log{flex:1;margin:0;padding:12px;white-space:pre-wrap;overflow:auto;line-height:1.4}
+    footer{background:var(--panel);color:var(--muted);border-top:1px solid #22262e;padding:8px 12px;font-size:12px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Journal Log Viewer</h1>
+    <form id="controls">
+      <label>Unit <input type="text" id="unit" value="{{ unit }}"></label>
+      <label>Last lines <input type="number" id="lines" value="{{ lines }}" min="0" step="50"></label>
+      <label>Priority
+        <select id="priority">
+          <option value="">all</option>
+          <option value="debug">debug</option>
+          <option value="info" selected>info</option>
+          <option value="warning">warning</option>
+          <option value="err">err</option>
+          <option value="crit">crit</option>
+          <option value="alert">alert</option>
+          <option value="emerg">emerg</option>
+        </select>
+      </label>
+      <label>Filter (contains) <input type="text" id="grep" placeholder="e.g. ERROR"></label>
+      <button type="submit">Connect</button>
+      <button type="button" id="pause">Pause</button>
+      <button type="button" id="resume" disabled>Resume</button>
+      <button type="button" id="clear">Clear</button>
+      <label class="autoscroll"><input type="checkbox" id="autoscroll" checked> Auto-scroll</label>
+    </form>
+  </header>
+
+  <main><pre id="log"></pre></main>
+
+  <footer>
+    <small>Streams: <code>journalctl -u &lt;unit&gt; -n &lt;lines&gt; -f -o cat</code> via SSE.</small>
+  </footer>
+{% endblock %}
+{% block scripts %}
+  <script>
+    const logEl = document.getElementById('log');
+    const form = document.getElementById('controls');
+    const pauseBtn = document.getElementById('pause');
+    const resumeBtn = document.getElementById('resume');
+    const clearBtn = document.getElementById('clear');
+    const autoscroll = document.getElementById('autoscroll');
+
+    let es = null;
+    let paused = false;
+
+    function appendLine(line) {
+      if (paused) return;
+      logEl.textContent += line + "\n";
+      if (autoscroll.checked) logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function connect() {
+      const unit = document.getElementById('unit').value.trim();
+      const lines = document.getElementById('lines').value.trim();
+      const priority = document.getElementById('priority').value;
+      const grep = document.getElementById('grep').value.trim();
+      const params = new URLSearchParams({ unit, lines });
+      if (priority) params.set('priority', priority);
+      if (grep) params.set('grep', grep);
+
+      if (es) { es.close(); es = null; }
+      es = new EventSource(`/logs/stream?${params.toString()}`);
+
+      es.addEventListener('message', (ev) => appendLine(ev.data));
+      es.addEventListener('done', (ev) => appendLine(`[stream ended] ${ev.data}`));
+      es.onerror = () => appendLine('[connection error — retrying may help]');
+    }
+
+    form.addEventListener('submit', (e) => { e.preventDefault(); connect(); });
+    pauseBtn.addEventListener('click', () => { paused = true; pauseBtn.disabled = true; resumeBtn.disabled = false; });
+    resumeBtn.addEventListener('click', () => { paused = false; pauseBtn.disabled = false; resumeBtn.disabled = true; });
+    clearBtn.addEventListener('click', () => { logEl.textContent = ''; });
+
+    window.addEventListener('load', () => connect());
+  </script>
+</body>
+</html>
+{% endblock %}

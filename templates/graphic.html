@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<head>
+  <meta charset="UTF-8" />
+  <title>Merley Arrivals Control</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}" />
+
+  <!-- JS (defer so HTML renders first) -->
+  <script src="{{ url_for('static', filename='js/jquery.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/paho-mqtt.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/layout.js') }}" defer></script>
+</head>
+<body>
+  <noscript>Please enable JavaScript to use Merley Arrivals.</noscript>
+
+  <h1>Merley Arrivals</h1>
+
+  <div class="flexcontainer" id="flexcontainer">
+    <div id="layout">
+      <div id="background"></div>
+      <div id="container"></div>
+    </div>
+
+    <div id="routes">
+      <h2>Routes</h2>
+      <table id="routetable"></table>
+
+      <button type="button" onclick="togglefs()" class="btn_fs">Toggle Full Screen</button>
+      <button type="button" onclick="replicate454647()" class="btn_fs">Replicate 45/46/47</button>
+      <button type="button" onclick="replicate48()" class="btn_fs">Replicate 48</button>
+    </div>
+  </div>
+
+  <div id="messages" aria-live="polite"></div>
+</body>
+</html>
+{% endblock %}

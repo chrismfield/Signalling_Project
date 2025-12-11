@@ -150,6 +150,8 @@ class ACFrame:  # axlecounter window class
             .grid(column=3, row=14, sticky=W)
         ttk.Button(self.subframe, text='>', width=2, command=lambda: self.adjustparameters(209, 1, (self.addrst.get()))) \
             .grid(column=4, row=14, sticky=W)
+        ttk.Button(self.subframe, text='Set Defaults', width=25, command=lambda: self.set_defaults(self.addrst.get())) \
+            .grid(column=0, row=22, sticky=W)
 
         for child in self.subframe.winfo_children():
             child.grid_configure(padx=5, pady=5)
@@ -157,6 +159,24 @@ class ACFrame:  # axlecounter window class
         addrst_entry.focus()
         parent.bind('<Return>', self.goserial1)
         self.addrst.trace_add('write', self.readparameters)
+
+    def set_defaults(self, address):
+
+        #set default hall-effect device thresholds
+        self.writeRegValue(201, 100, address)
+        self.writeRegValue(202, 100, address)
+        self.writeRegValue(203, 100, address)
+        self.writeRegValue(204, 50, address)
+        self.writeRegValue(205, 50, address)
+        self.writeRegValue(206, 50, address)
+        self.writeRegValue(207, 0, address)
+        self.writeRegValue(208, 0, address)
+        self.writeRegValue(209, 0, address)
+        #set to 19200 baud:
+        self.writeRegValue(101, 1, address)
+        #set loging off:
+        self.writeRegValue(103, 0, address)
+
 
     def startbutton(self):
         self.active = not self.active

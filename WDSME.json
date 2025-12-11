@@ -1,0 +1,462 @@
+{
+    "AxleCounters": {},
+    "TrackCircuits": {
+        "A": {
+            "address": 63,
+            "comms_status": "",
+            "description": "A",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "A",
+            "registers": {
+                "self-latching": [
+                    0
+                ]
+            },
+            "slave": null
+        },
+        "B": {
+            "address": 63,
+            "comms_status": "",
+            "description": "B",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "B",
+            "registers": {
+                "self-latching": [
+                    1
+                ]
+            },
+            "slave": null
+        },
+        "C": {
+            "address": 63,
+            "comms_status": "",
+            "description": "C",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "C",
+            "registers": {
+                "self-latching": [
+                    2
+                ]
+            },
+            "slave": null
+        },
+        "D": {
+            "address": 63,
+            "comms_status": "",
+            "description": "D",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "D",
+            "registers": {
+                "self-latching": [
+                    3
+                ]
+            },
+            "slave": null
+        },
+        "E": {
+            "address": 63,
+            "comms_status": "",
+            "description": "E",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "E",
+            "registers": {
+                "self-latching": [
+                    4
+                ]
+            },
+            "slave": null
+        },
+        "F": {
+            "address": 63,
+            "comms_status": "",
+            "description": "F",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "F",
+            "registers": {
+                "self-latching": [
+                    5
+                ]
+            },
+            "slave": null
+        },
+        "G": {
+            "address": 63,
+            "comms_status": "",
+            "description": "G",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "G",
+            "registers": {
+                "self-latching": [
+                    6
+                ]
+            },
+            "slave": null
+        },
+        "S": {
+            "address": 63,
+            "comms_status": "",
+            "description": "S",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "S",
+            "registers": {
+                "self-latching": [
+                    18
+                ]
+            },
+            "slave": null
+        },
+        "T": {
+            "address": 63,
+            "comms_status": "",
+            "description": "T",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "T",
+            "registers": {
+                "self-latching": [
+                    19
+                ]
+            },
+            "slave": null
+        }
+    },
+    "Signals": {
+        "1": {
+            "ref": "1",
+            "description": "1",
+            "address": 64,
+            "network": "network_1",
+            "sigtype": 0,
+            "availableaspects": 3,
+            "directionindicator": 0,
+            "nextsignal": "109",
+            "conflicting_signals": [],
+            "board_index": 0,
+            "dangerreg": false,
+            "cautionreg": 2,
+            "doublecautionreg": null,
+            "clearreg": 4,
+            "bannerreg": null,
+            "callingonreg": null,
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": 204,
+            "route5reg": 205,
+            "route6reg": null
+        },
+        "9": {
+            "address": 63,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [],
+            "dangerreg": 1,
+            "description": "9 Signal",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "1",
+            "ref": "9",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 0
+        },
+        "15": {
+            "address": 15,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [],
+            "dangerreg": 1,
+            "description": "15 Signal",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "",
+            "ref": "15",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 0
+        },
+        "103": {
+            "address": 103,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [],
+            "dangerreg": 1,
+            "description": "103 Signal",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "15",
+            "ref": "103",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": 204,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 1
+        },
+        "105": {
+            "address": 105,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [],
+            "dangerreg": 1,
+            "description": "105 Signal",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "103",
+            "ref": "105",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": 203,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 1
+        },
+        "107": {
+            "address": 107,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [],
+            "dangerreg": 1,
+            "description": "107 Signal",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "105",
+            "ref": "107",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 1
+        },
+        "109": {
+            "address": 109,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [],
+            "dangerreg": 1,
+            "description": "109 Signal",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "107",
+            "ref": "109",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 1
+        }
+    },
+    "Points": {
+        "50": {
+            "address": 65,
+            "board_index": 0,
+            "description": "50",
+            "network": "network_1",
+            "normal_coil": 21,
+            "ref": "50",
+            "reverse_coil": 22,
+            "section": "A Section"
+        },
+        "100": {
+            "address": 100,
+            "board_index": 0,
+            "description": "100 Points",
+            "detection_mode": 1,
+            "network": "network_1",
+            "normal_coil": 21,
+            "ref": "100",
+            "reverse_coil": 22,
+            "section": "A Section"
+        }
+    },
+    "Plungers": {
+        "TCOP-W": {
+            "address": 65,
+            "description": "50 Points Plunger",
+            "network": "network_1",
+            "ref": "TCOP-W",
+            "register": 1
+        }
+    },
+    "Sections": {
+        "A Section": {
+            "conflictingsections": [],
+            "dectrig": {},
+            "description": "A Section",
+            "homesignal": [
+                "1"
+            ],
+            "inctrig": {},
+            "mode": "trackcircuit",
+            "ref": "A Section",
+            "trackcircuits": [
+                "A"
+            ]
+        },
+        "B Section": {
+            "conflictingsections": [],
+            "dectrig": {},
+            "description": "B Section",
+            "homesignal": [
+                "1"
+            ],
+            "inctrig": {},
+            "mode": "trackcircuit",
+            "ref": "B Section",
+            "trackcircuits": [
+                "B"
+            ]
+        },
+        "C Section": {
+            "conflictingsections": [],
+            "dectrig": {},
+            "description": "C Section",
+            "homesignal": [
+                "109"
+            ],
+            "inctrig": {},
+            "mode": "trackcircuit",
+            "ref": "C Section",
+            "trackcircuits": [
+                "C"
+            ]
+        }
+    },
+    "Routes": {
+        "A Route": {
+            "description": "A Route",
+            "points": {
+                "50": "normal"
+            },
+            "ref": "A Route",
+            "sections": [
+                "A Section",
+                "B Section"
+            ],
+            "signals": {
+                "1": [
+                    "clear",
+                    "route5"
+                ]
+            }
+        },
+        "C Route": {
+            "description": "C Route",
+            "points": {},
+            "ref": "C Route",
+            "sections": [
+                "C Section"
+            ],
+            "signals": {
+                "109": [
+                    "clear"
+                ]
+            }
+        }
+    },
+    "Triggers": {
+        "A Trigger": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "A Trigger",
+            "plungers": [],
+            "priority": 10,
+            "ref": "A Trigger",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "A Route"
+            ],
+            "sections_clear": [
+                "A Section"
+            ],
+            "sections_occupied": [],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
+        },
+        "C Auto": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "C Auto",
+            "plungers": [],
+            "priority": 10,
+            "ref": "C Auto",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "C Route"
+            ],
+            "sections_clear": [
+                "C Section"
+            ],
+            "sections_occupied": [],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
+        }
+    }
+}

@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block content %}
 <head>
   <meta charset="utf-8">
   <title>Signalling Infrastructure Editor</title>
@@ -10,7 +10,7 @@
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <style>
     .modal .row.g-3 > [class*="col-"] { min-width: 0; }
-    .route-point-row select, .route-signal-row select { width: 100%; }
+    .route-point-row select, .route-signal-row select, .signal-aspect-row select, .trackcircuit-register-row select { width: 100%; }
     .small-muted { font-size: .9rem; color: #6c757d; }
   </style>
 </head>
@@ -56,14 +56,14 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Upload JSON (Local File)</label>
-            <input type="file" id="uploadInput" class="form-control" onchange="uploadFile()">
-          </div>
-
-          <div class="mb-3">
             <label class="form-label">Save Current Data As</label><br>
             <input type="text" id="filename" class="form-control w-auto d-inline-block" value="{{ current_file }}">
             <button class="btn btn-success ms-2" onclick="saveJSON()"><i class="fa fa-save"></i> Save to Server</button>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Upload JSON (Local File)</label>
+            <input type="file" id="uploadInput" class="form-control" onchange="uploadFile()">
           </div>
 
           <div class="mb-3">
@@ -82,14 +82,23 @@
           <div class="d-flex gap-2">
             <button class="btn btn-outline-secondary btn-sm" id="cfgReloadBtn"><i class="fa fa-rotate"></i> Reload</button>
             <button class="btn btn-primary btn-sm" id="cfgSaveBtn"><i class="fa fa-save"></i> Save</button>
+            <button class="btn btn-danger btn-sm" id="rebootBtn">
+              <i class="fa fa-power-off"></i> Reboot Pi
+            </button>
           </div>
         </div>
         <div class="card-body">
           <div class="row g-3">
-            <div class="col-md-4">
+            <div class="col-md-5">
               <label class="form-label">layoutDB (infrastructure file)</label>
-              <input type="text" class="form-control" id="cfg_layoutDB" placeholder="default.json">
-              <div class="form-text">Shown in the File tab dropdown as well.</div>
+              <div class="input-group">
+                <select id="cfg_layoutDB_select" class="form-select">
+                  {% for f in server_files %}
+                  <option value="{{ f }}">{{ f }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-text">Stored in <code>config.json</code>. The link button copies the currently loaded file.</div>
             </div>
             <div class="col-md-2">
               <label class="form-label">axle_tolerance</label>
@@ -205,16 +214,35 @@
                   <label class="form-label">Downcount&nbsp;Reg</label>
                   <input type="number" class="form-control" name="downcount_reg" value="14">
                 </div>
-                <div class="col-md-3">
-                  <label class="form-label">Normal&nbsp;Coil</label>
-                  <input type="number" class="form-control" name="normal_coil" value="22">
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Reverse&nbsp;Coil</label>
-                  <input type="number" class="form-control" name="reverse_coil" value="23">
-                </div>
               </div>
               {% endif %}
+
+              {% if tab=="TrackCircuits" %}
+              <div class="row g-3 mt-3">
+                <div class="col-md-2">
+                  <label class="form-label">Address</label>
+                  <input type="number" class="form-control" name="address" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Network</label>
+                  <select class="form-select network-select" name="network"></select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Mode</label>
+                  <select class="form-select" name="mode" data-tc-mode>
+                    <option value="self-latching">Self-latching</option>
+                    <option value="non-latching">Non-latching</option>
+                  </select>
+                </div>
+              </div>
+
+              <h6 class="mt-3">Registers</h6>
+              <div class="trackcircuit-registers mb-2"></div>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-add-register>
+                <i class="fa fa-plus"></i> Add register
+              </button>
+              {% endif %}
+
 
               {% if tab=="Signals" %}
               <div class="row g-3 mt-3">
@@ -227,22 +255,22 @@
                   <select class="form-select network-select" name="network"></select>
                 </div>
                 <div class="col-md-2">
+                  <label class="form-label">Board&nbsp;Index</label>
+                  <select class="form-select" name="board_index">
+                    {% for i in range(4) %}
+                    <option value="{{ i }}">Board {{ i }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-3">
                   <label class="form-label">Type</label>
                   <select class="form-select" name="sigtype">
                     <option value="1">Colour&nbsp;Light</option>
                     <option value="0">Semaphore</option>
                   </select>
                 </div>
-                <div class="col-md-3">
-                  <label class="form-label">Avl&nbsp;Aspects</label>
-                  <input type="number" class="form-control" name="availableaspects">
-                </div>
               </div>
               <div class="row g-3 mt-2">
-                <div class="col-md-3">
-                  <label class="form-label">Dir&nbsp;Indicator</label>
-                  <input type="number" class="form-control" name="directionindicator">
-                </div>
                 <div class="col-md-4">
                   <label class="form-label">Next&nbsp;Signal</label>
                   <select class="form-select" name="nextsignal">
@@ -251,47 +279,6 @@
                     <option value="{{ s }}">{{ s }}</option>
                     {% endfor %}
                   </select>
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label">Board&nbsp;Index</label>
-                  <select class="form-select" name="board_index">
-                    {% for i in range(4) %}
-                    <option value="{{ i }}">Board {{ i }}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-                <div class="col-md-3 d-flex align-items-end">
-                  <button type="button" class="btn btn-outline-secondary w-100" id="signalsApplyDefaults">
-                    <i class="fa fa-wand-magic-sparkles"></i> Apply defaults
-                  </button>
-                </div>
-              </div>
-              <div class="row g-3 mt-2">
-                <div class="col-md-3">
-                  <label class="form-label">Danger&nbsp;Reg</label>
-                  <input type="number" class="form-control" name="dangerreg">
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Caution&nbsp;Reg</label>
-                  <input type="number" class="form-control" name="cautionreg">
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Clear&nbsp;Reg</label>
-                  <input type="number" class="form-control" name="clearreg">
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Calling-On&nbsp;Reg</label>
-                  <input type="number" class="form-control" name="callingonreg">
-                </div>
-              </div>
-              <div class="row g-3 mt-2">
-                <div class="col-md-3">
-                  <label class="form-label">Banner&nbsp;Reg</label>
-                  <input type="number" class="form-control" name="bannerreg">
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Dbl&nbsp;Caution&nbsp;Reg</label>
-                  <input type="number" class="form-control" name="doublecautionreg">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Conflicting&nbsp;Signals</label>
@@ -302,6 +289,14 @@
                   </select>
                 </div>
               </div>
+
+
+              <h6 class="mt-2">Aspects → Configuration</h6>
+              <div class="signal-aspects mb-2"></div>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-add-aspect>
+                <i class="fa fa-plus"></i> Add aspect
+              </button>
+
               {% endif %}
 
               {% if tab=="Points" %}
@@ -314,9 +309,9 @@
                   <label class="form-label">Network</label>
                   <select class="form-select network-select" name="network"></select>
                 </div>
-                </div>
+              </div>
               <div class="row g-3 mt-2">
-<div class="col-md-2">
+                <div class="col-md-2">
                   <label class="form-label">Normal&nbsp;Coil</label>
                   <input type="number" class="form-control" name="normal_coil">
                 </div>
@@ -339,23 +334,28 @@
                     <option value="{{ i }}">Board {{ i }}</option>
                     {% endfor %}
                   </select>
-                </div>
-              
-<div class="col-md-3 d-flex align-items-end">
-  <button type="button" class="btn btn-outline-secondary w-100" id="pointsApplyDefaults">
-    <i class="fa fa-wand-magic-sparkles"></i> Apply defaults
-  </button>
-</div>
+              </div>
+              <div class="col-md-3 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-secondary w-100" id="pointsApplyDefaults">
+                  <i class="fa fa-wand-magic-sparkles"></i> Apply defaults
+                </button>
+              </div>
               </div>
               {% endif %}
 
               {% if tab=="Sections" %}
               <div class="row g-3 mt-3">
+
                 <div class="col-md-3">
-                  <label class="form-label">Axle&nbsp;Tolerance</label>
-                  <input type="number" class="form-control" name="axle_tolerance">
+                  <label class="form-label">Mode</label>
+                  <select class="form-select" name="mode">
+                    <option value="axlecounter">axlecounter</option>
+                    <option value="trackcircuit">trackcircuit</option>
+                    <option value="treadlepad">treadlepad</option>
+                  </select>
                 </div>
-<div class="col-md-4">
+
+                <div class="col-md-4">
                   <label class="form-label">Arrival&nbsp;Triggers</label>
                   <select multiple class="form-select" name="inctrig">
                     {% for ac in data["AxleCounters"].keys() %}
@@ -378,17 +378,22 @@
                   </select>
                 </div>
               </div>
-              <div class="row g-3 mt-2">
-                
-<div class="col-md-3">
-  <label class="form-label">Mode</label>
-  <select class="form-select" name="mode">
-    <option value="axlecounter">axlecounter</option>
-    <option value="trackcircuit">trackcircuit</option>
-    <option value="treadlepad">treadlepad</option>
-  </select>
-</div>
+              <div class="row g-3 mt-2 d-none" data-sections-tc-row>
+                <div class="col-md-4">
+                  <label class="form-label">Track&nbsp;Circuit</label>
+                    <select multiple class="form-select" name="trackcircuits">
+                      {% for t in data["TrackCircuits"].keys() %}
+                      <option value="{{ t }}">{{ t }}</option>
+                      {% endfor %}
+                    </select>
 
+                </div>
+              </div>
+              <div class="row g-3 mt-2">  
+                <div class="col-md-3">
+                  <label class="form-label">Axle&nbsp;Tolerance</label>
+                  <input type="number" class="form-control" name="axle_tolerance">
+                </div>                
                 <div class="col-md-4">
                   <label class="form-label">Home&nbsp;Signals</label>
                   <select multiple class="form-select" name="homesignal">
@@ -406,6 +411,9 @@
                   </select>
                 </div>
               </div>
+
+
+
               {% endif %}
 
               {% if tab=="Plungers" %}
@@ -414,41 +422,23 @@
                   <label class="form-label">Address</label>
                   <input type="number" class="form-control" name="address" required>
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label">Mode</label>
-                  <select class="form-select" name="mode">
-                    <option value="0">Request&nbsp;Store</option>
-                    <option value="1">No&nbsp;Request&nbsp;Store</option>
-                  </select>
-                </div>
                 <div class="col-md-6">
                   <label class="form-label">Network</label>
                   <select class="form-select network-select" name="network"></select>
                 </div>
               </div>
 
-<div class="row g-3 mt-2">
-  <div class="col-md-3">
-    <label class="form-label">Register</label>
-    <input type="number" class="form-control" name="register">
-  </div>
-</div>
+              <div class="row g-3 mt-2">
+                <div class="col-md-3">
+                  <label class="form-label">Register</label>
+                  <input type="number" class="form-control" name="register">
+                </div>
+              </div>
 
               {% endif %}
 
               {% if tab=="Routes" %}
               <div class="row g-3 mt-3">
-                <div class="col-md-3">
-                  <label class="form-label">Mode</label>
-                  <select class="form-select" name="mode">
-                    <option value="1">Store&nbsp;Request</option>
-                    <option value="0">Do&nbsp;Not&nbsp;Store&nbsp;Request</option>
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Priority</label>
-                  <input type="number" class="form-control" name="priority">
-                </div>
                 <div class="col-md-6">
                   <label class="form-label">Sections</label>
                   <select multiple class="form-select" name="sections">
@@ -574,7 +564,8 @@
     {% endfor %}
   </div>
 </div>
-
+{% endblock %}
+{% block scripts %}
 <script>
 // ====== Globals / Stores ======
 const entityTypes = {{ tabs|tojson }};
@@ -676,7 +667,7 @@ function saveConfig(){
     if(name) portsMap[name] = port || '';
   });
   const payload = {
-    layoutDB: $('#cfg_layoutDB').val().trim(),
+    layoutDB: ($('#cfg_layoutDB_select').val() || '').trim(),
     axle_tolerance: num($('#cfg_axle_tolerance').val(), 0),
     logging_level: num($('#cfg_logging_level').val(), 20),
     mqtt_broker_address: $('#cfg_mqtt_broker_address').val().trim(),
@@ -742,6 +733,30 @@ function loadSignalMapping(){
 function mapForBoard(boardIndex){
   return signalMapping[`board_index_${Number(boardIndex)}`] || {};
 }
+// --- Helpers for per-row aspect defaults (Signals modal) ---
+function getMappedRegisterForAspect($form, aspectKey){
+  const bi  = $form.find('[name=board_index]').val();
+  const map = mapForBoard(bi);
+  return (map && map[aspectKey] != null) ? Number(map[aspectKey]) : '';
+}
+
+// Update all aspect rows when Board Index changes (clobber-safe):
+function refreshAspectRowsForBoard(formEl){
+  const $form = $(formEl);
+  $form.find('.signal-aspect-row').each(function(){
+    const $row = $(this);
+    const aKey = $row.find('.signal-aspect').val();
+    const mapped = getMappedRegisterForAspect($form, aKey);
+    const $reg = $row.find('.signal-aspect-reg');
+    // Only auto-fill if empty or still equal to the *last mapped* value
+    if ($reg.data('lastMapped') === $reg.val() || ($reg.val() ?? '') === '') {
+      $reg.val(mapped);
+    }
+    $reg.data('lastMapped', mapped);
+  });
+}
+
+
 function applySignalDefaults(formEl, { force=false } = {}){
   const $f  = $(formEl);
   const bi  = $f.find('[name=board_index]').val();
@@ -762,18 +777,22 @@ function applySignalDefaults(formEl, { force=false } = {}){
     const cur = $inp.val();
     if(force || cur === '' || cur == null) $inp.val(Number(map[key]));
   });
+
   for(let i=1;i<=6;i++){
     const kJson = `route_${i}`;
     const $inp  = $f.find(`[name=route${i}reg]`);
     if($inp.length && map[kJson] != null){
       if(force || $inp.val()==='') $inp.val(Number(map[kJson]));
     }
+  }
+}
 
 function applyPointDefaults(formEl, { force=false } = {}){
   const $f  = $(formEl);
   const bi  = $f.find('[name=board_index]').val();
   const map = mapForBoard(bi);
   if(!map || !Object.keys(map).length) return;
+
   const pairs = [
     ['normal_coil',  'normal_direction'],
     ['reverse_coil', 'reverse_direction'],
@@ -788,27 +807,50 @@ function applyPointDefaults(formEl, { force=false } = {}){
   });
 }
 
-  }
-}
 
 // ====== Allowed aspects for Routes -> Signals builder ======
 function allowedAspectsForSignal(sigRef){
   const s = (dataStore["Signals"] || {})[sigRef];
   if(!s) return [];
-  const a = [];
-  if(s.dangerreg != null)  a.push("danger");
-  if(s.cautionreg != null) a.push("caution");
-  if(s.clearreg != null)   a.push("clear");
-  if(s.bannerreg != null)  a.push("banner");
-  if(s.callingonreg != null){
-    a.push("position_light","associated_position_light","calling_on");
+  const mapKeyToRouteName = {
+    danger_aspect:          "danger",
+    caution_aspect:         "caution",
+    double_caution_aspect:  "double_caution",
+    clear_aspect:           "clear",
+    banner_repeater:        "banner",
+    calling_on:             "calling_on",
+    route_1: "route1", route_2: "route2", route_3: "route3",
+    route_4: "route4", route_5: "route5", route_6: "route6",
+  };
+  const legacyToMapKey = {
+    dangerreg: 'danger_aspect',
+    cautionreg: 'caution_aspect',
+    doublecautionreg: 'double_caution_aspect',
+    clearreg: 'clear_aspect',
+    bannerreg: 'banner_repeater',
+    callingonreg: 'calling_on',
+    route1reg: 'route_1',
+    route2reg: 'route_2',
+    route3reg: 'route_3',
+    route4reg: 'route_4',
+    route5reg: 'route_5',
+    route6reg: 'route_6',
+  };
+
+  // Prefer new structure
+  let keys = Object.keys(s.aspects || {});
+  // If absent, fall back to legacy fields that are not null/undefined/""
+  if (keys.length === 0) {
+    keys = Object.entries(legacyToMapKey)
+      .filter(([legacyField]) => s[legacyField] != null && s[legacyField] !== "")
+      .map(([, aspectKey]) => aspectKey);
   }
-  if(s.doublecautionreg != null || s.doublecaution != null) a.push("double_caution");
-  for(let i=1;i<=6;i++){
-    if(s[`route${i}reg`] != null) a.push(`route${i}`);
-  }
-  return [new Set(a)];
+
+  return keys.map(k => mapKeyToRouteName[k]).filter(Boolean);
 }
+
+
+
 
 // ====== Table column config (lightweight) ======
 const tableCols = {
@@ -821,50 +863,56 @@ const tableCols = {
     { key:'address',     label:'Address' },
     { key:'network',     label:'Network' }
   ],
+    TrackCircuits: [
+    { key:'ref', label:'Ref' },
+    { key:'description', label:'Description' },
+    { key:'address', label:'Address' },
+    { key:'network', label:'Network' },
+    { key:'mode', label:'Mode' }
+  ],
   Points: [
     { key:'ref', label:'Ref' },
+    { key:'description', label:'Description' },
     { key:'section', label:'Section' },
     { key:'normal_coil', label:'Normal Coil' },
     { key:'reverse_coil', label:'Reverse Coil' },
     { key:'address', label:'Address' },
-    { key:'network', label:'Network' },
-    { key:'description', label:'Description' }
+    { key:'network', label:'Network' }
   ],
   AxleCounters: [
     { key:'ref',          label:'Ref' },
+    { key:'description', label:'Description' },
     { key:'upcount_reg',  label:'Up Reg' },
     { key:'downcount_reg',label:'Down Reg' },
-    { key:'normal_coil',  label:'N Coil' },
-    { key:'reverse_coil', label:'R Coil' },
     { key:'address',      label:'Address' },
     { key:'network',      label:'Network' },
     { key:'mode',         label:'Mode', formatter:v=> v===0? 'Directional' : (v===1? 'Non-directional': v) }
   ],
   Plungers: [
     { key:'ref',        label:'Ref' },
+    { key:'description', label:'Description' },
     { key:'register',   label:'Register' },
     { key:'mode',       label:'Mode' },
     { key:'network',    label:'Network' },
-    { key:'address',    label:'Address' },
-    { key:'description',label:'Description' }
+    { key:'address',    label:'Address' }
   ],
   Sections: [
     { key:'ref',             label:'Ref' },
+    { key:'description', label:'Description' },
     { key:'axle_tolerance',  label:'Axle Tol' },
     { key:'mode',            label:'Mode' },
     { key:'homesignal',      label:'Home Signals', formatter:v=> (v||[]).length },
-    { key:'conflictingsections', label:'Conflicts', formatter:v=> (v||[]).length },
-    { key:'description',     label:'Description' }
+    { key:'conflictingsections', label:'Conflicts', formatter:v=> (v||[]).length }
   ],
   Routes: [
     { key:'ref',        label:'Ref' },
-    { key:'priority',   label:'Priority' },
+    { key:'description', label:'Description' },
     { key:'sections',   label:'Sections', formatter:v=> (v||[]).join(', ') },
-    { key:'points',     label:'Points', formatter:v=> Object.keys(v||{}).length },
-    { key:'mode',       label:'Store' }
+    { key:'points',     label:'Points', formatter:v=> Object.keys(v||{}).length }
   ],
   Triggers: [
     { key:'ref',                 label:'Ref' },
+    { key:'description',         label:'Description' },
     { key:'priority',            label:'Priority' },
     { key:'retain_request',      label:'Retain', formatter:v=> v? 'Yes':'No' },
     { key:'routes_to_set',       label:'Set Routes', formatter:v=> (v||[]).length },
@@ -872,7 +920,153 @@ const tableCols = {
   ]
 };
 
+// ====== Add Signal Aspect Config ======
+// ---- Aspect dictionary: label -> key in mapping file ----
+const ASPECT_OPTIONS = [
+  { label: 'Danger',           key: 'danger_aspect' },
+  { label: 'Caution',          key: 'caution_aspect' },
+  { label: 'Double Caution',   key: 'double_caution_aspect' },
+  { label: 'Clear',            key: 'clear_aspect' },
+  { label: 'Banner Repeater',  key: 'banner_repeater' },
+  { label: 'Calling-on',       key: 'calling_on' },
+  { label: 'Route 1',          key: 'route_1' },
+  { label: 'Route 2',          key: 'route_2' },
+  { label: 'Route 3',          key: 'route_3' },
+  { label: 'Route 4',          key: 'route_4' },
+  { label: 'Route 5',          key: 'route_5' },
+  { label: 'Route 6',          key: 'route_6' },
+];
+
+
+function addAspectRow($form, aspectKey = "", register = "") {
+  const row = $(`
+    <div class="d-flex align-items-center gap-2 signal-aspect-row mb-2">
+      <select class="form-select form-select-sm signal-aspect" style="max-width:220px">
+        <option value="">Select aspect…</option>
+        ${ASPECT_OPTIONS.map(a => `<option value="${a.key}">${a.label}</option>`).join('')}
+      </select>
+      <input type="number" class="form-control form-control-sm signal-aspect-reg" style="max-width:120px" placeholder="Register">
+      <button type="button" class="btn btn-sm btn-outline-secondary signal-aspect-reset" title="Reset to default">
+        <i class="fa fa-rotate-left"></i>
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-danger signal-remove-aspect">
+        <i class="fa fa-trash"></i>
+      </button>
+    </div>
+  `);
+
+  // Initial selections
+  if (aspectKey) row.find('.signal-aspect').val(aspectKey);
+
+  // Determine initial mapped default
+  const aKey = row.find('.signal-aspect').val();
+  const mapped = getMappedRegisterForAspect($form, aKey);
+
+  // If caller passed an explicit register, use it, else mapped default
+  const initialReg = (register !== "") ? register : mapped;
+  const $reg = row.find('.signal-aspect-reg');
+  $reg.val(initialReg);
+  $reg.data('lastMapped', mapped);
+
+  // When aspect changes → update register (clobber-safe)
+  row.on('change', '.signal-aspect', function(){
+    const newKey  = $(this).val();
+    const newMap  = getMappedRegisterForAspect($form, newKey);
+    const cur     = $reg.val();
+    if ($reg.data('lastMapped') === cur || (cur ?? '') === '') {
+      $reg.val(newMap);
+    }
+    $reg.data('lastMapped', newMap);
+  });
+
+  // Per-row Reset → force mapped default into the input
+  row.on('click', '.signal-aspect-reset', function(){
+    const k = row.find('.signal-aspect').val();
+    const m = getMappedRegisterForAspect($form, k);
+    $reg.val(m);
+    $reg.data('lastMapped', m);
+  });
+
+  // Remove row
+  row.on('click', '.signal-remove-aspect', function(){
+    row.remove();
+  });
+
+  // Attach
+  $form.find('.signal-aspects').append(row);
+}
+
+// ---- TrackCircuits: mode-aware register rows ----
+function tcAllowedTypesForMode(mode) {
+  return (mode === 'non-latching') ? ['latch', 'unlatch'] : ['self-latching'];
+}
+
+function addTcRegisterRow($form, typeOpt = '', regNum = '') {
+  const mode = String($form.find('[data-tc-mode]').val() || 'self-latching');
+  const allowed = tcAllowedTypesForMode(mode);
+  const row = $(`
+    <div class="d-flex align-items-center gap-2 trackcircuit-register-row mb-2">
+      <select class="form-select form-select-sm tc-reg-type" style="max-width:220px"></select>
+      <input type="number" class="form-control form-control-sm tc-reg-num" style="max-width:120px" placeholder="Register">
+      <button type="button" class="btn btn-sm btn-outline-danger tc-remove-row" title="Remove">
+        <i class="fa fa-trash"></i>
+      </button>
+    </div>
+  `);
+
+  // Fill type options by current mode
+  const $type = row.find('.tc-reg-type').empty();
+  allowed.forEach(t => $type.append(`<option value="${t}">${t}</option>`));
+  if (typeOpt && allowed.includes(typeOpt)) $type.val(typeOpt);
+  if (regNum !== '') row.find('.tc-reg-num').val(Number(regNum));
+
+  // Remove row
+  row.on('click', '.tc-remove-row', () => row.remove());
+
+  $form.find('.trackcircuit-registers').append(row);
+}
+
+function tcRefreshTypesForMode($form) {
+  const mode = String($form.find('[data-tc-mode]').val() || 'self-latching');
+  const allowed = tcAllowedTypesForMode(mode);
+  $form.find('.trackcircuit-register-row').each(function() {
+    const $row = $(this);
+    const $type = $row.find('.tc-reg-type');
+    const cur = $type.val();
+    $type.empty();
+    allowed.forEach(t => $type.append(`<option value="${t}">${t}</option>`));
+    // Try to keep previous choice if still allowed; otherwise pick first
+    $type.val(allowed.includes(cur) ? cur : allowed[0]);
+  });
+}
+
+function tcGatherRegisters($form) {
+  const mode = String($form.find('[data-tc-mode]').val() || 'self-latching');
+  const out = {};
+  if (mode === 'self-latching') {
+    out['self-latching'] = [];
+  } else {
+    out.latch = [];
+    out.unlatch = [];
+  }
+  $form.find('.trackcircuit-register-row').each(function() {
+    const type = $(this).find('.tc-reg-type').val();
+    const vRaw = ($(this).find('.tc-reg-num').val() || '').trim();
+    if (!type || vRaw === '') return;
+    const n = Number(vRaw);
+    if (!Number.isFinite(n)) return;
+    if (!(type in out)) out[type] = [];
+    out[type].push(n);
+  });
+  return out;
+}
+
+
+
+
 // ====== Routes builders ======
+
+
 function addPointRow($form, pointRef=null, dir="normal"){
   const row = $(`
     <div class="d-flex align-items-center gap-2 route-point-row mb-2">
@@ -936,18 +1130,44 @@ function addSignalRow($form, sigRef=null, aspects=[]){
 function toggleSectionsFields(formEl){
   const $f = $(formEl);
   const mode = $f.find('[name=mode]').val();
+
+  // Existing axle tolerance show/hide
   const $axle = $f.find('[name=axle_tolerance]').closest('.col-md-3');
   const showAxle = (mode === 'axlecounter');
   $axle.toggleClass('d-none', !showAxle);
   $f.find('[name=axle_tolerance]').prop('disabled', !showAxle);
+
+  // Arrival/Departure triggers are only for axlecounter
+  const $arr = $f.find('[name=inctrig]').closest('.col-md-4');
+  const $dep = $f.find('[name=dectrig]').closest('.col-md-4');
+  $arr.toggleClass('d-none', !showAxle);
+  $dep.toggleClass('d-none', !showAxle);
+  $f.find('[name=inctrig], [name=dectrig]').prop('disabled', !showAxle);
+
+  // Track Circuit dropdown only for trackcircuit mode
+  const showTc = (mode === 'trackcircuit');
+  $f.find('[data-sections-tc-row]').toggleClass('d-none', !showTc)
+    .find(':input').prop('disabled', !showTc);
 }
 
+
 // ====== Init ======
+function rebootPi(){
+  if(!confirm('Reboot the Raspberry Pi now?\n\nAll services will be interrupted.\n\nAre you sure?')) return;
+  fetch('/api/reboot', { method:'POST' })
+    .then(r => r.ok ? null : r.text().then(t => { throw new Error(t || 'Request failed'); }))
+    .then(() => alert('Reboot requested. The device will go offline shortly.'))
+    .catch(err => alert('Reboot request failed: ' + err.message));
+}
+
 $(function(){
   // Config tab controls
   $('#cfgAddNetwork').on('click', ()=> { addNetworkRow(); });
   $('#cfgReloadBtn').on('click', ()=> loadConfig());
   $('#cfgSaveBtn').on('click', ()=> saveConfig());
+
+  // NEW: reboot button
+  $('#rebootBtn').on('click', rebootPi);
 
   // Load supporting data
   buildPortsDatalist();
@@ -980,7 +1200,21 @@ $(function(){
       if(type==="Signals"){
         form.find('[name=board_index]').val(0);
         applySignalDefaults(form[0], { force:false });
+        form.find('.signal-aspects').empty();
+        addAspectRow(form); // optional: start with one blank row
       }
+
+      // TrackCircuits: start with one blank register row
+      if (type === "TrackCircuits") {
+        form.find('.trackcircuit-registers').empty();
+        addTcRegisterRow(form);
+        // Changing mode updates the allowed register types in existing rows
+        form.off('change.tcMode').on('change.tcMode', '[data-tc-mode]', function() {
+          tcRefreshTypesForMode(form);
+        });
+      }
+
+
 
       if (type === "Triggers"){
         // default conditions to "True"
@@ -989,6 +1223,7 @@ $(function(){
         clearSpecialActionsUI(form[0]);
         // populate "stored requests to cancel" from current Trigger refs
         refreshTriggerRefSelects(/* exclude = */ null);
+        refreshRoutesSelects();   
       const $trigForm = $(`.${'Triggers'.toLowerCase()}Form`);
       $trigForm.on('click','[data-add-special-action]', function(){
         const form = $(this).closest('form')[0];
@@ -1006,6 +1241,8 @@ $(function(){
 
       $(`#${lc}Modal .modal-title`).text(`Add ${type.slice(0,-1)}`);
       if(type==="Sections"){ toggleSectionsFields($(`.${lc}Form`)[0]); }
+      refreshSectionsDependentSelects();
+      refreshTrackCircuitSelects();
       bsModals[type].show();
     });
 
@@ -1025,40 +1262,94 @@ $(function(){
 
       // Modes per entity
       if(type==="AxleCounters"){ entry.mode = num(vals.mode); }       // 0 dir / 1 non-dir
-      
-      if(type==="Plungers"){ entry.mode = num(vals.mode); }
-      if(type==="Routes"){ entry.mode = num(vals.mode); }
+      //entry.mode = num(0);
 
       // Type specifics
       if(type==="AxleCounters"){
-        ["upcount_reg","downcount_reg","normal_coil","reverse_coil"].forEach(k=> entry[k]=num(vals[k]));
+        ["upcount_reg","downcount_reg"].forEach(k=> entry[k]=num(vals[k]));
       }
 
       
-if(type==="Signals"){
-  // Save numeric registers or null when blank
-  const regFields = ["dangerreg","cautionreg","clearreg","callingonreg","bannerreg","doublecautionreg",
-                     "route1reg","route2reg","route3reg","route4reg","route5reg","route6reg"];
-  regFields.forEach(k => entry[k] = (vals[k]==="" || vals[k]===undefined) ? null : num(vals[k], null));
-  // Other fields
-  entry.sigtype = num(vals.sigtype, 0);
-  entry.availableaspects = num(vals.availableaspects, 3);
-  entry.directionindicator = num(vals.directionindicator, 0);
-  entry.nextsignal = vals.nextsignal || "";
-  entry.conflicting_signals = arrify(vals.conflicting_signals);
-  entry.board_index = num(vals.board_index);
-}
+      if (type === "Signals") {
+        // ------- Basics -------
+        entry.sigtype            = num(vals.sigtype, 0);
+        entry.availableaspects   = num(vals.availableaspects, 3);
+        entry.directionindicator = num(vals.directionindicator, 0);
+        entry.nextsignal         = vals.nextsignal || "";
+        entry.conflicting_signals= arrify(vals.conflicting_signals);
+        entry.board_index        = num(vals.board_index);
+
+        // ------- NEW: Harvest aspect rows into entry.aspects -------
+        const aspects = {};
+        const $form = $(`.${lc}Form`);
+        $form.find('.signal-aspect-row').each(function(){
+          const aKey = $(this).find('.signal-aspect').val();          // e.g. "danger_aspect"
+          const raw  = ($(this).find('.signal-aspect-reg').val() || "").trim(); // e.g. "3001"
+          if (!aKey) return; // skip blank aspect rows
+
+          if (raw === "") { 
+            aspects[aKey] = null; 
+          } else {
+            const n = Number(raw);
+            aspects[aKey] = Number.isFinite(n) ? n : null; // robust parse
+          }
+        });
+        entry.aspects = aspects;
+
+        // ------- Mirror to legacy flat fields (same structure as default.json) -------
+        const legacyFieldFromKey = {
+          danger_aspect: 'dangerreg',
+          caution_aspect: 'cautionreg',
+          double_caution_aspect: 'doublecautionreg',
+          clear_aspect: 'clearreg',
+          banner_repeater: 'bannerreg',
+          calling_on: 'callingonreg',
+          route_1: 'route1reg',
+          route_2: 'route2reg',
+          route_3: 'route3reg',
+          route_4: 'route4reg',
+          route_5: 'route5reg',
+          route_6: 'route6reg',
+        };
+
+        // Start by clearing all to null
+        Object.values(legacyFieldFromKey).forEach(field => { entry[field] = null; });
+
+        // Then fill whatever is present in the rows
+        Object.entries(entry.aspects).forEach(([aKey, reg]) => {
+          const field = legacyFieldFromKey[aKey];
+          if (!field) return;
+          entry[field] = (reg == null || reg === "") ? null : Number(reg);
+        });
+
+        // (Optional) keep only legacy fields by removing the aspects mirror:
+        delete entry.aspects;
+      }
+
+
 
 
       if(type==="Points"){ ['normal_coil','reverse_coil'].forEach(k=> entry[k]=num(vals[k])); entry.section = vals.section || ''; entry.board_index = num(vals.board_index); }
 
       if(type==="Sections"){
         entry.mode = vals.mode || 'axlecounter';
-        entry.axle_tolerance = num(vals.axle_tolerance);
-        entry.inctrig = buildAcDirMap(vals.inctrig || []);
-        entry.dectrig = buildAcDirMap(vals.dectrig || []);
+        if (entry.mode === 'trackcircuit'){
+          // Track Circuit mode: single reference, no axle triggers
+          entry.trackcircuits = arrify(vals.trackcircuits || []);
+          entry.inctrig = {};
+          entry.dectrig = {};
+
+        } else {
+          // Non-TC modes:
+          entry.axle_tolerance = num(vals.axle_tolerance);
+          entry.inctrig = buildAcDirMap(vals.inctrig || []);
+          entry.dectrig = buildAcDirMap(vals.dectrig || []);
+
+          delete entry.trackcircuit; // ensure we don't carry stale value
+        }
         entry.homesignal = arrify(vals.homesignal);
-        entry.conflictingsections = arrify(vals.conflictingsections);
+        entry.conflictingsections = arrify(vals.conflictingsections);   
+
       }
 
       if(type==="Plungers"){
@@ -1066,7 +1357,6 @@ if(type==="Signals"){
       }
 
       if(type==="Routes"){
-        entry.priority = num(vals.priority);
         entry.sections = arrify(vals.sections);
 
         // Points → { pointRef: "normal"|"reverse" }
@@ -1111,23 +1401,63 @@ if(type==="Signals"){
         entry.trigger_special_actions   = getSpecialActionsArray(this);
         // NEW: stored requests to cancel (Trigger refs)
         entry.stored_requests_to_cancel = arrify(vals.stored_requests_to_cancel);
+        entry.axlecount = entry.axlecount || {};  // need to implement this
+
+      }
+
+      if (type === "TrackCircuits") {
+        // normalize mode to our canonical values
+        const m = String(vals.mode || '').toLowerCase();
+        entry.mode = (m === 'non-latching') ? 'non-latching' : 'self-latching';
+
+        entry.address = num(vals.address);
+        entry.network = vals.network || 'network_1';
+        entry.registers = tcGatherRegisters($(this));
+
+        // Optional: seed expected fields you showed in examples
+        entry.comms_status = entry.comms_status || "";
+        entry.instances = entry.instances || {};
+        entry.slave = (entry.slave ?? null);
       }
 
 
       dataStore[type][ref] = entry;
       bsModals[type].hide();
       if(type==="Signals") refreshDependentSelects();
+      refreshSectionsDependentSelects();
+      refreshTrackCircuitSelects();
+      refreshRoutesSelects(); 
       renderTable(type);
     });
 
     // Routes extra handlers
     if (type === "Routes"){
       const $form = $(`.${lc}Form`);
+      $form.on('click','[data-add-aspect]', ()=> addAspectRow($form));
       $form.on('click','[data-add-point]', ()=> addPointRow($form));
       $form.on('click','[data-add-signal]', ()=> addSignalRow($form));
+      $form.on('click','.signal-remove-aspect', function(){ $(this).closest('.signal-aspect-row').remove(); });
       $form.on('click','.route-remove-point', function(){ $(this).closest('.route-point-row').remove(); });
       $form.on('click','.route-remove-signal', function(){ $(this).closest('.route-signal-row').remove(); });
     }
+
+    // Signals extra handlers
+    if (type === "Signals"){
+      const $form = $(`.${lc}Form`);
+      $form.on('click','[data-add-aspect]', ()=> addAspectRow($form));
+      $form.on('click','.signal-remove-aspect', function(){
+        $(this).closest('.signal-aspect-row').remove();
+      });
+    }
+
+    // TrackCircuits extra handlers
+    if (type === "TrackCircuits") {
+      const $form = $(`.${lc}Form`);
+      $form.off('click.tcAdd').on('click.tcAdd', '[data-add-register]', () => addTcRegisterRow($form));
+    }
+
+
+
 
     // Signals Apply defaults + board change
 
@@ -1152,6 +1482,7 @@ $('body').on('change', '.pointsForm [name=board_index]', function(){
     });
     $('body').on('change', '.signalsForm [name=board_index]', function(){
       applySignalDefaults(this.form, { force:false });
+      refreshAspectRowsForBoard(this.form);
     });
 
     // Edit / Delete
@@ -1166,7 +1497,8 @@ $('body').on('change', '.pointsForm [name=board_index]', function(){
           renderTable(type);
           if(type==="Signals") refreshDependentSelects();
           if (type === "Triggers") refreshTriggerRefSelects();
-         
+          if (type === "Routes")  refreshRoutesSelects(); 
+          refreshSectionsDependentSelects();
         }
       });
   });
@@ -1214,19 +1546,84 @@ function openEditorForRow(type, ref){
 
   if(type==="AxleCounters"){
     form.find('[name=mode]').val(it.mode);
-    ["upcount_reg","downcount_reg","normal_coil","reverse_coil"].forEach(k=> form.find(`[name=${k}]`).val(it[k]));
+    ["upcount_reg","downcount_reg"].forEach(k=> form.find(`[name=${k}]`).val(it[k]));
+  }
+  
+  if (type === "TrackCircuits") {
+    // basics
+    form.find('[name=address]').val(it.address);
+    form.find('[name=network]').val(it.network);
+    form.find('[data-tc-mode]').val(it.mode || 'self-latching');
+
+    // rebuild rows from existing registers
+    const $panel = form.find('.trackcircuit-registers').empty();
+    const regs = it.registers || {};
+    const mode = String(it.mode || 'self-latching');
+    if (mode === 'non-latching') {
+      const L = Array.isArray(regs.latch) ? regs.latch : [];
+      const U = Array.isArray(regs.unlatch) ? regs.unlatch : [];
+      if (L.length + U.length === 0) addTcRegisterRow(form); // at least one row
+      L.forEach(n => addTcRegisterRow(form, 'latch', n));
+      U.forEach(n => addTcRegisterRow(form, 'unlatch', n));
+    } else {
+      const A = Array.isArray(regs['self-latching']) ? regs['self-latching'] : [];
+      if (A.length === 0) addTcRegisterRow(form);
+      A.forEach(n => addTcRegisterRow(form, 'self-latching', n));
+    }
+
+    // ensure row types match current select value
+    tcRefreshTypesForMode(form);
   }
 
+
+
+
   if(type==="Signals"){
-    ["sigtype","availableaspects","directionindicator","dangerreg","cautionreg","clearreg",
-     "callingonreg","bannerreg","doublecautionreg","route1reg","route2reg","route3reg",
-     "route4reg","route5reg","route6reg"].forEach(k=> form.find(`[name=${k}]`).val(it[k]));
+    // Basic fields
+    ["sigtype","availableaspects","directionindicator"].forEach(k=> form.find(`[name=${k}]`).val(it[k]));
     form.find('[name=nextsignal]').val(it.nextsignal || "");
     form.find('[name=conflicting_signals]').val(it.conflicting_signals || []);
     form.find('[name=board_index]').val(it.board_index ?? 0);
-    // Prefill from mapping where empty
-    applySignalDefaults(form[0], { force:false });
+
+    // Rebuild aspect rows from saved JSON.
+  // Prefer `it.aspects` if present. Otherwise derive from legacy fields in default.json.
+  const $panel = form.find('.signal-aspects').empty();
+
+  const keyFromLegacy = {
+    dangerreg: 'danger_aspect',
+    cautionreg: 'caution_aspect',
+    doublecautionreg: 'double_caution_aspect',
+    clearreg: 'clear_aspect',
+    bannerreg: 'banner_repeater',
+    callingonreg: 'calling_on',
+    route1reg: 'route_1',
+    route2reg: 'route_2',
+    route3reg: 'route_3',
+    route4reg: 'route_4',
+    route5reg: 'route_5',
+    route6reg: 'route_6',
+  };
+
+  let aspectsMap = it.aspects; // may be undefined in default.json
+
+    if (!aspectsMap) {
+      aspectsMap = {};
+      Object.entries(keyFromLegacy).forEach(([legacyField, aspectKey]) => {
+        const v = it[legacyField];
+        if (v !== undefined && v !== null && v !== "") {
+          aspectsMap[aspectKey] = Number(v);
+        }
+      });
+    }
+
+    const entries = Object.entries(aspectsMap || {});
+    if (entries.length) {
+      entries.forEach(([aKey, reg]) => addAspectRow(form, aKey, reg ?? ""));
+    } else {
+      addAspectRow(form); // at least one row to start with
+    }
   }
+
 
   if(type==="Points"){
     form.find('[name=mode]').val(String(!!it.mode));
@@ -1245,6 +1642,11 @@ function openEditorForRow(type, ref){
     form.find('[name=conflictingsections]').val(it.conflictingsections || []);
     form.find('[name=inctrig]').val(flattenAcDirMap(it.inctrig));
     form.find('[name=dectrig]').val(flattenAcDirMap(it.dectrig));
+    // Support old JSONs that stored a single "trackcircuit"
+    const tcList = it.trackcircuits || (it.trackcircuit ? [it.trackcircuit] : []);
+    form.find('[name=trackcircuits]').val(tcList);
+    toggleSectionsFields(form[0]); // keep this call so the right rows show
+
   }
 
   if(type==="Plungers"){
@@ -1253,8 +1655,6 @@ function openEditorForRow(type, ref){
   }
 
   if(type==="Routes"){
-    form.find('[name=mode]').val(it.mode);
-    form.find('[name=priority]').val(it.priority);
     form.find('[name=sections]').val(it.sections || []);
     // rebuild builders
     form.find('.route-points').empty();
@@ -1270,6 +1670,8 @@ function openEditorForRow(type, ref){
   }
 
   if(type==="Triggers"){
+      // Make sure route options are current before setting values
+    refreshRoutesSelects();  
     form.find('[name=priority]').val(it.priority);
     form.find('[name=retain_request]').prop('checked', !!it.retain_request);
 
@@ -1294,6 +1696,8 @@ function openEditorForRow(type, ref){
 
 
   $(`#${lc}Modal .modal-title`).text(`Edit ${type.slice(0,-1)}`);
+  refreshSectionsDependentSelects();
+  refreshTrackCircuitSelects();
   bsModals[type].show();
 }
 
@@ -1341,6 +1745,60 @@ function refreshDependentSelects(){
   });
 }
 
+// Update selects that depend on Sections/TrackCircuits existing
+function refreshSectionsDependentSelects(){
+  const secKeys = Object.keys(dataStore["Sections"] || {});
+  const setMulti = (selector) => {
+    $(selector).each(function(){
+      const cur = $(this).val() || [];
+      $(this).empty();
+      secKeys.forEach(s => $(this).append(`<option value="${s}">${s}</option>`));
+      $(this).val((Array.isArray(cur) ? cur : [cur]).filter(v => secKeys.includes(v)));
+    });
+  };
+  // Routes → Sections
+  setMulti('select[name=sections]');
+  // Triggers → Sections occupied/clear
+  setMulti('select[name=sections_occupied]');
+  setMulti('select[name=sections_clear]');
+  // Sections → Conflicting Sections
+  setMulti('select[name=conflictingsections]');
+  // Points → single Section (if present)
+  $('select[name=section]').each(function(){
+    const cur = $(this).val();
+    $(this).empty();
+    secKeys.forEach(s => $(this).append(`<option value="${s}">${s}</option>`));
+    if (secKeys.includes(cur)) $(this).val(cur);
+  });
+}
+
+function refreshTrackCircuitSelects(){
+  const tcKeys = Object.keys(dataStore["TrackCircuits"] || {});
+  $('select[name=trackcircuits]').each(function(){
+    const cur = $(this).val() || [];
+    $(this).empty();
+    tcKeys.forEach(t => $(this).append(`<option value="${t}">${t}</option>`));
+    $(this).val((Array.isArray(cur) ? cur : [cur]).filter(v => tcKeys.includes(v)));
+  });
+}
+
+
+// Update selects that depend on Routes existing
+function refreshRoutesSelects(){
+  const routeKeys = Object.keys(dataStore["Routes"] || {});
+  const repop = (name) => {
+    $(`select[name=${name}]`).each(function(){
+      const cur = $(this).val() || [];
+      $(this).empty();
+      routeKeys.forEach(r => $(this).append(`<option value="${r}">${r}</option>`));
+      $(this).val((Array.isArray(cur) ? cur : [cur]).filter(v => routeKeys.includes(v)));
+    });
+  };
+  repop('routes_to_set');
+  repop('routes_to_cancel');
+}
+
+
 // ----- Triggers helpers -----
 function refreshTriggerRefSelects(exclude=null){
   const refs = Object.keys(dataStore["Triggers"] || {});
@@ -1383,5 +1841,6 @@ function getSpecialActionsArray(form){
 }
 
 </script>
+{% endblock %}
 </body>
 </html>

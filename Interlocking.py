@@ -500,25 +500,30 @@ def process(logger, mqtt_client, step_dict, feeder_dict):
         check_triggers(logger, mqtt_client)
         # iterate through setting routes
         set_setting_routes(logger, mqtt_client)
-        mqtt_error = check_mqtt(logger, mqtt_client) # sets from MQTT and returns any error that occurs
-        set.send_status_to_mqtt(axlecounters=AxleCounter.instances,
-                                signals=Signal.instances,
-                                sections=Section.instances,
-                                plungers=Plunger.instances,
-                                points=Point.instances,
-                                routes=Route.instances,
-                                triggers=Trigger.instances,
-                                trains=Train.instances,
-                                logger=logger,
-                                mqtt_client=mqtt_client,
-                                mqtt_dict=mqtt_dict,
-                                automatic_route_setting=AutomaticRouteSetting,
-                                mqtt_error=mqtt_error)
+        if mqtt_client:
+            mqtt_error = check_mqtt(logger, mqtt_client) # sets from MQTT and returns any error that occurs
+            set.send_status_to_mqtt(axlecounters=AxleCounter.instances,
+                                    trackcircuits=TrackCircuit.instances,
+                                    signals=Signal.instances,
+                                    sections=Section.instances,
+                                    plungers=Plunger.instances,
+                                    points=Point.instances,
+                                    routes=Route.instances,
+                                    triggers=Trigger.instances,
+                                    trains=Train.instances,
+                                    logger=logger,
+                                    mqtt_client=mqtt_client,
+                                    mqtt_dict=mqtt_dict,
+                                    automatic_route_setting=AutomaticRouteSetting,
+                                    mqtt_error=mqtt_error)
 
 
 def main():
     logger = setup_logger(config["logging_level"])
-    mqtt_client = setup_mqtt()
+    try:
+        mqtt_client = setup_mqtt()
+    except:
+        mqtt_client = None
     loadlayoutjson(logger, mqtt_client)
     step_dict, feeder_dict = train_tracker.step_setup()
     startup(logger, mqtt_client)

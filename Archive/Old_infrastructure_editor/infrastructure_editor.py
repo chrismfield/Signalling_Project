@@ -29,7 +29,7 @@ currentfile = "default.json"
 occstatustkvar = {}  # dictionary for occstatus variable for tk window not to be pickled (StringVar's cant be pickled)
 runvar = 0  # for defining whether system runs or not
 
-with open("function_to_coil_mapping.json") as file:
+with open("../../function_to_coil_mapping.json") as file:
     function_to_coil_mapping = json.load(file)
 
 # ---------Setup Windows-------------
@@ -1540,7 +1540,7 @@ def loadlayoutjson(root, loaddefault):
         if json_in is None:  # asksaveasfile return `None` if dialog closed with "cancel".
             return
     else:
-        json_in = open("default.json")
+        json_in = open("../../default.json")
     jsoninfradata = jsons.loads(json_in.read()) # turns file contents into a dictionary of the asset dictionaries
     jsonsectiondict = jsons.load(jsoninfradata["Sections"], dict)  #Strips into seperate assets dicts
     jsonACdict = jsons.load(jsoninfradata["AxleCounters"], dict)
