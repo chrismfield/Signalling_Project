@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="a157e5d7-07a9-4064-b285-cb2958feb2bb" name="Changes" comment="Drop down layoutdb file in config&#10;Reboot button&#10;Console layout fix" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+        <option value="HTML File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;chrismfield&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/chrismfield/Signalling_Project.git&quot;,
+    &quot;accountId&quot;: &quot;a29cb549-1639-459f-b924-e660a6380c4b&quot;
+  }
+}</component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2qU3UyU2K5kQL6UUSH1IMnGSFuQ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Python.5-secSerialPlot.executor&quot;: &quot;Run&quot;,
+    &quot;Python.AC_Monitor.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Axlecounter Setup-Monitor Modbus_0.5.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Interlocking.executor&quot;: &quot;Run&quot;,
+    &quot;Python.MQTT Commander.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Simulator.executor&quot;: &quot;Run&quot;,
+    &quot;Python.infrastructure_editor.executor&quot;: &quot;Run&quot;,
+    &quot;Python.infrastructure_web_editor (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.infrastructure_web_editor.executor&quot;: &quot;Run&quot;,
+    &quot;Python.infrastructure_web_editor_with_index.executor&quot;: &quot;Run&quot;,
+    &quot;Python.rolling_plot.executor&quot;: &quot;Run&quot;,
+    &quot;Python.streaming_rolling_plot.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Web-Interface&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Chris/Dropbox/Personal Projects/Python/Signalling_Project/templates/index.html&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;two.files.diff.last.used.file&quot;: &quot;C:/Users/Chris/Dropbox/Personal Projects/Python/Signalling_Project/templates/index.html&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Chris\Dropbox\Personal Projects\Python\Signalling_Project" />
+      <recent name="C:\Users\Chris\Dropbox\Personal Projects\Python\Signalling_Project\Web_Interface\web_infrastructure_editor\static\css" />
+      <recent name="C:\Users\Chris\Dropbox\Personal Projects\Python\Signalling_Project\Web_Interface\web_infrastructure_editor\static" />
+      <recent name="C:\Users\Chris\Dropbox\Personal Projects\Python\Signalling_Project\Web_Interface\web_infrastructure_editor\templates" />
+      <recent name="C:\Users\Chris\Dropbox\Personal Projects\Python\Signalling_Project\Web_Interface\web_infrastructure_editor" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Chris\Dropbox\Personal Projects\Python\Signalling_Project\Web_Interface\web_infrastructure_editor\static\img" />
+      <recent name="C:\Users\Chris\Dropbox\Personal Projects\Python\Signalling_Project\Web_Interface\web_infrastructure_editor\static\js" />
+      <recent name="C:\Users\Chris\Dropbox\Personal Projects\Python\Signalling_Project\Web_Interface\web_infrastructure_editor\static\css" />
+      <recent name="C:\Users\Chris\Dropbox\Personal Projects\Python\Signalling_Project\Web_Interface" />
+      <recent name="C:\Users\Chris\Dropbox\Personal Projects\Python\Signalling_Project\Archive" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.Interlocking">
+    <configuration name="Axlecounter Setup-Monitor Modbus_0.5" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Signalling_Project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Axlecounter Development Tools" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Axlecounter Development Tools/Axlecounter Setup-Monitor Modbus_0.5.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Interlocking" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Signalling_Project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Interlocking.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Simulator" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Signalling_Project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Hardware Simulator" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Hardware Simulator/Simulator.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="infrastructure_web_editor_with_index" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Signalling_Project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/infrastructure_web_editor_with_index.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="webserver" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Signalling_Project" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="C:\Users\Chris\Dropbox\Personal Projects\Python\Signalling_Project\webserver.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.Interlocking" />
+        <item itemvalue="Python.infrastructure_web_editor_with_index" />
+        <item itemvalue="Python.Simulator" />
+        <item itemvalue="Python.Axlecounter Setup-Monitor Modbus_0.5" />
+        <item itemvalue="Python.webserver" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-14705d77f0bb-aa17d162503b-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-243.25659.43" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a157e5d7-07a9-4064-b285-cb2958feb2bb" name="Changes" comment="" />
+      <created>1734703387217</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1734703387217</updated>
+    </task>
+    <task id="LOCAL-00001" summary="First simulator commit, points working OK, no plungers">
+      <option name="closed" value="true" />
+      <created>1734795475989</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1734795475989</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Update">
+      <option name="closed" value="true" />
+      <created>1734816963319</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1734816963319</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Re-ordered routes">
+      <option name="closed" value="true" />
+      <created>1734823368911</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1734823368911</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Now with plungers in web interface">
+      <option name="closed" value="true" />
+      <created>1734823681857</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1734823681857</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Now with address update and logging switch functionality">
+      <option name="closed" value="true" />
+      <created>1741642652679</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1741642652679</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Bug fixes and now with baud rate setting">
+      <option name="closed" value="true" />
+      <created>1741731083336</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1741731083336</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Updates">
+      <option name="closed" value="true" />
+      <created>1741731330115</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1741731330115</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Baud selection working ok">
+      <option name="closed" value="true" />
+      <created>1741810255485</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1741810255485</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Various updates to get 7-AC config working correctly. &#10;&#10;Implemented Axlecounter triggers&#10;Implemented stored trigger cancelling&#10;Implemented additional triggers to clear stored triggers as required">
+      <option name="closed" value="true" />
+      <created>1742682206497</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1742682206497</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Updated with actions from Andy's review in Interlocking.py">
+      <option name="closed" value="true" />
+      <created>1742687918897</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1742687918897</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Updated diagnostic graphing tools">
+      <option name="closed" value="true" />
+      <created>1743030523136</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1743030523136</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Tested updated on simulator and made fixes">
+      <option name="closed" value="true" />
+      <created>1745361565332</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1745361565332</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Fixed some route setting behaviours for routes set from 46 &amp; 47 and stored routes.">
+      <option name="closed" value="true" />
+      <created>1745622280959</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1745622280959</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Bug fixes following initial 45 &amp;46 behaviour curing">
+      <option name="closed" value="true" />
+      <created>1749146070588</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1749146070588</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Initial Web Interface for infrastructure web editor - python and html">
+      <option name="closed" value="true" />
+      <created>1752715301376</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1752715301376</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Added track circuits and one test circuit to default.json">
+      <option name="closed" value="true" />
+      <created>1755035575745</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1755035575745</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Web interface development">
+      <option name="closed" value="true" />
+      <created>1755846185712</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1755846185712</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Web interface development - first commit in branch">
+      <option name="closed" value="true" />
+      <created>1756399967069</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1756399967069</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Move all to deploy into src">
+      <option name="closed" value="true" />
+      <created>1756402167310</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1756402167310</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Track Circuits Added&#10;Web Interface Editor Working&#10;Fixed Point Detection False issue">
+      <option name="closed" value="true" />
+      <created>1757448334329</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1757448334329</updated>
+    </task>
+    <task id="LOCAL-00021" summary="More work on web interface&#10;non-graphic mqtt references to webserver&#10;Some work on page indexes&#10;Fixed danger reg issue with semaphores">
+      <option name="closed" value="true" />
+      <created>1757457305639</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1757457305639</updated>
+    </task>
+    <task id="LOCAL-00022" summary="More work on web interface&#10;Header menu and style&#10;layout-json loads the layout file specified in config.json&#10;Re-structure to put webserver in the main folder&#10;MQTT error messages on diagnostics page">
+      <option name="closed" value="true" />
+      <created>1757717056249</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1757717056249</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Drop down layoutdb file in config&#10;Reboot button&#10;Console layout fix">
+      <option name="closed" value="true" />
+      <created>1757798476204</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1757798476204</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/master" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="First simulator commit, locked in normal" />
+    <MESSAGE value="First simulator commit, points working OK, no plungers" />
+    <MESSAGE value="Update" />
+    <MESSAGE value="Re-ordered routes" />
+    <MESSAGE value="Now with plungers in web interface" />
+    <MESSAGE value="Now with address update and logging switch functionality" />
+    <MESSAGE value="Bug fixes and now with baud rate setting" />
+    <MESSAGE value="Updates" />
+    <MESSAGE value="Baud selection working ok" />
+    <MESSAGE value="Various updates to get 7-AC config working correctly. &#10;&#10;Implemented Axlecounter triggers&#10;Implemented stored trigger cancelling&#10;Implemented additional triggers to clear stored triggers as required" />
+    <MESSAGE value="Updated with actions from Andy's review in Interlocking.py" />
+    <MESSAGE value="Updated diagnostic graphing tools" />
+    <MESSAGE value="Tested updated on simulator and made fixes" />
+    <MESSAGE value="Fixed some route setting behaviours for routes set from 46 &amp; 47 and stored routes." />
+    <MESSAGE value="Bug fixes following initial 45 &amp;46 behaviour curing" />
+    <MESSAGE value="Initial Web Interface for infrastructure web editor - python and html" />
+    <MESSAGE value="Added track circuits and one test circuit to default.json" />
+    <MESSAGE value="Web interface development" />
+    <MESSAGE value="Web interface development - first commit in branch" />
+    <MESSAGE value="Move all to deploy into src" />
+    <MESSAGE value="Track Circuits Added&#10;Web Interface Editor Working&#10;Fixed Point Detection False issue" />
+    <MESSAGE value="More work on web interface&#10;non-graphic mqtt references to webserver&#10;Some work on page indexes&#10;Fixed danger reg issue with semaphores" />
+    <MESSAGE value="More work on web interface&#10;Header menu and style&#10;layout-json loads the layout file specified in config.json&#10;Re-structure to put webserver in the main folder&#10;MQTT error messages on diagnostics page" />
+    <MESSAGE value="Drop down layoutdb file in config&#10;Reboot button&#10;Console layout fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Drop down layoutdb file in config&#10;Reboot button&#10;Console layout fix" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/object_definitions.py</url>
+          <line>97</line>
+          <option name="timeStamp" value="40" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/object_definitions.py</url>
+          <line>57</line>
+          <option name="timeStamp" value="41" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/train_tracker.py</url>
+          <line>109</line>
+          <option name="timeStamp" value="45" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="trigger.stored_request" language="Python" />
+        <watch expression="trigger" />
+        <watch expression="trigger" />
+        <watch expression="Trigger" />
+        <watch expression="Trigger.instances['46to48'].stored_request" />
+      </configuration>
+      <inline-watch fileUrl="file://$PROJECT_DIR$/Interlocking.py" line="484">
+        <watch expression="Trigger" />
+      </inline-watch>
+    </watches-manager>
+  </component>
+</project>

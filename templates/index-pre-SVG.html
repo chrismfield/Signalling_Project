@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <title>Signalling Infrastructure Editor</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
-  <script defer src="{{ url_for('static', filename='js/all.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/jquery-3.7.0.min.js') }}"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <style>
     .modal .row.g-3 > [class*="col-"] { min-width: 0; }
     .route-point-row select, .route-signal-row select, .signal-aspect-row select, .trackcircuit-register-row select { width: 100%; }
@@ -309,7 +309,6 @@
                   <label class="form-label">Network</label>
                   <select class="form-select network-select" name="network"></select>
                 </div>
-
               </div>
               <div class="row g-3 mt-2">
                 <div class="col-md-2">
@@ -320,21 +319,6 @@
                   <label class="form-label">Reverse&nbsp;Coil</label>
                   <input type="number" class="form-control" name="reverse_coil">
                 </div>
-                <div class="col-md-5">
-                  <label class="form-label">Board&nbsp;Index</label>
-                  <select class="form-select" name="board_index">
-                    {% for i in range(4) %}
-                    <option value="{{ i }}">Board {{ i }}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-                <div class="col-md-3 d-flex align-items-end">
-                  <button type="button" class="btn btn-outline-secondary w-100" id="pointsApplyDefaults">
-                    <i class="fa fa-wand-magic-sparkles"></i> Apply defaults
-                  </button>
-                </div>
-              </div>
-              <div class="row g-3 mt-2">
                 <div class="col-md-4">
                   <label class="form-label">Section</label>
                   <select class="form-select" name="section">
@@ -343,13 +327,19 @@
                     {% endfor %}
                   </select>
                 </div>
-                <div class="col-md-6">
-                  <label class="form-label">Detection</label>
-                  <select class="form-select" name="detection_mode">
-                    <option value="1">With detection</option>
-                    <option value="0">Without detection</option>
+                <div class="col-md-2">
+                  <label class="form-label">Board&nbsp;Index</label>
+                  <select class="form-select" name="board_index">
+                    {% for i in range(4) %}
+                    <option value="{{ i }}">Board {{ i }}</option>
+                    {% endfor %}
                   </select>
-                </div>
+              </div>
+              <div class="col-md-3 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-secondary w-100" id="pointsApplyDefaults">
+                  <i class="fa fa-wand-magic-sparkles"></i> Apply defaults
+                </button>
+              </div>
               </div>
               {% endif %}
 
@@ -769,11 +759,6 @@ function refreshAspectRowsForBoard(formEl){
   const $form = $(formEl);
   $form.find('.signal-aspect-row').each(function(){
     const $row = $(this);
-    // If the row is explicitly marked "False", do not auto-fill/overwrite the register
-    if ($row.find('.signal-aspect-false').is(':checked')) {
-      // keep boolean False as-is
-      return;
-    }
     const aKey = $row.find('.signal-aspect').val();
     const mapped = getMappedRegisterForAspect($form, aKey);
     const $reg = $row.find('.signal-aspect-reg');
@@ -903,7 +888,6 @@ const tableCols = {
     { key:'ref', label:'Ref' },
     { key:'description', label:'Description' },
     { key:'section', label:'Section' },
-    { key:'detection_mode', label:'Detection Mode' },
     { key:'normal_coil', label:'Normal Coil' },
     { key:'reverse_coil', label:'Reverse Coil' },
     { key:'address', label:'Address' },
@@ -975,19 +959,7 @@ function addAspectRow($form, aspectKey = "", register = "") {
         <option value="">Select aspect…</option>
         ${ASPECT_OPTIONS.map(a => `<option value="${a.key}">${a.label}</option>`).join('')}
       </select>
-
-      <div class="input-group" style="max-width:220px">
-        <input type="number" class="form-control form-control-sm signal-aspect-reg" placeholder="Register">
-
-        <span class="input-group-text ms-1" style="border-left:1px solid #ced4da;">
-          <input class="form-check-input signal-aspect-false me-1" 
-                type="checkbox"
-                id="sa_false_${Math.random().toString(36).slice(2)}">
-          <label class="form-check-label small mb-0">No output register</label>
-        </span>
-      </div>
-
-
+      <input type="number" class="form-control form-control-sm signal-aspect-reg" style="max-width:120px" placeholder="Register">
       <button type="button" class="btn btn-sm btn-outline-secondary signal-aspect-reset" title="Reset to default">
         <i class="fa fa-rotate-left"></i>
       </button>
@@ -1005,25 +977,13 @@ function addAspectRow($form, aspectKey = "", register = "") {
   const mapped = getMappedRegisterForAspect($form, aKey);
 
   // If caller passed an explicit register, use it, else mapped default
-  // register may be: number, null/undefined/"" or boolean false
+  const initialReg = (register !== "") ? register : mapped;
   const $reg = row.find('.signal-aspect-reg');
-  const $false = row.find('.signal-aspect-false');
+  $reg.val(initialReg);
+  $reg.data('lastMapped', mapped);
 
-  if (register === false) {
-    // explicit boolean False -- mark checkbox and leave number empty
-    $false.prop('checked', true);
-    $reg.val('');
-    $reg.data('lastMapped', null);
-  } else {
-    const initialReg = (register !== "" && register != null) ? register : mapped;
-    $reg.val(initialReg);
-    $reg.data('lastMapped', mapped);
-    $false.prop('checked', false);
-  }
-
-  // When aspect changes → update register (clobber-safe). Do nothing if False is checked.
+  // When aspect changes → update register (clobber-safe)
   row.on('change', '.signal-aspect', function(){
-    if ($false.is(':checked')) return;
     const newKey  = $(this).val();
     const newMap  = getMappedRegisterForAspect($form, newKey);
     const cur     = $reg.val();
@@ -1033,29 +993,10 @@ function addAspectRow($form, aspectKey = "", register = "") {
     $reg.data('lastMapped', newMap);
   });
 
-  // Toggle False checkbox: if checked clear number input; if unchecked try mapped default
-  row.on('change', '.signal-aspect-false', function(){
-    if ($(this).is(':checked')) {
-      $reg.val('');
-      // indicate lastMapped is now null so auto-fill logic won't overwrite
-      $reg.data('lastMapped', null);
-    } else {
-      // restore mapped value if present/appropriate
-      const k = row.find('.signal-aspect').val();
-      const m = getMappedRegisterForAspect($form, k);
-      // only set if input is empty
-      if (($reg.val() ?? '') === '') {
-        $reg.val(m);
-      }
-      $reg.data('lastMapped', m);
-    }
-  });
-
-  // Per-row Reset → force mapped default into the input (also clear False)
+  // Per-row Reset → force mapped default into the input
   row.on('click', '.signal-aspect-reset', function(){
     const k = row.find('.signal-aspect').val();
     const m = getMappedRegisterForAspect($form, k);
-    $false.prop('checked', false);
     $reg.val(m);
     $reg.data('lastMapped', m);
   });
@@ -1357,17 +1298,11 @@ $(function(){
         const $form = $(`.${lc}Form`);
         $form.find('.signal-aspect-row').each(function(){
           const aKey = $(this).find('.signal-aspect').val();          // e.g. "danger_aspect"
+          const raw  = ($(this).find('.signal-aspect-reg').val() || "").trim(); // e.g. "3001"
           if (!aKey) return; // skip blank aspect rows
 
-          const isFalse = $(this).find('.signal-aspect-false').is(':checked');
-          if (isFalse) {
-            aspects[aKey] = false;
-            return;
-          }
-
-          const raw  = ($(this).find('.signal-aspect-reg').val() || "").trim(); // e.g. "3001"
-          if (raw === "") {
-            aspects[aKey] = null;
+          if (raw === "") { 
+            aspects[aKey] = null; 
           } else {
             const n = Number(raw);
             aspects[aKey] = Number.isFinite(n) ? n : null; // robust parse
@@ -1398,12 +1333,7 @@ $(function(){
         Object.entries(entry.aspects).forEach(([aKey, reg]) => {
           const field = legacyFieldFromKey[aKey];
           if (!field) return;
-          // Preserve boolean false explicitly; otherwise convert to Number
-          if (reg === false) {
-            entry[field] = false;
-          } else {
-            entry[field] = (reg == null || reg === "") ? null : Number(reg);
-          }
+          entry[field] = (reg == null || reg === "") ? null : Number(reg);
         });
 
         // (Optional) keep only legacy fields by removing the aspects mirror:
@@ -1413,13 +1343,7 @@ $(function(){
 
 
 
-      if(type==="Points"){ 
-        ['normal_coil','reverse_coil'].forEach(k=> entry[k]=num(vals[k]));
-        entry.section = vals.section || '';
-        entry.board_index = num(vals.board_index);
-        // detection_mode: 1 = With detection, 0 = Without detection
-        entry.detection_mode = Number.isFinite(Number(vals.detection_mode)) ? Number(vals.detection_mode) : 0;
-      }
+      if(type==="Points"){ ['normal_coil','reverse_coil'].forEach(k=> entry[k]=num(vals[k])); entry.section = vals.section || ''; entry.board_index = num(vals.board_index); }
 
       if(type==="Sections"){
         entry.mode = vals.mode || 'axlecounter';
@@ -1430,33 +1354,15 @@ $(function(){
           entry.dectrig = {};
 
         } else {
-          // Non-TC modes: convert flat array to object with string values
-          const inctrigFlat = vals.inctrig || [];
-          const dectrigFlat = vals.dectrig || [];
-          
-          entry.inctrig = {};
-          entry.dectrig = {};
-          
-          // inctrig: "A10:Upcount" → { "A10": "Upcount" }
-          inctrigFlat.forEach(s => {
-            const [ac, dir] = String(s).split(":");
-            if (ac && dir) entry.inctrig[ac] = dir;
-          });
-          
-          // dectrig: "A10:Downcount" → { "A10": "Downcount" }
-          dectrigFlat.forEach(s => {
-            const [ac, dir] = String(s).split(":");
-            if (ac && dir) entry.dectrig[ac] = dir;
-          });
+          // Non-TC modes:
+          entry.axle_tolerance = num(vals.axle_tolerance);
+          entry.inctrig = buildAcDirMap(vals.inctrig || []);
+          entry.dectrig = buildAcDirMap(vals.dectrig || []);
 
           delete entry.trackcircuit; // ensure we don't carry stale value
         }
         entry.homesignal = arrify(vals.homesignal);
-        entry.conflictingsections = arrify(vals.conflictingsections);
-        // Preserve coords from original entry if present
-        if (!entry.coords && dataStore.Sections[vals.ref]?.coords) {
-          entry.coords = dataStore.Sections[vals.ref].coords;
-        }
+        entry.conflictingsections = arrify(vals.conflictingsections);   
 
       }
 
@@ -1647,7 +1553,7 @@ function openEditorForRow(type, ref){
   form.find('[name=description]').val(it.description);
 
   if(type==="Signals" || type==="Points" || type==="AxleCounters" || type==="Plungers"){
-       form.find('[name=address]').val(it.address);
+    form.find('[name=address]').val(it.address);
     form.find('[name=network]').val(it.network);
   form.find('[name=register]').val(it.register);
     }
@@ -1694,34 +1600,31 @@ function openEditorForRow(type, ref){
     form.find('[name=board_index]').val(it.board_index ?? 0);
 
     // Rebuild aspect rows from saved JSON.
-    // Prefer `it.aspects` if present. Otherwise derive from legacy fields in default.json.
-    const $panel = form.find('.signal-aspects').empty();
+  // Prefer `it.aspects` if present. Otherwise derive from legacy fields in default.json.
+  const $panel = form.find('.signal-aspects').empty();
 
-    const keyFromLegacy = {
-      dangerreg: 'danger_aspect',
-      cautionreg: 'caution_aspect',
-      doublecautionreg: 'double_caution_aspect',
-      clearreg: 'clear_aspect',
-      bannerreg: 'banner_repeater',
-      callingonreg: 'calling_on',
-      route1reg: 'route_1',
-      route2reg: 'route_2',
-      route3reg: 'route_3',
-      route4reg: 'route_4',
-      route5reg: 'route_5',
-      route6reg: 'route_6',
-    };
+  const keyFromLegacy = {
+    dangerreg: 'danger_aspect',
+    cautionreg: 'caution_aspect',
+    doublecautionreg: 'double_caution_aspect',
+    clearreg: 'clear_aspect',
+    bannerreg: 'banner_repeater',
+    callingonreg: 'calling_on',
+    route1reg: 'route_1',
+    route2reg: 'route_2',
+    route3reg: 'route_3',
+    route4reg: 'route_4',
+    route5reg: 'route_5',
+    route6reg: 'route_6',
+  };
 
-    let aspectsMap = it.aspects; // may be undefined in default.json
+  let aspectsMap = it.aspects; // may be undefined in default.json
 
     if (!aspectsMap) {
       aspectsMap = {};
       Object.entries(keyFromLegacy).forEach(([legacyField, aspectKey]) => {
         const v = it[legacyField];
-        // Preserve explicit boolean false; otherwise convert numeric/string values to Number
-        if (v === false) {
-          aspectsMap[aspectKey] = false;
-        } else if (v !== undefined && v !== null && v !== "") {
+        if (v !== undefined && v !== null && v !== "") {
           aspectsMap[aspectKey] = Number(v);
         }
       });
@@ -1813,39 +1716,18 @@ function openEditorForRow(type, ref){
 }
 
 // ====== File helpers ======
-function loadFromServer(filename){
-  const f = filename || $('#serverFiles').val();
+function loadFromServer(){
+  const f = $('#serverFiles').val();
   if(!f){ alert('Select a file to load.'); return; }
-  fetch(`/api/load?filename=${encodeURIComponent(f)}`)
-    .then(r => r.ok ? r.json() : Promise.reject(new Error('File not found')))
-    .then(d => {
-      // populate dataStore and refresh UI in-place
-      entityTypes.forEach(t => dataStore[t] = d[t] || {});
-      entityTypes.forEach(t => renderTable(t));
-      refreshDependentSelects();
-      refreshSectionsDependentSelects();
-      refreshTrackCircuitSelects();
-      refreshRoutesSelects();
-      refreshTriggerRefSelects();
-      // reflect filename in UI and update URL without navigating
-      $('#filename').val(f);
-      $('#serverFiles').val(f);
-      try { window.history.replaceState(null, '', `/editor?file=${encodeURIComponent(f)}`); } catch(e){}
-      alert(`Loaded "${f}"`);
-    })
-    .catch(err => alert('Load failed: ' + (err.message || err)));
+  window.location = `/?file=${encodeURIComponent(f)}`;
 }
 function uploadFile(){
   const file = $('#uploadInput')[0].files[0];
   if(!file) return;
   const fd = new FormData(); fd.append('file', file);
   fetch('/api/upload',{method:'POST',body:fd})
-    .then(r => r.ok ? r.json() : Promise.reject(new Error('Upload failed')))
-    .then(d => {
-      // load the uploaded file in-place
-      loadFromServer(d.filename);
-    })
-    .catch(err => alert('Upload failed: ' + (err.message || err)));
+    .then(r=>r.json())
+    .then(d=>window.location=`/?file=${encodeURIComponent(d.filename)}`);
 }
 function saveJSON(){
   const fn = $('#filename').val().trim()||'default.json';
@@ -1857,8 +1739,7 @@ function saveJSON(){
 }
 function downloadFile(){
   const fn = $('#filename').val().trim()||'default.json';
-  // open download in new tab so we don't navigate away from /editor
-  window.open(`/api/download?filename=${encodeURIComponent(fn)}`, '_blank');
+  window.location = `/api/download?filename=${encodeURIComponent(fn)}`;
 }
 
 // Update selects that depend on Signals existing (nextsignal, conflicting, homesignal)
