@@ -103,7 +103,7 @@ class Section:
         self.dectrig = dectrig  # decrement triggers dict
         self.trackcircuits = trackcircuits
         self.homesignal = homesignal  # protecting signals
-        self.protecting_points = {} # dict of dict: homesignal: {point:direction, point:direction}
+        self.protecting_points = {} if protecting_points is None else protecting_points # dict of dict: homesignal: {point:direction, point:direction}
         self.conflictingsections = conflictingsections
         #dynamic variables
         self.occstatus = 0  # occupation status

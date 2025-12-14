@@ -184,9 +184,9 @@ def section_update(logger, mqtt_client):
                     section.occstatus += AxleCounter.instances[AC].upcount
                 if direction == "Downcount":
                     section.occstatus += AxleCounter.instances[AC].downcount
-                if section.occstatus > 0 and old_occstatus == 0 and not section.trains:
-                    train_tracker.berth_step(step_dict[AC][direction]["old_berth_sections"],
-                                             step_dict[AC][direction]["new_berth_section"])
+                # if section.occstatus > 0 and old_occstatus == 0 and not section.trains:
+                #     train_tracker.berth_step(step_dict[AC][direction]["old_berth_sections"],
+                #                              step_dict[AC][direction]["new_berth_section"])
             if section.occstatus > 0:  # these three lines in here to help clear routes
                 section.routeset = False
                 section.routestatus = "not set"
@@ -215,9 +215,9 @@ def section_update(logger, mqtt_client):
             for pad, mode in section.inctrig.items():
                 if TreadlePad.instances[pad].activated == True:
                     section.occstatus = 1
-                    if old_occstatus != section.occstatus and not section.trains:
-                        train_tracker.berth_step(step_dict[pad][mode]["old_berth_sections"],
-                                                 step_dict[pad][mode]["new_berth_section"])
+                    # if old_occstatus != section.occstatus and not section.trains:
+                    #     train_tracker.berth_step(step_dict[pad][mode]["old_berth_sections"],
+                    #                              step_dict[pad][mode]["new_berth_section"])
             for pad, mode in section.dectrig.items():
                 if TreadlePad.instances[pad].activated == True:
                     section.occstatus = 0
@@ -492,7 +492,7 @@ def process(logger, mqtt_client, step_dict, feeder_dict):
         check_all_ACs(logger, mqtt_client)
         check_all_trackcircuits(logger)
         section_update(logger, mqtt_client)
-        train_tracker.berth_calculate(feeder_dict, logger, mqtt_client)
+        #train_tracker.berth_calculate(feeder_dict, logger, mqtt_client)
         interlocking(logger)
         check_points(logger, mqtt_client)
         maintain_signals(logger)
