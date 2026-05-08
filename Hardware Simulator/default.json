@@ -1,5 +1,26 @@
 {
     "Sections": {
+        "A": {
+            "conflictingsections": [],
+            "dectrig": {"PadB": "non-directional"},
+            "description": "Section A",
+            "homesignal": [],
+            "protecting_points": {},
+            "inctrig": {"PadA": "non-directional"},
+            "instances": {},
+            "mode": "trackcircuit",
+            "occstatus": 0,
+            "previousoccstatus": 0,
+            "ref": "A",
+            "routeset": false,
+            "routestatus": "",
+            "trackcircuits": ["ZZ"],
+            "coords": {
+                "x": 84.53,
+                "y": 18.83,
+                "rotate": 22.5
+            }
+        },
         "Q": {
             "conflictingsections": [],
             "dectrig": {
@@ -99,7 +120,9 @@
         "T": {
             "conflictingsections": [],
             "dectrig": {
-                "A8": "Downcount"
+                "A8": "Downcount",
+                "A5": "Upcount",
+                "A7": "Downcount"
             },
             "description": "Platform 2 Section",
             "homesignal": [
@@ -108,7 +131,8 @@
             "protecting_points":
                 {"48": {"100": "normal"}},
             "inctrig": {
-                "A8": "Upcount"
+                "A8": "Upcount",
+                "A7": "Upcount"
             },
             "instances": {},
             "mode": "axlecounter",
@@ -125,7 +149,8 @@
         "U": {
             "conflictingsections": [],
             "dectrig": {
-                "A9": "Downcount"
+                "A9": "Downcount",
+                "A6": "Upcount"
             },
             "description": "Platform 3 Section",
             "homesignal": [
@@ -250,6 +275,63 @@
             "upcount": 0,
             "upcount_reg": 13
         },
+        "A5": {
+            "address": 5,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "Exit to Platform 2",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A5",
+            "reverse_coil": 23,
+            "sessionupcount": 0,
+            "sessiondowncount": 0,
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        },
+        "A6": {
+            "address": 6,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "Exit to Platform 3",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A6",
+            "reverse_coil": 23,
+            "sessionupcount": 0,
+            "sessiondowncount": 0,
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        },
+        "A7": {
+            "address": 7,
+            "board_index": 0,
+            "comms_status": "",
+            "description": "Entrance to Carriage Sidings",
+            "downcount": 0,
+            "downcount_reg": 14,
+            "instances": {},
+            "mode": 0,
+            "network": "network_1",
+            "normal_coil": 22,
+            "ref": "A7",
+            "reverse_coil": 23,
+            "sessionupcount": 0,
+            "sessiondowncount": 0,
+            "slave": null,
+            "upcount": 0,
+            "upcount_reg": 13
+        },
         "A8": {
             "address": 8,
             "board_index": 0,
@@ -306,6 +388,24 @@
             "slave": null,
             "upcount": 0,
             "upcount_reg": 13
+        }
+    },
+    "TrackCircuits": {
+        "ZZ": {
+            "address": 63,
+            "comms_status": "",
+            "description": "Track Circuit A",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "ZZ",
+            "registers": {
+                "self-latching": [
+                    8,
+                    9
+                ]
+            },
+            "slave": null
         }
     },
     "Signals": {
@@ -1152,15 +1252,13 @@
         },
         "47toP2clear": {
             "axlecount": {},
-            "conditions": [
-                "Section.instances[\"T\"].occstatus <= Section.instances[\"U\"].occstatus"
-            ],
+            "conditions": ["True"],
             "description": "47 to Plat 2 based on Q occupancy",
             "instances": {},
             "lever": null,
             "override": false,
             "plungers": [],
-            "priority": 3,
+            "priority": 3.1,
             "ref": "47toP2",
             "routes_to_cancel": [
                 "S_only"
@@ -1214,9 +1312,7 @@
         },
         "47toP3clear": {
             "axlecount": {},
-            "conditions": [
-                "Section.instances[\"U\"].occstatus < Section.instances[\"T\"].occstatus"
-            ],
+            "conditions": ["True"],
             "description": "47 to Plat 3 based on Q occupancy",
             "instances": {},
             "lever": null,
@@ -1297,12 +1393,12 @@
             "trigger_special_actions": [],
             "triggered": false
         },
-        "46to48": {
+        "46_yard_exit": {
             "axlecount": {},
             "conditions": [
                 "True"
             ],
-            "description": "Plunger 12 at Signal 46 when T is occupied",
+            "description": "Plunger 12 at Signal 46",
             "instances": {},
             "lever": null,
             "override": false,
@@ -1310,57 +1406,27 @@
                 "P12"
             ],
             "priority": 1,
-            "ref": "46to48",
-            "routes_to_cancel": [],
+            "ref": "46_yard_exit",
+            "routes_to_cancel": ["45intoR"],
             "routes_to_set": [
-                "46intoR",
-                "48intoP2(occupied)"
+                "46intoR"
             ],
             "sections_clear": null,
             "sections_occupied": [],
             "retain_request": true,
             "stored_request": false,
-            "stored_requests_to_cancel": ["46to48clear"],
+            "stored_requests_to_cancel": ["45_yard_exit"],
             "timer": null,
             "trigger_expressions": [],
             "trigger_special_actions": [],
             "triggered": false
         },
-        "46to48clear": {
+        "45_yard_exit": {
             "axlecount": {},
             "conditions": [
                 "True"
             ],
-            "description": "Plunger 12 at Signal 46 when T is unoccupied",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P12"
-            ],
-            "priority": 1.5,
-            "ref": "46to48clear",
-            "routes_to_cancel": [],
-            "routes_to_set": [
-                "46intoR",
-                "48intoP2(unoccupied)"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "retain_request": true,
-            "stored_request": false,
-            "stored_requests_to_cancel": ["46to48"],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "45to48": {
-            "axlecount": {},
-            "conditions": [
-                "True"
-            ],
-            "description": "Plunger 11 at Signal 45 when T is occupied",
+            "description": "Plunger 11 at Signal 45",
             "instances": {},
             "lever": null,
             "override": false,
@@ -1368,46 +1434,16 @@
                 "P11"
             ],
             "priority": 1,
-            "ref": "45to48",
-            "routes_to_cancel": [],
+            "ref": "45_yard_exit",
+            "routes_to_cancel": ["46intoR"],
             "routes_to_set": [
-                "45intoR",
-                "48intoP2(occupied)"
+                "45intoR"
             ],
             "sections_clear": null,
             "sections_occupied": [],
             "retain_request": true,
             "stored_request": false,
-            "stored_requests_to_cancel": ["45to48clear"],
-            "timer": null,
-            "trigger_expressions": [],
-            "trigger_special_actions": [],
-            "triggered": false
-        },
-        "45to48clear": {
-            "axlecount": {},
-            "conditions": [
-                "True"
-            ],
-            "description": "Plunger 11 at Signal 45 when T is unoccupied",
-            "instances": {},
-            "lever": null,
-            "override": false,
-            "plungers": [
-                "P11"
-            ],
-            "priority": 1.5,
-            "ref": "45to48clear",
-            "routes_to_cancel": [],
-            "routes_to_set": [
-                "45intoR",
-                "48intoP2(unoccupied)"
-            ],
-            "sections_clear": null,
-            "sections_occupied": [],
-            "retain_request": true,
-            "stored_request": false,
-            "stored_requests_to_cancel": ["45to48"],
+            "stored_requests_to_cancel": ["46_yard_exit"],
             "timer": null,
             "trigger_expressions": [],
             "trigger_special_actions": [],
@@ -1801,6 +1837,7 @@
                 "48intoP4(unoccupied)",
                 "45intoR",
                 "46intoR",
+                "47IntoR",
                 "48intoP2(unoccupied)",
                 "48intoP2(occupied)",
                 "48intoP3(occupied)",

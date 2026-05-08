@@ -82,8 +82,8 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
             if signal.ref in section.homesignal and not check_protecting_points(section.protecting_points):
                 # don't set signal if section is occupied
                 if section.occstatus and (aspect in main_proceed_aspects):
-                    logger.critical("Cannot clear signal when section is occupied")
-                    raise InterlockingError("Cannot clear signal when section is occupied")
+                    logger.critical("Cannot clear signal when section is occupied for signal " + signal.ref + " in section " + section.ref)
+                    raise InterlockingError("Cannot clear signal when section is occupied signal " + signal.ref + " in " + section.ref)
                 #don't set signal if points in section do not have detection
                 for point in points.values():
                     if point.section == section.ref:
@@ -210,6 +210,9 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                 try:
                     if signal.dangerreg:
                         signal.slave.write_bit(signal.dangerreg, 1)
+                    # add following safeguard when verified
+                    # else:
+                    #     raise InterlockingError("Cannot use associated_position_light command on non-danger signal")
                     signal.slave.write_bit(signal.callingonreg, 1)
                     if signal.cautionreg:
                         signal.slave.write_bit(signal.cautionreg, 0)
@@ -220,6 +223,9 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                     comms_status = (" Comms failure " + str(error))
             if req_aspect == "position_light":  # used where main danger aspect to be turned off
                 try:
+                    # add following safeguard when verified
+                    # if signal.clearreg or signal.cautionreg:
+                    #     raise InterlockingError("Cannot use position_light command on main-aspects signal")
                     if signal.dangerreg:
                         signal.slave.write_bit(signal.dangerreg, 0)
                     signal.slave.write_bit(signal.callingonreg, 1)

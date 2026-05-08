@@ -86,7 +86,7 @@
             },
             "instances": {},
             "mode": "axlecounter",
-            "occstatus": 1,
+            "occstatus": 0,
             "previousoccstatus": 0,
             "ref": "S",
             "routeset": false,

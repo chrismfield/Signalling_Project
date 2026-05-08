@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block content %}
+<head>
+  <meta charset="UTF-8" />
+  <title>Signals + MQTT + JSON Loop</title>
+  <style>
+    #svg-container {
+      width: 800px;
+      border: 1px solid #ccc;
+    }
+    #context-menu {
+      position: absolute;
+      background: #fff;
+      border: 1px solid #333;
+      font-size: 30px;    /* Bigger text */
+      display: none;
+      z-index: 9999;
+    }
+    #context-menu button {
+      display: block;
+      width: 100%;
+      padding: 5px 10px;
+      border: none;
+      background: none;
+      text-align: left;
+      font-size: inherit;
+      cursor: pointer;
+    }
+    #context-menu button:hover {
+      background: #eee;
+    }
+  </style>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+</head>
+<body>
+
+<h1>Live Signals — JSON Loop</h1>
+
+<div id="svg-container">Loading SVG...</div>
+<div id="context-menu"></div>
+{% endblock %}
+{% block scripts %}
+<script>
+  const contextMenu = document.getElementById('context-menu');
+  const aspectToColor = {
+    "danger": "red",
+    "caution": "yellow",
+    "clear": "green",
+    "associated_position_light": "white",
+    "position_light": "white"
+  };
+
+  const colorToAspect = {
+    "red": "danger",
+    "yellow": "caution",
+    "green": "clear",
+    "white": "calling-on"
+  };
+
+  const aspectMapping = {
+    "associated_position_light": "-associatedPositionLight",
+    "position_light": "-positionLight",
+     "danger": ["-mainAspect", "-positionLight", "-associatedPositionLight"],
+    "caution": "-mainAspect",
+    "clear": "-mainAspect"
+
+  };
+
+  let client;
+
+  // ✅ Auto-detect MQTT broker hostname from page
+  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  const mqttHost = window.location.hostname;
+  const mqttPort = 9001; // Your Mosquitto websocket listener port
+  const mqttUrl = `${protocol}://${mqttHost}:${mqttPort}`;
+  console.log('Connecting to MQTT:', mqttUrl);
+
+  Promise.all([
+    fetch("static/images/WDSME Scheme_C.svg").then(res => res.text()),
+    fetch('default.json').then(res => res.json())
+  ])
+  .then(([svgText, jsonData]) => {
+    document.getElementById('svg-container').innerHTML = svgText;
+
+    client = mqtt.connect(mqttUrl);
+
+    client.on('connect', () => {
+      console.log('MQTT connected');
+      Object.keys(jsonData.Signals).forEach(ref => {
+        client.subscribe(`report/signal/${ref}/aspect`);
+      });
+    });
+
+    function setAspect(signalNumber, aspect) {
+      const aspectColour = aspectToColor[aspect] || 'gray';
+       const aspectElements = Array.isArray(aspectMapping[aspect])
+         ? aspectMapping[aspect]
+         : [aspectMapping[aspect]];
+
+       aspectElements.forEach(aspectElement => {
+         let element;
+         if (aspectElement === "-mainAspect") {
+           element = document.querySelector(`g[data-cell-id="Signal-${signalNumber}${aspectElement}"] ellipse`);
+         } else if (aspectElement === "-positionLight") {
+           element = document.querySelector(`g[data-cell-id="Signal-${signalNumber}${aspectElement}"] path`);
+         } else if (aspectElement === "-associatedPositionLight") {
+           element = document.querySelector(`g[data-cell-id="Signal-${signalNumber}${aspectElement}"] path`);
+         }
+         if (element) {
+           element.style.fill = aspectColour;
+         } 
+       });
+    }
+
+    client.on('message', (topic, message) => {
+      console.log(topic, message);
+      const parts = topic.split('/');
+      if (parts[0] === "report" && parts[1] === "signal" && parts[3] === "aspect") {
+        const signalNumber = parts[2];
+        const payload = typeof message === 'string' ? message : new TextDecoder().decode(message);
+        const aspectList = payload.split(',').filter(Boolean);
+        aspectList.forEach(aspect => setAspect(signalNumber, aspect));
+      }
+    });
+
+    Object.entries(jsonData.Signals).forEach(([ref, signal]) => {
+      const group = document.querySelector(`g[data-cell-id="${ref}"]`);
+      const element = document.querySelector(`g[data-cell-id="${ref}"] g[data-cell-id*="Signal-${ref}"] path, g[data-cell-id="${ref}"] ellipse`);
+      if (group) {
+        if (element) {
+          element.style.fill = 'gray'; // ✅ use style only
+        }
+
+        group.addEventListener('click', e => {
+          e.stopPropagation();
+          showContextMenu(e, ref, group);
+        });
+      } else {
+        console.warn('No group found for', ref);
+      }
+    });
+  });
+
+  function showContextMenu(e, ref, element) {
+    contextMenu.innerHTML = `
+      <button data-aspect="danger">Danger</button>
+      <button data-aspect="caution">Caution</button>
+      <button data-aspect="clear">Clear</button>
+      <button data-aspect="associated_position_light">Calling-on</button>
+      <button data-aspect="position_light">Shunt</button>
+    `;
+    contextMenu.style.left = `${e.pageX}px`;
+    contextMenu.style.top = `${e.pageY}px`;
+    contextMenu.style.display = 'block';
+
+    contextMenu.querySelectorAll('button').forEach(button => {
+      button.onclick = () => {
+        const aspect = button.getAttribute('data-aspect');
+        const color = aspectToColor[aspect];
+        client.publish(`set/signal/${ref}/aspect`, aspect);
+        contextMenu.style.display = 'none';
+      };
+    });
+  }
+
+  window.addEventListener('click', () => {
+    contextMenu.style.display = 'none';
+  });
+</script>
+</body>
+</html>
+{% endblock %}

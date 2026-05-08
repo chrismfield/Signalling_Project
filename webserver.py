@@ -19,6 +19,12 @@ UPLOAD_FOLDER = os.path.abspath(".")
 DEFAULT_FILE  = "default.json"
 CONFIG_FILE   = "config.json"
 MAPPING_FILE  = "function_to_coil_mapping.json"
+SVG_FILE      = "static/images/WDSME Scheme_C.svg"
+
+def get_layout_file():
+    """Get the layout file from config.json, fallback to DEFAULT_FILE."""
+    cfg = load_json_file(os.path.join(UPLOAD_FOLDER, CONFIG_FILE)) or {}
+    return cfg.get("layoutDB", DEFAULT_FILE)
 
 def _stream_journal(unit: str, lines: int, priority: str | None, grep: str | None):
     """
@@ -170,8 +176,8 @@ def default_config():
         "point_interlock_timeout": 5
     }
 
-@app.route("/infra_editor")
-def infra_editor():
+@app.route("/editor")
+def editor():
     # Do NOT auto-load a layout file unless explicitly asked
     filename = request.args.get("file")  # None if not provided
     if filename:
@@ -243,6 +249,10 @@ def graphic():
 def non_graphic():
     return render_template("non-graphic.html")
 
+@app.route("/SVG")
+def svg():
+    return render_template("SVG.html")
+
 @app.route("/mqtt")
 def mqtt_page():
     return render_template("mqtt.html", title="MQTT Errors")
@@ -255,6 +265,12 @@ def layout_json():
 
     return send_from_directory(UPLOAD_FOLDER, layout_file)
 
+# return whichever json file is specified by layoutDB in config.json
+@app.route("/layout-svg")
+def layout_svg():
+    svg = SVG_FILE
+    return svg
+
 # Route to serve the JSON file
 @app.route("/routes-data")
 def routes_data():
@@ -266,13 +282,13 @@ def routes_data():
 @app.route("/api/save", methods=["POST"])
 def save_json():
     payload  = request.get_json() or {}
-    filename = request.args.get("filename", DEFAULT_FILE)
+    filename = request.args.get("filename") or get_layout_file()
     save_json_file(os.path.join(UPLOAD_FOLDER, filename), payload)
     return jsonify({"status":"saved","filename":filename})
 
 @app.route("/api/load", methods=["GET"])
 def load_json():
-    filename = request.args.get("filename", DEFAULT_FILE)
+    filename = request.args.get("filename") or get_layout_file()
     data     = load_json_file(os.path.join(UPLOAD_FOLDER, filename)) or empty_layout()
     return jsonify(data)
 

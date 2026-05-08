@@ -17,6 +17,7 @@
       <a class="nav__link {% if request.endpoint in ('logs_index',) %}nav__link--active{% endif %}" href="{{ url_for('logs_index') }}">Console</a>
       <a class="nav__link {% if request.endpoint=='editor' %}nav__link--active{% endif %}" href="{{ url_for('editor') }}">Infrastructure Editor</a>
       <a class="nav__link {% if request.endpoint=='diagnostics' %}nav__link--active{% endif %}" href="{{ url_for('diagnostics') }}">Diagnostics</a>
+      <a class="nav__link {% if request.endpoint=='svg' %}nav__link--active{% endif %}" href="{{ url_for('svg') }}">SVG</a>
     </nav>
   </header>
 
