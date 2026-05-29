@@ -7,6 +7,7 @@
     #svg-container {
       width: 800px;
       border: 1px solid #ccc;
+      background-color: grey;
     }
     #context-menu {
       position: absolute;
@@ -26,8 +27,24 @@
       font-size: inherit;
       cursor: pointer;
     }
-    #context-menu button:hover {
+    #context-menu button:hover:not(:disabled) {
       background: #eee;
+    }
+    #context-menu button:disabled {
+      color: #aaa;
+      cursor: default;
+    }
+    #context-menu hr {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 4px 0;
+    }
+    @keyframes point-flash {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.15; }
+    }
+    .point-flashing path {
+      animation: point-flash 0.7s ease-in-out infinite;
     }
   </style>
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
@@ -50,13 +67,6 @@
     "position_light": "white"
   };
 
-  const colorToAspect = {
-    "red": "danger",
-    "yellow": "caution",
-    "green": "clear",
-    "white": "calling-on"
-  };
-
   const aspectMapping = {
     "associated_position_light": "-associatedPositionLight",
     "position_light": "-positionLight",
@@ -67,8 +77,15 @@
   };
 
   let client;
+  let jsonData;
 
-  // ✅ Auto-detect MQTT broker hostname from page
+  // signal → [routeRef, ...] map, built after JSON loads
+  const signalRoutes = {};
+  // live availability state, updated via MQTT
+  const routeAvailable = {};
+  // per-point state cache
+  const pointState = {};
+
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   const mqttHost = window.location.hostname;
   const mqttPort = 9001; // Your Mosquitto websocket listener port
@@ -77,10 +94,20 @@
 
   Promise.all([
     fetch("static/images/WDSME Scheme_C.svg").then(res => res.text()),
-    fetch('default.json').then(res => res.json())
+    fetch('/layout-json').then(res => res.json())
   ])
-  .then(([svgText, jsonData]) => {
+  .then(([svgText, data]) => {
+    jsonData = data;
     document.getElementById('svg-container').innerHTML = svgText;
+
+    // Build signal → routes reverse map
+    Object.entries(jsonData.Routes).forEach(([routeRef, route]) => {
+      routeAvailable[routeRef] = route.available;
+      Object.keys(route.signals).forEach(sigRef => {
+        if (!signalRoutes[sigRef]) signalRoutes[sigRef] = [];
+        signalRoutes[sigRef].push(routeRef);
+      });
+    });
 
     client = mqtt.connect(mqttUrl);
 
@@ -89,75 +116,155 @@
       Object.keys(jsonData.Signals).forEach(ref => {
         client.subscribe(`report/signal/${ref}/aspect`);
       });
+      Object.keys(jsonData.Sections).forEach(ref => {
+        client.subscribe(`report/section/${ref}/occstatus`);
+      });
+      Object.keys(jsonData.Points).forEach(ref => {
+        client.subscribe(`report/point/${ref}/set_direction`);
+        client.subscribe(`report/point/${ref}/detection_status`);
+        client.subscribe(`report/point/${ref}/detection_boolean`);
+      });
+      Object.keys(jsonData.Routes).forEach(ref => {
+        client.subscribe(`report/route/${ref}/available`);
+      });
     });
 
+    // --- Signal aspect display ---
     function setAspect(signalNumber, aspect) {
       const aspectColour = aspectToColor[aspect] || 'gray';
        const aspectElements = Array.isArray(aspectMapping[aspect])
          ? aspectMapping[aspect]
          : [aspectMapping[aspect]];
-
        aspectElements.forEach(aspectElement => {
          let element;
          if (aspectElement === "-mainAspect") {
            element = document.querySelector(`g[data-cell-id="Signal-${signalNumber}${aspectElement}"] ellipse`);
-         } else if (aspectElement === "-positionLight") {
-           element = document.querySelector(`g[data-cell-id="Signal-${signalNumber}${aspectElement}"] path`);
-         } else if (aspectElement === "-associatedPositionLight") {
+        } else {
            element = document.querySelector(`g[data-cell-id="Signal-${signalNumber}${aspectElement}"] path`);
          }
-         if (element) {
-           element.style.fill = aspectColour;
-         } 
-       });
+        if (element) element.style.fill = aspectColour;
+      });
+    }
+
+    function getSectionUnoccupiedColour() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'white' : 'black';
+    }
+
+    // --- Section occupancy display ---
+    function setSectionOccupancy(sectionRef, occStatus) {
+      const group = document.querySelector(`g[data-cell-id="Section-${sectionRef}"]`);
+      if (!group) return;
+      group.querySelectorAll('path, line, polyline').forEach(el => {
+        el.style.stroke = occStatus ? 'red' : getSectionUnoccupiedColour();
+        el.style.strokeWidth = occStatus ? '4' : '';
+      });
+    }
+
+    // --- Point position display ---
+    function updatePointDisplay(pointRef) {
+      const state = pointState[pointRef] || {};
+      const normalEl  = document.querySelector(`g[data-cell-id="Points-${pointRef}-normal"]`);
+      const reverseEl = document.querySelector(`g[data-cell-id="Points-${pointRef}-reverse"]`);
+      if (!normalEl && !reverseEl) return;
+
+      // Clear any existing flash animation
+      [normalEl, reverseEl].filter(Boolean).forEach(el => {
+        el.classList.remove('point-flashing');
+        el.style.opacity = '';
+      });
+
+      const { set_direction, detection_status, detection_boolean } = state;
+
+      if (detection_boolean) {
+        // Detected: show the detected blade, dim the other
+        if (normalEl)  normalEl.style.opacity  = detection_status === 'normal'  ? '1' : '0.15';
+        if (reverseEl) reverseEl.style.opacity = detection_status === 'reverse' ? '1' : '0.15';
+      } else if (set_direction) {
+        // Setting: flash the commanded direction, dim the other
+        const targetEl = set_direction === 'normal' ? normalEl : reverseEl;
+        const otherEl  = set_direction === 'normal' ? reverseEl : normalEl;
+        if (targetEl) targetEl.classList.add('point-flashing');
+        if (otherEl)  otherEl.style.opacity = '0.15';
+      } else {
+        // No information: dim both
+        [normalEl, reverseEl].filter(Boolean).forEach(el => el.style.opacity = '0.3');
+      }
     }
 
     client.on('message', (topic, message) => {
-      console.log(topic, message);
       const parts = topic.split('/');
-      if (parts[0] === "report" && parts[1] === "signal" && parts[3] === "aspect") {
-        const signalNumber = parts[2];
         const payload = typeof message === 'string' ? message : new TextDecoder().decode(message);
-        const aspectList = payload.split(',').filter(Boolean);
-        aspectList.forEach(aspect => setAspect(signalNumber, aspect));
+
+      if (parts[0] === 'report' && parts[1] === 'signal' && parts[3] === 'aspect') {
+        payload.split(',').filter(Boolean).forEach(aspect => setAspect(parts[2], aspect));
+      }
+      else if (parts[0] === 'report' && parts[1] === 'section' && parts[3] === 'occstatus') {
+        setSectionOccupancy(parts[2], parseInt(payload));
+      }
+      else if (parts[0] === 'report' && parts[1] === 'point') {
+        const ref = parts[2];
+        if (!pointState[ref]) pointState[ref] = {};
+        if (parts[3] === 'set_direction')    pointState[ref].set_direction    = payload;
+        if (parts[3] === 'detection_status') pointState[ref].detection_status = payload;
+        if (parts[3] === 'detection_boolean') pointState[ref].detection_boolean = (payload === 'True');
+        updatePointDisplay(ref);
+      }
+      else if (parts[0] === 'report' && parts[1] === 'route' && parts[3] === 'available') {
+        routeAvailable[parts[2]] = (payload === 'True');
       }
     });
 
+    // Wire up signal click handlers
     Object.entries(jsonData.Signals).forEach(([ref, signal]) => {
       const group = document.querySelector(`g[data-cell-id="${ref}"]`);
       const element = document.querySelector(`g[data-cell-id="${ref}"] g[data-cell-id*="Signal-${ref}"] path, g[data-cell-id="${ref}"] ellipse`);
       if (group) {
-        if (element) {
-          element.style.fill = 'gray'; // ✅ use style only
-        }
-
+        if (element) element.style.fill = 'gray';
         group.addEventListener('click', e => {
           e.stopPropagation();
           showContextMenu(e, ref, group);
         });
       } else {
-        console.warn('No group found for', ref);
+        console.warn('No group found for signal', ref);
       }
     });
   });
 
   function showContextMenu(e, ref, element) {
-    contextMenu.innerHTML = `
+    let html = `
       <button data-aspect="danger">Danger</button>
       <button data-aspect="caution">Caution</button>
       <button data-aspect="clear">Clear</button>
       <button data-aspect="associated_position_light">Calling-on</button>
       <button data-aspect="position_light">Shunt</button>
     `;
+
+    const routes = signalRoutes[ref] || [];
+    if (routes.length) {
+      html += '<hr>';
+      routes.forEach(routeRef => {
+        const desc = (jsonData.Routes[routeRef] && jsonData.Routes[routeRef].description) || routeRef;
+        const avail = routeAvailable[routeRef];
+        html += `<button data-route="${routeRef}" data-action="set" ${avail ? '' : 'disabled'}>Set: ${desc}</button>`;
+        html += `<button data-route="${routeRef}" data-action="cancel">Cancel: ${desc}</button>`;
+      });
+    }
+
+    contextMenu.innerHTML = html;
     contextMenu.style.left = `${e.pageX}px`;
-    contextMenu.style.top = `${e.pageY}px`;
+    contextMenu.style.top  = `${e.pageY}px`;
     contextMenu.style.display = 'block';
 
-    contextMenu.querySelectorAll('button').forEach(button => {
+    contextMenu.querySelectorAll('button[data-aspect]').forEach(button => {
       button.onclick = () => {
-        const aspect = button.getAttribute('data-aspect');
-        const color = aspectToColor[aspect];
-        client.publish(`set/signal/${ref}/aspect`, aspect);
+        client.publish(`set/signal/${ref}/aspect`, button.dataset.aspect);
+        contextMenu.style.display = 'none';
+      };
+    });
+    contextMenu.querySelectorAll('button[data-route]').forEach(button => {
+      button.onclick = () => {
+        const val = button.dataset.action === 'set' ? 'True' : 'False';
+        client.publish(`set/route/${button.dataset.route}`, val);
         contextMenu.style.display = 'none';
       };
     });
