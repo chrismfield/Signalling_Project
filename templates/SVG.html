@@ -258,6 +258,8 @@
       const element = document.querySelector(`g[data-cell-id="${ref}"] g[data-cell-id*="Signal-${ref}"] path, g[data-cell-id="${ref}"] ellipse`);
       if (group) {
         if (element) element.style.fill = 'gray';
+        group.classList.add('interactive-element');
+        group.style.cursor = 'pointer';
         group.addEventListener('click', e => {
           e.stopPropagation();
           showContextMenu(e, ref, group);
@@ -271,11 +273,12 @@
     Object.keys(jsonData.Sections).forEach(ref => {
       const group = document.querySelector(`g[data-cell-id="Section-${ref}"]`);
       if (group) {
+        group.classList.add('interactive-element');
+        group.style.cursor = 'pointer';
         group.addEventListener('click', e => {
           e.stopPropagation();
           showSectionContextMenu(e, ref);
         });
-        group.style.cursor = 'pointer';
       }
     });
 
@@ -284,11 +287,12 @@
       ['normal', 'reverse'].forEach(blade => {
         const group = document.querySelector(`g[data-cell-id="Points-${ref}-${blade}"]`);
         if (group) {
+          group.classList.add('interactive-element');
+          group.style.cursor = 'pointer';
           group.addEventListener('click', e => {
             e.stopPropagation();
             showPointContextMenu(e, ref);
           });
-          group.style.cursor = 'pointer';
         }
       });
     });
@@ -396,6 +400,7 @@
 
   svgContainer.addEventListener('mousedown', e => {
     if (e.button !== 0) return;
+    if (e.target.closest('.interactive-element')) return;
     isPanning = true;
     panMoved = false;
     panStartX = e.clientX - panX;
