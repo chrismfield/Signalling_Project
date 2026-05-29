@@ -4,10 +4,24 @@
   <meta charset="UTF-8" />
   <title>Signals + MQTT + JSON Loop</title>
   <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    main.container {
+      margin: 0;
+      padding: 0;
+    }
     #svg-container {
-      width: 800px;
-      border: 1px solid #ccc;
+      width: 100%;
+      height: calc(100vh - 56px);
+      border: none;
       background-color: grey;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+      display: block;
     }
     #context-menu {
       position: absolute;
@@ -51,8 +65,6 @@
 </head>
 <body>
 
-<h1>Live Signals — JSON Loop</h1>
-
 <div id="svg-container">Loading SVG...</div>
 <div id="context-menu"></div>
 {% endblock %}
@@ -85,6 +97,8 @@
   const routeAvailable = {};
   // per-point state cache
   const pointState = {};
+  // per-section state cache (occstatus + routestatus)
+  const sectionState = {};
 
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   const mqttHost = window.location.hostname;
@@ -99,6 +113,8 @@
   .then(([svgText, data]) => {
     jsonData = data;
     document.getElementById('svg-container').innerHTML = svgText;
+    const svgEl = document.getElementById('svg-container').querySelector('svg');
+    if (svgEl) { svgEl.style.transformOrigin = '0 0'; svgEl.style.display = 'block'; }
 
     // Build signal → routes reverse map
     Object.entries(jsonData.Routes).forEach(([routeRef, route]) => {
@@ -118,6 +134,7 @@
       });
       Object.keys(jsonData.Sections).forEach(ref => {
         client.subscribe(`report/section/${ref}/occstatus`);
+        client.subscribe(`report/section/${ref}/routestatus`);
       });
       Object.keys(jsonData.Points).forEach(ref => {
         client.subscribe(`report/point/${ref}/set_direction`);
@@ -150,13 +167,27 @@
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'white' : 'black';
     }
 
-    // --- Section occupancy display ---
-    function setSectionOccupancy(sectionRef, occStatus) {
+    // --- Section display ---
+    function updateSectionDisplay(sectionRef) {
+      const state = sectionState[sectionRef] || {};
       const group = document.querySelector(`g[data-cell-id="Section-${sectionRef}"]`);
       if (!group) return;
+      const occ = state.occstatus || 0;
+      const routeStatus = state.routestatus || 'not set';
+      let colour, strokeWidth;
+      if (occ) {
+        colour = 'red';
+        strokeWidth = '4';
+      } else if (routeStatus === 'set' || routeStatus === 'setting') {
+        colour = 'blue';
+        strokeWidth = '4';
+      } else {
+        colour = getSectionUnoccupiedColour();
+        strokeWidth = '';
+      }
       group.querySelectorAll('path, line, polyline').forEach(el => {
-        el.style.stroke = occStatus ? 'red' : getSectionUnoccupiedColour();
-        el.style.strokeWidth = occStatus ? '4' : '';
+        el.style.stroke = colour;
+        el.style.strokeWidth = strokeWidth;
       });
     }
 
@@ -199,7 +230,14 @@
         payload.split(',').filter(Boolean).forEach(aspect => setAspect(parts[2], aspect));
       }
       else if (parts[0] === 'report' && parts[1] === 'section' && parts[3] === 'occstatus') {
-        setSectionOccupancy(parts[2], parseInt(payload));
+        if (!sectionState[parts[2]]) sectionState[parts[2]] = {};
+        sectionState[parts[2]].occstatus = parseInt(payload);
+        updateSectionDisplay(parts[2]);
+      }
+      else if (parts[0] === 'report' && parts[1] === 'section' && parts[3] === 'routestatus') {
+        if (!sectionState[parts[2]]) sectionState[parts[2]] = {};
+        sectionState[parts[2]].routestatus = payload;
+        updateSectionDisplay(parts[2]);
       }
       else if (parts[0] === 'report' && parts[1] === 'point') {
         const ref = parts[2];
@@ -228,6 +266,32 @@
         console.warn('No group found for signal', ref);
       }
     });
+
+    // Wire up section click handlers
+    Object.keys(jsonData.Sections).forEach(ref => {
+      const group = document.querySelector(`g[data-cell-id="Section-${ref}"]`);
+      if (group) {
+        group.addEventListener('click', e => {
+          e.stopPropagation();
+          showSectionContextMenu(e, ref);
+        });
+        group.style.cursor = 'pointer';
+      }
+    });
+
+    // Wire up point click handlers (both normal and reverse blades)
+    Object.keys(jsonData.Points).forEach(ref => {
+      ['normal', 'reverse'].forEach(blade => {
+        const group = document.querySelector(`g[data-cell-id="Points-${ref}-${blade}"]`);
+        if (group) {
+          group.addEventListener('click', e => {
+            e.stopPropagation();
+            showPointContextMenu(e, ref);
+          });
+          group.style.cursor = 'pointer';
+        }
+      });
+    });
   });
 
   function showContextMenu(e, ref, element) {
@@ -246,8 +310,8 @@
         const desc = (jsonData.Routes[routeRef] && jsonData.Routes[routeRef].description) || routeRef;
         const avail = routeAvailable[routeRef];
         html += `<button data-route="${routeRef}" data-action="set" ${avail ? '' : 'disabled'}>Set: ${desc}</button>`;
-        html += `<button data-route="${routeRef}" data-action="cancel">Cancel: ${desc}</button>`;
       });
+      html += `<button data-action="cancel-all">Cancel all routes</button>`;
     }
 
     contextMenu.innerHTML = html;
@@ -261,18 +325,118 @@
         contextMenu.style.display = 'none';
       };
     });
-    contextMenu.querySelectorAll('button[data-route]').forEach(button => {
+    contextMenu.querySelectorAll('button[data-route][data-action="set"]').forEach(button => {
       button.onclick = () => {
-        const val = button.dataset.action === 'set' ? 'True' : 'False';
-        client.publish(`set/route/${button.dataset.route}`, val);
+        client.publish(`set/route/${button.dataset.route}`, 'True');
+        contextMenu.style.display = 'none';
+      };
+    });
+    const cancelAllBtn = contextMenu.querySelector('button[data-action="cancel-all"]');
+    if (cancelAllBtn) {
+      cancelAllBtn.onclick = () => {
+        routes.forEach(routeRef => client.publish(`set/route/${routeRef}`, 'False'));
+        contextMenu.style.display = 'none';
+      };
+    }
+  }
+
+  function showPointContextMenu(e, ref) {
+    const html = `
+      <button data-point-action="normal">Normal</button>
+      <button data-point-action="reverse">Reverse</button>
+    `;
+    contextMenu.innerHTML = html;
+    contextMenu.style.left = `${e.pageX}px`;
+    contextMenu.style.top  = `${e.pageY}px`;
+    contextMenu.style.display = 'block';
+
+    contextMenu.querySelectorAll('button[data-point-action]').forEach(button => {
+      button.onclick = () => {
+        client.publish(`set/point/${ref}`, button.dataset.pointAction);
         contextMenu.style.display = 'none';
       };
     });
   }
 
+  function showSectionContextMenu(e, ref) {
+    const html = `
+      <button data-section-action="occupy">Force occupy</button>
+      <button data-section-action="unoccupy">Unoccupy</button>
+    `;
+    contextMenu.innerHTML = html;
+    contextMenu.style.left = `${e.pageX}px`;
+    contextMenu.style.top  = `${e.pageY}px`;
+    contextMenu.style.display = 'block';
+
+    contextMenu.querySelector('button[data-section-action="occupy"]').onclick = () => {
+      client.publish(`set/section/${ref}/occstatus`, '1');
+      contextMenu.style.display = 'none';
+    };
+    contextMenu.querySelector('button[data-section-action="unoccupy"]').onclick = () => {
+      contextMenu.style.display = 'none';
+      if (window.confirm(`Unoccupy section ${ref}?`)) {
+        client.publish(`set/section/${ref}/occstatus`, '0');
+      }
+    };
+  }
+
   window.addEventListener('click', () => {
     contextMenu.style.display = 'none';
   });
+
+  // --- Pan and zoom ---
+  const svgContainer = document.getElementById('svg-container');
+  let panX = 0, panY = 0, zoom = 1;
+  let isPanning = false, panStartX, panStartY, panMoved = false;
+
+  function applyTransform() {
+    const svg = svgContainer.querySelector('svg');
+    if (svg) svg.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+  }
+
+  svgContainer.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    isPanning = true;
+    panMoved = false;
+    panStartX = e.clientX - panX;
+    panStartY = e.clientY - panY;
+    svgContainer.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (!isPanning) return;
+    const nx = e.clientX - panStartX;
+    const ny = e.clientY - panStartY;
+    if (!panMoved && (Math.abs(nx - panX) > 3 || Math.abs(ny - panY) > 3)) panMoved = true;
+    panX = nx;
+    panY = ny;
+    applyTransform();
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (!isPanning) return;
+    isPanning = false;
+    svgContainer.style.cursor = 'grab';
+  });
+
+  // Suppress child click handlers when a drag just finished
+  svgContainer.addEventListener('click', e => {
+    if (panMoved) { e.stopPropagation(); panMoved = false; }
+  }, true);
+
+  svgContainer.addEventListener('wheel', e => {
+    e.preventDefault();
+    const rect = svgContainer.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+    const newZoom = Math.max(0.1, Math.min(10, zoom * factor));
+    panX = mx - (mx - panX) * (newZoom / zoom);
+    panY = my - (my - panY) * (newZoom / zoom);
+    zoom = newZoom;
+    applyTransform();
+  }, { passive: false });
 </script>
 </body>
 </html>
