@@ -98,21 +98,14 @@
   function hideTooltip() {
     tooltip.style.display = 'none';
   }
-  const aspectToColor = {
-    "danger": "red",
-    "caution": "yellow",
-    "clear": "green",
-    "associated_position_light": "white",
-    "position_light": "white"
-  };
-
-  const aspectMapping = {
-    "associated_position_light": "-associatedPositionLight",
-    "position_light": "-positionLight",
-     "danger": ["-mainAspect", "-positionLight", "-associatedPositionLight"],
-    "caution": "-mainAspect",
-    "clear": "-mainAspect"
-
+  // Maps each aspect to the colours for each SVG sub-element it affects.
+  // Elements not listed for an aspect are left unchanged.
+  const aspectElementColors = {
+    "danger":                    { "-mainAspect": "red",   "-positionLight": "black", "-associatedPositionLight": "black" },
+    "caution":                   { "-mainAspect": "yellow",                           "-associatedPositionLight": "black" },
+    "clear":                     { "-mainAspect": "green",                            "-associatedPositionLight": "black" },
+    "position_light":            {                          "-positionLight": "white"                                     },
+    "associated_position_light": {                                                     "-associatedPositionLight": "white" },
   };
 
   let client;
@@ -175,18 +168,14 @@
 
     // --- Signal aspect display ---
     function setAspect(signalNumber, aspect) {
-      const aspectColour = aspectToColor[aspect] || 'gray';
-       const aspectElements = Array.isArray(aspectMapping[aspect])
-         ? aspectMapping[aspect]
-         : [aspectMapping[aspect]];
-       aspectElements.forEach(aspectElement => {
-         let element;
-         if (aspectElement === "-mainAspect") {
-           element = document.querySelector(`g[data-cell-id="Signal-${signalNumber}${aspectElement}"] ellipse`);
-        } else {
-           element = document.querySelector(`g[data-cell-id="Signal-${signalNumber}${aspectElement}"] path`);
-         }
-        if (element) element.style.fill = aspectColour;
+      const elementColors = aspectElementColors[aspect];
+      if (!elementColors) return;
+      Object.entries(elementColors).forEach(([suffix, colour]) => {
+        const sel = suffix === '-mainAspect'
+          ? `g[data-cell-id="Signal-${signalNumber}${suffix}"] ellipse`
+          : `g[data-cell-id="Signal-${signalNumber}${suffix}"] path`;
+        const el = document.querySelector(sel);
+        if (el) el.style.fill = colour;
       });
     }
 
