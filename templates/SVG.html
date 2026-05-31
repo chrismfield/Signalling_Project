@@ -23,6 +23,18 @@
       user-select: none;
       display: block;
     }
+    #tooltip {
+      position: fixed;
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      pointer-events: none;
+      display: none;
+      z-index: 10000;
+      white-space: nowrap;
+    }
     #context-menu {
       position: absolute;
       background: #fff;
@@ -67,10 +79,25 @@
 
 <div id="svg-container">Loading SVG...</div>
 <div id="context-menu"></div>
+<div id="tooltip"></div>
 {% endblock %}
 {% block scripts %}
 <script>
   const contextMenu = document.getElementById('context-menu');
+  const tooltip = document.getElementById('tooltip');
+
+  function showTooltip(e, text) {
+    tooltip.textContent = text;
+    tooltip.style.display = 'block';
+    positionTooltip(e);
+  }
+  function positionTooltip(e) {
+    tooltip.style.left = `${e.clientX + 14}px`;
+    tooltip.style.top  = `${e.clientY - 28}px`;
+  }
+  function hideTooltip() {
+    tooltip.style.display = 'none';
+  }
   const aspectToColor = {
     "danger": "red",
     "caution": "yellow",
@@ -279,6 +306,12 @@
           e.stopPropagation();
           showSectionContextMenu(e, ref);
         });
+        group.addEventListener('mouseenter', e => {
+          const occ = (sectionState[ref] && sectionState[ref].occstatus) || 0;
+          showTooltip(e, `Section ${ref} — ${occ} axle${occ === 1 ? '' : 's'}`);
+        });
+        group.addEventListener('mousemove', positionTooltip);
+        group.addEventListener('mouseleave', hideTooltip);
       }
     });
 
@@ -315,7 +348,7 @@
         const avail = routeAvailable[routeRef];
         html += `<button data-route="${routeRef}" data-action="set" ${avail ? '' : 'disabled'}>Set: ${desc}</button>`;
       });
-      html += `<button data-action="cancel-all">Cancel all routes</button>`;
+      html += `<button data-action="cancel-all">Cancel routes from this signal</button>`;
     }
 
     contextMenu.innerHTML = html;
