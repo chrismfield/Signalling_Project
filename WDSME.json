@@ -139,28 +139,28 @@
     },
     "Signals": {
         "1": {
-            "ref": "1",
-            "description": "1",
             "address": 64,
-            "network": "network_1",
-            "sigtype": 0,
             "availableaspects": 3,
-            "directionindicator": 0,
-            "nextsignal": "109",
-            "conflicting_signals": [],
-            "board_index": 0,
-            "dangerreg": false,
-            "cautionreg": 2,
-            "doublecautionreg": null,
-            "clearreg": 4,
             "bannerreg": null,
+            "board_index": 0,
             "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [],
+            "dangerreg": false,
+            "description": "1",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "109",
+            "ref": "1",
             "route1reg": null,
             "route2reg": null,
             "route3reg": null,
             "route4reg": 204,
             "route5reg": 205,
-            "route6reg": null
+            "route6reg": null,
+            "sigtype": 0
         },
         "9": {
             "address": 63,
@@ -316,7 +316,7 @@
             "normal_coil": 21,
             "ref": "50",
             "reverse_coil": 22,
-            "section": "A Section"
+            "section": "A"
         },
         "100": {
             "address": 100,
@@ -327,7 +327,7 @@
             "normal_coil": 21,
             "ref": "100",
             "reverse_coil": 22,
-            "section": "A Section"
+            "section": "A"
         }
     },
     "Plungers": {
@@ -340,44 +340,44 @@
         }
     },
     "Sections": {
-        "A Section": {
+        "A": {
             "conflictingsections": [],
             "dectrig": {},
-            "description": "A Section",
+            "description": "A",
             "homesignal": [
                 "1"
             ],
             "inctrig": {},
             "mode": "trackcircuit",
-            "ref": "A Section",
+            "ref": "A",
             "trackcircuits": [
                 "A"
             ]
         },
-        "B Section": {
+        "B": {
             "conflictingsections": [],
             "dectrig": {},
-            "description": "B Section",
+            "description": "B",
             "homesignal": [
                 "1"
             ],
             "inctrig": {},
             "mode": "trackcircuit",
-            "ref": "B Section",
+            "ref": "B",
             "trackcircuits": [
                 "B"
             ]
         },
-        "C Section": {
+        "C": {
             "conflictingsections": [],
             "dectrig": {},
-            "description": "C Section",
+            "description": "C",
             "homesignal": [
                 "109"
             ],
             "inctrig": {},
             "mode": "trackcircuit",
-            "ref": "C Section",
+            "ref": "C",
             "trackcircuits": [
                 "C"
             ]
@@ -391,8 +391,8 @@
             },
             "ref": "A Route",
             "sections": [
-                "A Section",
-                "B Section"
+                "A",
+                "B"
             ],
             "signals": {
                 "1": [
@@ -406,7 +406,7 @@
             "points": {},
             "ref": "C Route",
             "sections": [
-                "C Section"
+                "C"
             ],
             "signals": {
                 "109": [
@@ -415,48 +415,5 @@
             }
         }
     },
-    "Triggers": {
-        "A Trigger": {
-            "axlecount": {},
-            "conditions": [
-                "True"
-            ],
-            "description": "A Trigger",
-            "plungers": [],
-            "priority": 10,
-            "ref": "A Trigger",
-            "retain_request": 0,
-            "routes_to_cancel": [],
-            "routes_to_set": [
-                "A Route"
-            ],
-            "sections_clear": [
-                "A Section"
-            ],
-            "sections_occupied": [],
-            "stored_requests_to_cancel": [],
-            "trigger_special_actions": []
-        },
-        "C Auto": {
-            "axlecount": {},
-            "conditions": [
-                "True"
-            ],
-            "description": "C Auto",
-            "plungers": [],
-            "priority": 10,
-            "ref": "C Auto",
-            "retain_request": 0,
-            "routes_to_cancel": [],
-            "routes_to_set": [
-                "C Route"
-            ],
-            "sections_clear": [
-                "C Section"
-            ],
-            "sections_occupied": [],
-            "stored_requests_to_cancel": [],
-            "trigger_special_actions": []
-        }
-    }
+    "Triggers": {}
 }

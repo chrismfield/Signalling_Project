@@ -187,7 +187,7 @@ def section_update(logger, mqtt_client):
                 # if section.occstatus > 0 and old_occstatus == 0 and not section.trains:
                 #     train_tracker.berth_step(step_dict[AC][direction]["old_berth_sections"],
                 #                              step_dict[AC][direction]["new_berth_section"])
-            if section.occstatus > 0:  # these three lines in here to help clear routes
+            if section.occstatus > 0 or section.blocked:  # these three lines in here to help clear routes
                 section.routeset = False
                 section.routestatus = "not set"
                 #update train:
@@ -282,6 +282,8 @@ def interlocking(logger):
             for pointkey, point in Point.instances.items():
                 if point.section == sectionkey:
                     point.unlocked = True
+        if section.blocked:
+            set_protecting_signals(section)
 
 
 def check_points(logger, mqtt_client):
@@ -368,12 +370,12 @@ def check_triggers(logger, mqtt_client):
         # check if triggered by section occupancy:
         if trigger.sections_occupied and AutomaticRouteSetting.global_active:
             for trigger_section in trigger.sections_occupied:
-                if Section.instances[trigger_section].occstatus > 0:
+                if Section.instances[trigger_section].occstatus > 0 and not Section.instances[trigger_section].blocked:
                     triggered = True
         # check if triggered by section vacancy:
         if trigger.sections_clear:
             for trigger_section_clear in trigger.sections_clear:
-                if Section.instances[trigger_section_clear].occstatus == 0:
+                if Section.instances[trigger_section_clear].occstatus == 0 and not Section.instances[trigger_section_clear].blocked:
                     triggered = True
         # check if triggered by stored request:
         if trigger.stored_request:

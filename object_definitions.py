@@ -107,6 +107,7 @@ class Section:
         self.conflictingsections = conflictingsections
         #dynamic variables
         self.occstatus = 0  # occupation status
+        self.blocked = False
         self.routeset = None #set to the route when set through this section
         self.routestatus = ""  # availability status
         self.previousoccstatus = 0

@@ -84,6 +84,10 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                 if section.occstatus and (aspect in main_proceed_aspects):
                     logger.critical("Cannot clear signal when section is occupied for signal " + signal.ref + " in section " + section.ref)
                     raise InterlockingError("Cannot clear signal when section is occupied signal " + signal.ref + " in " + section.ref)
+                # don't set signal if section is blocked
+                if section.occstatus and not (aspect == "danger"):
+                    logger.critical("Cannot clear signal when section is blocked for signal " + signal.ref + " in section " + section.ref)
+                    raise InterlockingError("Cannot clear signal when section is blocked signal " + signal.ref + " in " + section.ref)
                 #don't set signal if points in section do not have detection
                 for point in points.values():
                     if point.section == section.ref:
@@ -296,6 +300,9 @@ def check_route_available(route, points, sections, routes_to_cancel=None):
         if sections[route_section].routestatus == "setting" and \
                 (sections[route_section].routeset not in routes_to_cancel):
             return False
+        # don't set route if section is blocked
+        if sections[route_section].blocked:
+            return False
         # don't set route if section is occupied and signal aspect is a main proceed aspect
         section_signals = sections[route_section].homesignal
         for section_signal in section_signals:
@@ -463,6 +470,8 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
             if signal.ref in section.homesignal and not check_protecting_points(section.protecting_points):
                 if section.occstatus and (aspect in main_proceed_aspects):
                     mqtt_error = "Cannot clear signal when section is occupied"
+                if section.blocked and not (aspect == "danger"):
+                    mqtt_error = "Cannot clear signal when section is blocked"
                 for point in points.values():
                     if point.section == section.ref:
                         if not point.detection_boolean:
@@ -503,6 +512,9 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
     if command_l[1] == "section" and command_l[3] == "occstatus":
         sections[command_l[2]].occstatus = int(command_payload)
         logger.info(str(command_l[2]) + " set to " + str(command_payload))
+    if command_l[1] == "section" and command_l[3] == "blocked":
+        sections[command_l[2]].blocked = (command_payload == 'True')
+        logger.info(str(command_l[2]) + " blocked status " + str(command_payload))
     if command_l[1] == "train": # command in form set/train/ID/attribute = val
         if command_l[2] == "new": #if new train requested:
             if command_l[3] == "berth_section":
@@ -546,6 +558,7 @@ def send_status_to_mqtt(axlecounters, trackcircuits, signals, sections, plungers
     # set section dynamic variables
     for section in sections.values():
         mqtt_dict[("report/section/" + section.ref+"/occstatus")] = section.occstatus
+        mqtt_dict[("report/section/" + section.ref + "/blocked")] = section.blocked
         mqtt_dict[("report/section/" + section.ref+"/routeset")] = section.routeset
         mqtt_dict[("report/section/" + section.ref + "/routestatus")] = section.routestatus
         mqtt_dict[("report/section/" + section.ref + "/trains")] = str([train.ID for train in section.trains])

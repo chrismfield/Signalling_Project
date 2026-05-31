@@ -16,7 +16,7 @@ logging.basicConfig()
 log = logging.getLogger()
 log.setLevel(logging.WARN)
 
-with open("default.json") as layout_file:
+with open("../WDSME.json") as layout_file:
     jsoninfradata = jsons.loads(layout_file.read())
 
 

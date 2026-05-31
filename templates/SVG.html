@@ -155,6 +155,7 @@
       Object.keys(jsonData.Sections).forEach(ref => {
         client.subscribe(`report/section/${ref}/occstatus`);
         client.subscribe(`report/section/${ref}/routestatus`);
+        client.subscribe(`report/section/${ref}/blocked`);
       });
       Object.keys(jsonData.Points).forEach(ref => {
         client.subscribe(`report/point/${ref}/set_direction`);
@@ -190,9 +191,13 @@
       if (!group) return;
       const occ = state.occstatus || 0;
       const routeStatus = state.routestatus || 'not set';
+      const blocked = !!state.blocked;
       let colour, strokeWidth;
       if (occ) {
         colour = 'red';
+        strokeWidth = '4';
+      } else if (blocked) {
+        colour = 'magenta';
         strokeWidth = '4';
       } else if (routeStatus === 'set' || routeStatus === 'setting') {
         colour = 'blue';
@@ -254,6 +259,10 @@
         if (!sectionState[parts[2]]) sectionState[parts[2]] = {};
         sectionState[parts[2]].routestatus = payload;
         updateSectionDisplay(parts[2]);
+      }
+      else if (parts[0] === 'report' && parts[1] === 'section' && parts[3] === 'blocked') {
+        if (!sectionState[parts[2]]) sectionState[parts[2]] = {};
+        sectionState[parts[2]].blocked = (payload === 'True' || payload === '1');
       }
       else if (parts[0] === 'report' && parts[1] === 'point') {
         const ref = parts[2];
@@ -385,9 +394,12 @@
   }
 
   function showSectionContextMenu(e, ref) {
+    const isBlocked = !!(sectionState[ref] && sectionState[ref].blocked);
     const html = `
       <button data-section-action="occupy">Force occupy</button>
       <button data-section-action="unoccupy">Unoccupy</button>
+      <hr>
+      <button data-section-action="block">${isBlocked ? 'Unblock section' : 'Block section'}</button>
     `;
     contextMenu.innerHTML = html;
     contextMenu.style.left = `${e.pageX}px`;
@@ -403,6 +415,10 @@
       if (window.confirm(`Unoccupy section ${ref}?`)) {
         client.publish(`set/section/${ref}/occstatus`, '0');
       }
+    };
+    contextMenu.querySelector('button[data-section-action="block"]').onclick = () => {
+      client.publish(`set/section/${ref}/blocked`, isBlocked ? 'False' : 'True');
+      contextMenu.style.display = 'none';
     };
   }
 
