@@ -305,6 +305,30 @@
             "route5reg": null,
             "route6reg": null,
             "sigtype": 1
+        },
+        "109R": {
+            "ref": "109R",
+            "description": "109 Distant Signal",
+            "address": 209,
+            "network": "network_1",
+            "sigtype": 1,
+            "availableaspects": 3,
+            "directionindicator": 0,
+            "nextsignal": "109",
+            "conflicting_signals": [],
+            "board_index": 0,
+            "dangerreg": null,
+            "cautionreg": 2,
+            "doublecautionreg": null,
+            "clearreg": 4,
+            "bannerreg": null,
+            "callingonreg": null,
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null
         }
     },
     "Points": {
@@ -315,17 +339,6 @@
             "network": "network_1",
             "normal_coil": 21,
             "ref": "50",
-            "reverse_coil": 22,
-            "section": "A"
-        },
-        "100": {
-            "address": 100,
-            "board_index": 0,
-            "description": "100 Points",
-            "detection_mode": 1,
-            "network": "network_1",
-            "normal_coil": 21,
-            "ref": "100",
             "reverse_coil": 22,
             "section": "A"
         }
@@ -381,6 +394,20 @@
             "trackcircuits": [
                 "C"
             ]
+        },
+        "D": {
+            "conflictingsections": [],
+            "dectrig": {},
+            "description": "D",
+            "homesignal": [
+                "107"
+            ],
+            "inctrig": {},
+            "mode": "trackcircuit",
+            "ref": "D",
+            "trackcircuits": [
+                "D"
+            ]
         }
     },
     "Routes": {
@@ -402,18 +429,99 @@
             }
         },
         "C Route": {
-            "description": "C Route",
-            "points": {},
             "ref": "C Route",
+            "description": "C Route",
             "sections": [
                 "C"
             ],
+            "points": {},
             "signals": {
                 "109": [
+                    "clear"
+                ],
+                "109R": [
+                    "clear"
+                ]
+            }
+        },
+        "D Route": {
+            "description": "D Route",
+            "points": {},
+            "ref": "D Route",
+            "sections": [
+                "D"
+            ],
+            "signals": {
+                "107": [
                     "clear"
                 ]
             }
         }
     },
-    "Triggers": {}
+    "Triggers": {
+        "AB": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "AB Route",
+            "plungers": [],
+            "priority": 0,
+            "ref": "AB",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "A Route"
+            ],
+            "sections_clear": [
+                "A",
+                "B"
+            ],
+            "sections_occupied": [],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
+        },
+        "C Route": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "C Route Trigger",
+            "plungers": [],
+            "priority": 0,
+            "ref": "C Route",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "C Route"
+            ],
+            "sections_clear": [
+                "C"
+            ],
+            "sections_occupied": [],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
+        },
+        "D Route Trigger": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "D Route Trigger",
+            "plungers": [],
+            "priority": 0,
+            "ref": "D Route Trigger",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "D Route"
+            ],
+            "sections_clear": [
+                "D"
+            ],
+            "sections_occupied": [],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
+        }
+    }
 }

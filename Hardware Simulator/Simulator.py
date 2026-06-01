@@ -1,6 +1,7 @@
 import asyncio
 import jsons
 import logging
+import sys
 
 from pymodbus.datastore import (
     ModbusSequentialDataBlock,
@@ -24,7 +25,8 @@ def setup_slaves():
     signals = {}
     points = {}
     axlecounters = {}
-    plungers = {}
+    trackcircuits = {}
+    plungers = {}   
 
     # Define registers
     coils = ModbusSequentialDataBlock(0, [False] * 2000)
@@ -50,6 +52,9 @@ def setup_slaves():
 
     for ac in jsoninfradata["AxleCounters"].values():
         axlecounters[ac["address"]] = create_slave()
+
+    for tc in jsoninfradata["TrackCircuits"].values():
+        trackcircuits[tc["address"]] = create_slave()
 
     for plunger in jsoninfradata["Plungers"].values():
         plungers[plunger["address"]] = create_slave()
@@ -87,22 +92,31 @@ async def update_input_registers(server_context):
         await asyncio.sleep(1)
 
 
+async def run_server(port):
+    # Restart loop — serial_asyncio requires SelectorEventLoop on Windows;
+    # ProactorEventLoop (Python 3.8+ default) silently breaks serial I/O
+    # with virtual COM ports (Com0Com) after ~60 s.
+    while True:
+        try:
+            await StartAsyncSerialServer(
+                context=server_context,
+                port=port,
+                baudrate=19200,
+            )
+        except Exception as e:
+            logging.error(f"Serial server error (restarting in 2 s): {e}")
+        await asyncio.sleep(2)
+
+
 async def main(port):
-    # IMPORTANT: must be awaited in new pymodbus
-    server_task = asyncio.create_task(
-        StartAsyncSerialServer(
-            context=server_context,
-            port=port,
-            baudrate=19200,
-        )
+    await asyncio.gather(
+        run_server(port),
+        update_input_registers(server_context),
     )
-
-    update_task = asyncio.create_task(
-        update_input_registers(server_context)
-    )
-
-    await asyncio.gather(server_task, update_task)
 
 
 if __name__ == "__main__":
+    # serial_asyncio requires SelectorEventLoop on Windows
+    if sys.platform == "win32":
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main(port))
