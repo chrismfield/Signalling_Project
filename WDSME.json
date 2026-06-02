@@ -1289,6 +1289,11 @@
             "homesignal": [
                 "1"
             ],
+            "protecting_points": {
+                "1": {
+                    "50": "normal"
+                }
+            },
             "inctrig": {},
             "mode": "trackcircuit",
             "ref": "B",
@@ -1303,11 +1308,6 @@
             "homesignal": [
                 "109"
             ],
-            "protecting_points": {
-                "1": {
-                    "50": "normal"
-                }
-            },
             "inctrig": {},
             "mode": "trackcircuit",
             "ref": "C",
