@@ -205,6 +205,8 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                     try:
                         if signal.dangerreg:
                             signal.slave.write_bit(signal.dangerreg, 0)
+                        if signal.clearreg:
+                            signal.slave.write_bit(signal.clearreg, 0)
                         if signal.cautionreg:
                             signal.slave.write_bit(signal.cautionreg, 1)
                         comms_status = " OK"

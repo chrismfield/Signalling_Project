@@ -3,6 +3,7 @@ import asyncio
 import logging
 import os
 import queue
+import re
 import sys
 import threading
 import tkinter as tk
@@ -26,6 +27,14 @@ log.setLevel(logging.WARN)
 
 with open(JSON_PATH) as f:
     layout = jsons.loads(f.read())
+
+
+def _natural_key(s):
+    return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', s)]
+
+
+def _sorted(section):
+    return sorted(layout[section].items(), key=lambda x: _natural_key(x[0]))
 
 
 # ── Modbus context ─────────────────────────────────────────────────────────────
@@ -104,7 +113,7 @@ class SimulatorGUI:
 
         self._tc: dict = {}
         PER_ROW = 5
-        for i, (name, data) in enumerate(layout["TrackCircuits"].items()):
+        for i, (name, data) in enumerate(_sorted("TrackCircuits")):
             r, c = divmod(i, PER_ROW)
             col = c * 3
 
@@ -126,20 +135,22 @@ class SimulatorGUI:
         frame.grid(row=row, column=0, sticky="ew", pady=(0, 4))
 
         self._pl: dict = {}
-        for i, (name, data) in enumerate(layout["Plungers"].items()):
-            col = i * 4
+        PER_ROW = 6
+        for i, (name, data) in enumerate(_sorted("Plungers")):
+            r, c = divmod(i, PER_ROW)
+            col = c * 4
             ttk.Label(frame, text=name, anchor="e").grid(
-                row=0, column=col, padx=(8, 4), pady=4)
+                row=r, column=col, padx=(8, 4), pady=4)
             ttk.Label(frame, text=data.get("description", ""),
-                      foreground="#888888").grid(row=0, column=col + 1, padx=(0, 8))
+                      foreground="#888888").grid(row=r, column=col + 1, padx=(0, 8))
 
             ind = tk.Label(frame, width=2, bg="#555555", relief="groove")
-            ind.grid(row=0, column=col + 2, padx=4, pady=4)
+            ind.grid(row=r, column=col + 2, padx=4, pady=4)
 
             btn = tk.Button(frame, text="PRESS", width=6,
                             bg="#444444", fg="white",
                             activebackground="#777777", relief="raised", bd=2)
-            btn.grid(row=0, column=col + 3, padx=(0, 14), pady=4)
+            btn.grid(row=r, column=col + 3, padx=(0, 14), pady=4)
             btn.bind("<ButtonPress-1>",   lambda e, n=name: self._on_plunger(n, True))
             btn.bind("<ButtonRelease-1>", lambda e, n=name: self._on_plunger(n, False))
 
@@ -151,7 +162,7 @@ class SimulatorGUI:
 
         self._sig: dict = {}
         PER_ROW = 6
-        for i, (name, data) in enumerate(layout["Signals"].items()):
+        for i, (name, data) in enumerate(_sorted("Signals")):
             r, c = divmod(i, PER_ROW)
             col = c * 2
             ttk.Label(frame, text=f"Sig {name}", anchor="e", width=7).grid(
@@ -166,7 +177,7 @@ class SimulatorGUI:
         frame.grid(row=row, column=0, sticky="ew", pady=(0, 4))
 
         self._pts: dict = {}
-        for i, (name, data) in enumerate(layout["Points"].items()):
+        for i, (name, data) in enumerate(_sorted("Points")):
             col = i * 2
             ttk.Label(frame, text=f"Pts {name}", anchor="e", width=8).grid(
                 row=0, column=col, padx=(8, 2), pady=4)
