@@ -85,7 +85,7 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                     logger.critical("Cannot clear signal when section is occupied for signal " + signal.ref + " in section " + section.ref)
                     raise InterlockingError("Cannot clear signal when section is occupied signal " + signal.ref + " in " + section.ref)
                 # don't set signal if section is blocked
-                if section.occstatus and not (aspect == "danger"):
+                if section.blocked and not (aspect == "danger"):
                     logger.critical("Cannot clear signal when section is blocked for signal " + signal.ref + " in section " + section.ref)
                     raise InterlockingError("Cannot clear signal when section is blocked signal " + signal.ref + " in " + section.ref)
                 #don't set signal if points in section do not have detection
@@ -330,8 +330,34 @@ def check_route_available(route, points, sections, routes_to_cancel=None):
 
     return True
 
+def check_route_unoccupied(route, points, sections, routes_to_cancel=None):
+    #this is used as a final check before setting signals in case route has been occupied while points are setting
+    for route_section in route.sections:
+        # don't set route if section is blocked
+        if sections[route_section].blocked:
+            return False
+        # don't set route if section is occupied and signal aspect is a main proceed aspect
+        section_signals = sections[route_section].homesignal
+        for section_signal in section_signals:
+            if section_signal in route.signals:
+                signal_aspects = route.signals[section_signal]
+                if sections[route_section].occstatus and \
+                        [aspect for aspect in signal_aspects if aspect in main_proceed_aspects]:
+                    return False
+        # don't set route if there is a conflicting section set or occupied
+        for section in sections[route_section].conflictingsections:
+            if sections[section].routeset:
+                return False
+            if sections[section].routestatus == "setting":
+                return False
+        for section in sections[route_section].conflictingsections:
+            if sections[section].occstatus:
+                return False
 
-def set_route(route, sections, points, signals, logger, mqtt_client):
+    return True
+
+
+def set_route(route, sections, points, signals, triggers, logger, mqtt_client):
 
     # check route is clear to set
     if check_route_available(route, points, sections) or route.setting:
@@ -363,23 +389,29 @@ def set_route(route, sections, points, signals, logger, mqtt_client):
             # set signals (check that route is clear already completed):
             # check points for that section are set and detected correctly
         if points_detected or not route.points.items():
-            # set signal for that section in accordance with route signals to set
-            for signal, aspects in route.signals.items():
-                for aspect in aspects:
-                    set_signal(signals[signal],
-                               signals,
-                               sections=sections,
-                               points=points,
-                               logger=logger,
-                               aspect=aspect,
-                               send_commands=False,
-                               route=route.ref)
-            # clear trigger once route fully set
-            # route.set = True # not required?
-            route.setting = False
-            for section in route.sections:
-                sections[section].routestatus = "set"
-                sections[section].routeset = route.ref
+
+            #TODO check all OK to set signal e.g. nothing has occupied sections while points setting.
+            if check_route_unoccupied(route, points, sections):
+                # set signal for that section in accordance with route signals to set
+                for signal, aspects in route.signals.items():
+                    for aspect in aspects:
+                        set_signal(signals[signal],
+                                   signals,
+                                   sections=sections,
+                                   points=points,
+                                   logger=logger,
+                                   aspect=aspect,
+                                   send_commands=False,
+                                   route=route.ref)
+                # clear trigger once route fully set
+                # route.set = True # not required?
+                route.setting = False
+                for section in route.sections:
+                    sections[section].routestatus = "set"
+                    sections[section].routeset = route.ref
+            else:
+                cancel_route(route, sections, points, signals, triggers, logger, mqtt_client)
+                return "route no longer available"
     else:
         return "route not available"
 
@@ -497,6 +529,7 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
                       sections=sections,
                       points=points,
                       signals=signals,
+                      triggers=triggers,
                       logger=logger,
                       mqtt_client=mqtt_client)
         if not eval(command_payload):

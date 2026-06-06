@@ -248,7 +248,7 @@ def interlocking(logger):
         return False
 
     def set_protecting_signals(section):
-        # for each homesignal in each section set signal to danger: #TODO allow points to protect sections instead
+        # for each homesignal in each section set signal to danger: 
         for homesignal in section.homesignal:
             if ("associated_position_light" not in Signal.instances[homesignal].aspect) and \
                     ("position_light" not in Signal.instances[homesignal].aspect) and \
@@ -440,6 +440,7 @@ def check_triggers(logger, mqtt_client):
                                   sections=Section.instances,
                                   points=Point.instances,
                                   signals=Signal.instances,
+                                  triggers=Trigger.instances,
                                   logger=logger,
                                   mqtt_client=mqtt_client)
                 triggered = False
@@ -468,6 +469,7 @@ def set_setting_routes(logger, mqtt_client):
                           sections=Section.instances,
                           points=Point.instances,
                           signals=Signal.instances,
+                          triggers=Trigger.instances,
                           logger=logger,
                           mqtt_client=mqtt_client)
 
