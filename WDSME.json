@@ -295,17 +295,77 @@
             },
             "slave": null
         },
-        "S": {
+        "H": {
             "address": 63,
             "comms_status": "",
-            "description": "AS",
+            "description": "H",
             "instances": {},
             "mode": "self-latching",
             "network": "network_1",
-            "ref": "AS",
+            "ref": "H",
             "registers": {
                 "self-latching": [
-                    18
+                    7
+                ]
+            },
+            "slave": null
+        },
+        "J": {
+            "address": 63,
+            "comms_status": "",
+            "description": "J",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "J",
+            "registers": {
+                "self-latching": [
+                    8
+                ]
+            },
+            "slave": null
+        },
+        "K": {
+            "address": 63,
+            "comms_status": "",
+            "description": "K",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "K",
+            "registers": {
+                "self-latching": [
+                    9
+                ]
+            },
+            "slave": null
+        },
+        "L": {
+            "address": 63,
+            "comms_status": "",
+            "description": "L",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "L",
+            "registers": {
+                "self-latching": [
+                    10
+                ]
+            },
+            "slave": null
+        },
+        "S": {
+            "address": 63,
+            "comms_status": "",
+            "description": "S",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "S",
+            "registers": {
+                "self-latching": [
+                    12
                 ]
             },
             "slave": null
@@ -325,19 +385,19 @@
             },
             "slave": null
         },
-        "H": {
-            "ref": "H",
-            "description": "H",
-            "mode": "self-latching",
+        "U": {
             "address": 63,
+            "comms_status": "",
+            "description": "U",
+            "instances": {},
+            "mode": "self-latching",
             "network": "network_1",
+            "ref": "U",
             "registers": {
                 "self-latching": [
-                    7
+                    11
                 ]
             },
-            "comms_status": "",
-            "instances": {},
             "slave": null
         }
     },
@@ -1289,13 +1349,13 @@
             "homesignal": [
                 "1"
             ],
+            "inctrig": {},
+            "mode": "trackcircuit",
             "protecting_points": {
                 "1": {
                     "50": "normal"
                 }
             },
-            "inctrig": {},
-            "mode": "trackcircuit",
             "ref": "B",
             "trackcircuits": [
                 "B"
@@ -1330,64 +1390,136 @@
             ]
         },
         "E": {
-            "ref": "E",
-            "description": "E",
-            "mode": "trackcircuit",
-            "trackcircuits": [
-                "E"
-            ],
-            "inctrig": {},
+            "conflictingsections": [],
             "dectrig": {},
+            "description": "E",
             "homesignal": [
                 "103"
             ],
-            "conflictingsections": []
+            "inctrig": {},
+            "mode": "trackcircuit",
+            "ref": "E",
+            "trackcircuits": [
+                "E"
+            ]
         },
         "F": {
-            "ref": "F",
-            "description": "F",
-            "mode": "trackcircuit",
-            "trackcircuits": [
-                "F"
-            ],
-            "inctrig": {},
+            "conflictingsections": [],
             "dectrig": {},
+            "description": "F",
             "homesignal": [
                 "15"
             ],
-            "conflictingsections": []
+            "inctrig": {},
+            "mode": "trackcircuit",
+            "ref": "F",
+            "trackcircuits": [
+                "F"
+            ]
         },
         "G": {
-            "ref": "G",
-            "description": "G",
-            "mode": "trackcircuit",
-            "trackcircuits": [
-                "G"
-            ],
-            "inctrig": {},
+            "conflictingsections": [],
             "dectrig": {},
+            "description": "G",
             "homesignal": [
                 "9"
             ],
-            "conflictingsections": []
+            "inctrig": {},
+            "mode": "trackcircuit",
+            "ref": "G",
+            "trackcircuits": [
+                "G"
+            ]
         },
         "H": {
-            "ref": "H",
-            "description": "H",
-            "mode": "trackcircuit",
-            "trackcircuits": [
-                "H"
-            ],
-            "inctrig": {},
+            "conflictingsections": [],
             "dectrig": {},
+            "description": "H",
             "homesignal": [
                 "1"
             ],
+            "inctrig": {},
+            "mode": "trackcircuit",
             "protecting_points": {
                 "1": {
                     "50": "reverse"
                 }
             },
+            "ref": "H",
+            "trackcircuits": [
+                "H"
+            ]
+        },
+        "J": {
+            "ref": "J",
+            "description": "J",
+            "mode": "trackcircuit",
+            "trackcircuits": [
+                "J"
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [],
+            "conflictingsections": []
+        },
+        "K": {
+            "ref": "K",
+            "description": "K",
+            "mode": "trackcircuit",
+            "trackcircuits": [
+                "K"
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [],
+            "conflictingsections": []
+        },
+        "L": {
+            "ref": "L",
+            "description": "L",
+            "mode": "trackcircuit",
+            "trackcircuits": [
+                "L"
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [],
+            "conflictingsections": []
+        },
+        "U": {
+            "ref": "U",
+            "description": "U",
+            "mode": "trackcircuit",
+            "trackcircuits": [
+                "U"
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [],
+            "conflictingsections": []
+        },
+        "S": {
+            "ref": "S",
+            "description": "S",
+            "mode": "trackcircuit",
+            "trackcircuits": [
+                "S"
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [],
+            "conflictingsections": []
+        },
+        "T": {
+            "ref": "T",
+            "description": "T",
+            "mode": "trackcircuit",
+            "trackcircuits": [
+                "T"
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [],
             "conflictingsections": []
         }
     },
@@ -1601,6 +1733,23 @@
                 ]
             }
         },
+        "AH Route": {
+            "description": "AH - Set 50 Points Reverse",
+            "points": {
+                "50": "reverse"
+            },
+            "ref": "AH Route",
+            "sections": [
+                "A",
+                "H"
+            ],
+            "signals": {
+                "1": [
+                    "clear",
+                    "route4"
+                ]
+            }
+        },
         "C Route": {
             "description": "C Route",
             "points": {},
@@ -1739,23 +1888,6 @@
             "signals": {
                 "47": [
                     "caution"
-                ]
-            }
-        },
-        "AH Route": {
-            "ref": "AH Route",
-            "description": "AH - Set 50 Points Reverse",
-            "sections": [
-                "A",
-                "H"
-            ],
-            "points": {
-                "50": "reverse"
-            },
-            "signals": {
-                "1": [
-                    "clear",
-                    "route4"
                 ]
             }
         }
@@ -2891,27 +3023,27 @@
             "triggered": false
         },
         "TCOP-W": {
-            "ref": "TCOP-W",
-            "description": "TCOP-W",
-            "priority": 1,
-            "retain_request": 0,
+            "axlecount": {},
             "conditions": [
                 "True"
             ],
+            "description": "TCOP-W",
             "plungers": [
                 "TCOP-W"
             ],
-            "sections_occupied": [],
-            "sections_clear": [],
-            "routes_to_set": [
-                "AH Route"
-            ],
+            "priority": 1,
+            "ref": "TCOP-W",
+            "retain_request": 0,
             "routes_to_cancel": [
                 "A Route"
             ],
-            "trigger_special_actions": [],
+            "routes_to_set": [
+                "AH Route"
+            ],
+            "sections_clear": [],
+            "sections_occupied": [],
             "stored_requests_to_cancel": [],
-            "axlecount": {}
+            "trigger_special_actions": []
         }
     }
 }
