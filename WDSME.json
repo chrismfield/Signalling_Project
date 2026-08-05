@@ -399,6 +399,66 @@
                 ]
             },
             "slave": null
+        },
+        "W": {
+            "ref": "W",
+            "description": "W",
+            "mode": "self-latching",
+            "address": 63,
+            "network": "network_1",
+            "registers": {
+                "self-latching": [
+                    14
+                ]
+            },
+            "comms_status": "",
+            "instances": {},
+            "slave": null
+        },
+        "N": {
+            "ref": "N",
+            "description": "N",
+            "mode": "self-latching",
+            "address": 63,
+            "network": "network_1",
+            "registers": {
+                "self-latching": [
+                    15
+                ]
+            },
+            "comms_status": "",
+            "instances": {},
+            "slave": null
+        },
+        "P": {
+            "ref": "P",
+            "description": "P",
+            "mode": "self-latching",
+            "address": 63,
+            "network": "network_1",
+            "registers": {
+                "self-latching": [
+                    16
+                ]
+            },
+            "comms_status": "",
+            "instances": {},
+            "slave": null
+        },
+        "M": {
+            "ref": "M",
+            "description": "M",
+            "mode": "self-latching",
+            "address": 63,
+            "network": "network_1",
+            "registers": {
+                "self-latching": [
+                    13
+                ]
+            },
+            "comms_status": "",
+            "instances": {},
+            "slave": null
         }
     },
     "Signals": {
@@ -1451,71 +1511,119 @@
             ]
         },
         "J": {
-            "ref": "J",
+            "conflictingsections": [],
+            "dectrig": {},
             "description": "J",
+            "homesignal": [],
+            "inctrig": {},
             "mode": "trackcircuit",
+            "ref": "J",
             "trackcircuits": [
                 "J"
-            ],
-            "inctrig": {},
-            "dectrig": {},
-            "homesignal": [],
-            "conflictingsections": []
+            ]
         },
         "K": {
-            "ref": "K",
+            "conflictingsections": [],
+            "dectrig": {},
             "description": "K",
+            "homesignal": [],
+            "inctrig": {},
             "mode": "trackcircuit",
+            "ref": "K",
             "trackcircuits": [
                 "K"
-            ],
-            "inctrig": {},
-            "dectrig": {},
-            "homesignal": [],
-            "conflictingsections": []
+            ]
         },
         "L": {
-            "ref": "L",
+            "conflictingsections": [],
+            "dectrig": {},
             "description": "L",
+            "homesignal": [],
+            "inctrig": {},
             "mode": "trackcircuit",
+            "ref": "L",
             "trackcircuits": [
                 "L"
-            ],
-            "inctrig": {},
-            "dectrig": {},
-            "homesignal": [],
-            "conflictingsections": []
-        },
-        "U": {
-            "ref": "U",
-            "description": "U",
-            "mode": "trackcircuit",
-            "trackcircuits": [
-                "U"
-            ],
-            "inctrig": {},
-            "dectrig": {},
-            "homesignal": [],
-            "conflictingsections": []
+            ]
         },
         "S": {
-            "ref": "S",
+            "conflictingsections": [],
+            "dectrig": {},
             "description": "S",
+            "homesignal": [],
+            "inctrig": {},
             "mode": "trackcircuit",
+            "ref": "S",
             "trackcircuits": [
                 "S"
+            ]
+        },
+        "T": {
+            "conflictingsections": [],
+            "dectrig": {},
+            "description": "T",
+            "homesignal": [],
+            "inctrig": {},
+            "mode": "trackcircuit",
+            "ref": "T",
+            "trackcircuits": [
+                "T"
+            ]
+        },
+        "U": {
+            "conflictingsections": [],
+            "dectrig": {},
+            "description": "U",
+            "homesignal": [],
+            "inctrig": {},
+            "mode": "trackcircuit",
+            "ref": "U",
+            "trackcircuits": [
+                "U"
+            ]
+        },
+        "W": {
+            "ref": "W",
+            "description": "W",
+            "mode": "trackcircuit",
+            "trackcircuits": [
+                "W"
             ],
             "inctrig": {},
             "dectrig": {},
             "homesignal": [],
             "conflictingsections": []
         },
-        "T": {
-            "ref": "T",
-            "description": "T",
+        "N": {
+            "ref": "N",
+            "description": "N",
             "mode": "trackcircuit",
             "trackcircuits": [
-                "T"
+                "N"
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [],
+            "conflictingsections": []
+        },
+        "P": {
+            "ref": "P",
+            "description": "P",
+            "mode": "trackcircuit",
+            "trackcircuits": [
+                "P"
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [],
+            "conflictingsections": []
+        },
+        "M": {
+            "ref": "M",
+            "description": "M",
+            "mode": "trackcircuit",
+            "trackcircuits": [
+                "M"
             ],
             "inctrig": {},
             "dectrig": {},

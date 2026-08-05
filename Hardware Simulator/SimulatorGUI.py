@@ -193,7 +193,7 @@ class SimulatorGUI:
         frame.grid(row=row, column=0, sticky="ew", pady=(0, 4))
 
         ttk.Label(frame, text="Sequence:").grid(row=0, column=0, padx=(0, 4), pady=4, sticky="e")
-        self._stepper_seq_var = tk.StringVar(value="G,A,B,C,D,S")
+        self._stepper_seq_var = tk.StringVar(value="M,G,A,B,C,D,S,T,E,F,G,A,H,J,U,K,L,M,N,P,AQ,AR,AS,AT")
         ttk.Entry(frame, textvariable=self._stepper_seq_var, width=24).grid(
             row=0, column=1, padx=(0, 12), pady=4, sticky="w")
 

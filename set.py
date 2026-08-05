@@ -119,6 +119,21 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
         if signal.aspect != old_aspects:
             logger.info(signal.ref + " aspects requested " + str(signal.aspect))
 
+
+    def set_caution_aspect():
+        """finds the caution signals that rely on the danger aspect being set and sets their aspect to caution
+        if currently set to clear"""
+        #TODO this can take a code cycle to be effective - improve efficiency
+        if "caution" in signal.aspect or "clear" in signal.aspect:
+            pass
+        else:
+            for caution_signal in signals.values():
+                if caution_signal.nextsignal == signal.ref:
+                    if "clear" in caution_signal.aspect:
+                        caution_signal.aspect.discard("clear")
+                        caution_signal.aspect.add("caution")
+
+
     def send_aspect_commands():  # set aspects through slaves and lookups
         for req_aspect in signal.aspect:
             comms_status = ""
@@ -149,6 +164,7 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
+                set_caution_aspect()
             if req_aspect == "caution":
                 try:
                     if signal.dangerreg:
