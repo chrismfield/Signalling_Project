@@ -355,6 +355,51 @@
             },
             "slave": null
         },
+        "M": {
+            "address": 63,
+            "comms_status": "",
+            "description": "M",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "M",
+            "registers": {
+                "self-latching": [
+                    13
+                ]
+            },
+            "slave": null
+        },
+        "N": {
+            "address": 63,
+            "comms_status": "",
+            "description": "N",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "N",
+            "registers": {
+                "self-latching": [
+                    15
+                ]
+            },
+            "slave": null
+        },
+        "P": {
+            "address": 63,
+            "comms_status": "",
+            "description": "P",
+            "instances": {},
+            "mode": "self-latching",
+            "network": "network_1",
+            "ref": "P",
+            "registers": {
+                "self-latching": [
+                    16
+                ]
+            },
+            "slave": null
+        },
         "S": {
             "address": 63,
             "comms_status": "",
@@ -401,90 +446,45 @@
             "slave": null
         },
         "W": {
-            "ref": "W",
-            "description": "W",
-            "mode": "self-latching",
             "address": 63,
+            "comms_status": "",
+            "description": "W",
+            "instances": {},
+            "mode": "self-latching",
             "network": "network_1",
+            "ref": "W",
             "registers": {
                 "self-latching": [
                     14
                 ]
             },
-            "comms_status": "",
-            "instances": {},
-            "slave": null
-        },
-        "N": {
-            "ref": "N",
-            "description": "N",
-            "mode": "self-latching",
-            "address": 63,
-            "network": "network_1",
-            "registers": {
-                "self-latching": [
-                    15
-                ]
-            },
-            "comms_status": "",
-            "instances": {},
-            "slave": null
-        },
-        "P": {
-            "ref": "P",
-            "description": "P",
-            "mode": "self-latching",
-            "address": 63,
-            "network": "network_1",
-            "registers": {
-                "self-latching": [
-                    16
-                ]
-            },
-            "comms_status": "",
-            "instances": {},
-            "slave": null
-        },
-        "M": {
-            "ref": "M",
-            "description": "M",
-            "mode": "self-latching",
-            "address": 63,
-            "network": "network_1",
-            "registers": {
-                "self-latching": [
-                    13
-                ]
-            },
-            "comms_status": "",
-            "instances": {},
             "slave": null
         }
     },
     "Signals": {
         "1": {
-            "address": 64,
-            "availableaspects": 3,
-            "bannerreg": null,
-            "board_index": 0,
-            "callingonreg": null,
-            "cautionreg": 2,
-            "clearreg": 4,
-            "conflicting_signals": [],
-            "dangerreg": false,
-            "description": "1",
-            "directionindicator": 0,
-            "doublecautionreg": null,
-            "network": "network_1",
-            "nextsignal": "109",
             "ref": "1",
+            "description": "1",
+            "address": 64,
+            "network": "network_1",
+            "sigtype": 0,
+            "availableaspects": 3,
+            "directionindicator": 0,
+            "nextsignal": "109R",
+            "conflicting_signals": [],
+            "board_index": 0,
+            "dangerreg": false,
+            "cautionreg": 2,
+            "doublecautionreg": null,
+            "clearreg": 4,
+            "bannerreg": null,
+            "callingonreg": null,
             "route1reg": null,
             "route2reg": null,
             "route3reg": null,
             "route4reg": 204,
             "route5reg": 205,
-            "route6reg": null,
-            "sigtype": 0
+            "route6reg": null
         },
         "9": {
             "address": 63,
@@ -1546,6 +1546,42 @@
                 "L"
             ]
         },
+        "M": {
+            "conflictingsections": [],
+            "dectrig": {},
+            "description": "M",
+            "homesignal": [],
+            "inctrig": {},
+            "mode": "trackcircuit",
+            "ref": "M",
+            "trackcircuits": [
+                "M"
+            ]
+        },
+        "N": {
+            "conflictingsections": [],
+            "dectrig": {},
+            "description": "N",
+            "homesignal": [],
+            "inctrig": {},
+            "mode": "trackcircuit",
+            "ref": "N",
+            "trackcircuits": [
+                "N"
+            ]
+        },
+        "P": {
+            "conflictingsections": [],
+            "dectrig": {},
+            "description": "P",
+            "homesignal": [],
+            "inctrig": {},
+            "mode": "trackcircuit",
+            "ref": "P",
+            "trackcircuits": [
+                "P"
+            ]
+        },
         "S": {
             "conflictingsections": [],
             "dectrig": {},
@@ -1583,52 +1619,16 @@
             ]
         },
         "W": {
-            "ref": "W",
+            "conflictingsections": [],
+            "dectrig": {},
             "description": "W",
+            "homesignal": [],
+            "inctrig": {},
             "mode": "trackcircuit",
+            "ref": "W",
             "trackcircuits": [
                 "W"
-            ],
-            "inctrig": {},
-            "dectrig": {},
-            "homesignal": [],
-            "conflictingsections": []
-        },
-        "N": {
-            "ref": "N",
-            "description": "N",
-            "mode": "trackcircuit",
-            "trackcircuits": [
-                "N"
-            ],
-            "inctrig": {},
-            "dectrig": {},
-            "homesignal": [],
-            "conflictingsections": []
-        },
-        "P": {
-            "ref": "P",
-            "description": "P",
-            "mode": "trackcircuit",
-            "trackcircuits": [
-                "P"
-            ],
-            "inctrig": {},
-            "dectrig": {},
-            "homesignal": [],
-            "conflictingsections": []
-        },
-        "M": {
-            "ref": "M",
-            "description": "M",
-            "mode": "trackcircuit",
-            "trackcircuits": [
-                "M"
-            ],
-            "inctrig": {},
-            "dectrig": {},
-            "homesignal": [],
-            "conflictingsections": []
+            ]
         }
     },
     "Routes": {

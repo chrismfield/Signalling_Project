@@ -5,7 +5,7 @@
     "mqtt_broker_address": "127.0.0.1",
     "point_interlock_timeout": 5,
     "network_ports": {
-        "network_1": "COM7",
+        "network_1": "COM5",
         "network_2": "COM2"
     }
 }

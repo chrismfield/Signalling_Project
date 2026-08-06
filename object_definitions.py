@@ -86,6 +86,7 @@ class Signal:
                                 # (for aspect) is not supported in json and gets translated into a list
             self.illumination = "On"  # night illumination mode
             self.aspect = {"danger"}  # set of current aspects
+            self.display_aspect = {"danger"}
             self.comms_status = ""
             self.routeset = None # set to the route ref when signal set
 

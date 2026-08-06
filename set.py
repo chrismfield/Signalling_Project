@@ -106,6 +106,7 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
         if aspect == "danger":
             signal.aspect.clear()
             signal.aspect.add(aspect)
+
         elif aspect:
             # update class instance with aspect instruction
             if aspect in proceed_aspects:
@@ -120,21 +121,8 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
             logger.info(signal.ref + " aspects requested " + str(signal.aspect))
 
 
-    def set_caution_aspect():
-        """finds the caution signals that rely on the danger aspect being set and sets their aspect to caution
-        if currently set to clear"""
-        #TODO this can take a code cycle to be effective - improve efficiency
-        if "caution" in signal.aspect or "clear" in signal.aspect:
-            pass
-        else:
-            for caution_signal in signals.values():
-                if caution_signal.nextsignal == signal.ref:
-                    if "clear" in caution_signal.aspect:
-                        caution_signal.aspect.discard("clear")
-                        caution_signal.aspect.add("caution")
-
-
     def send_aspect_commands():  # set aspects through slaves and lookups
+        signal.display_aspect = signal.aspect.copy()
         for req_aspect in signal.aspect:
             comms_status = ""
             if req_aspect == "danger":
@@ -164,7 +152,6 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                     comms_status = " OK"
                 except (OSError, ValueError) as error:
                     comms_status = (" Comms failure " + str(error))
-                set_caution_aspect()
             if req_aspect == "caution":
                 try:
                     if signal.dangerreg:
@@ -193,22 +180,21 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                     comms_status = (" Comms failure " + str(error))
             if req_aspect == "clear":
                 # test if next aspect is a main proceed aspect
-                # noinspection PyPep8Naming
                 next_signal_MPA = False
                 try:
-                    # noinspection PyPep8Naming
                     next_signal_MPA = [True for MPA in main_proceed_aspects if MPA in nextsignal.aspect]
                 except AttributeError:
                     if nextsignal is None:
-                        # noinspection PyPep8Naming
                         next_signal_MPA = True
-                if next_signal_MPA:
+                if next_signal_MPA or not signal.cautionreg:
+                    signal.display_aspect.discard("caution")
+                    signal.display_aspect.add("clear")
                     try:
-                        if signal.dangerreg: # only set danger if there is a danger aspect to set
+                        if signal.dangerreg: # only turn off danger if there is a danger aspect to set
                             signal.slave.write_bit(signal.dangerreg, 0)
                         if signal.cautionreg:  # only turn off caution reg if there is a caution aspect to turn off
                             signal.slave.write_bit(signal.cautionreg, 0)
-                        if signal.callingonreg:
+                        if signal.callingonreg: # only turn off caution reg if there is a caution aspect to turn off
                             signal.slave.write_bit(signal.callingonreg, 0)
                         # signal.slave.write_bit(signal.doublecautionreg, 0) # TODO fix this to work if no register for this
                         signal.slave.write_bit(signal.clearreg, 1)
@@ -217,7 +203,8 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                         comms_status = (" Comms failure " + str(error))
                 # if not, apply a caution aspect
                 else:
-                    # TODO add in check of available aspects to understand if possible to clear caution aspect
+                    signal.display_aspect.add("caution")
+                    signal.display_aspect.discard("clear")
                     try:
                         if signal.dangerreg:
                             signal.slave.write_bit(signal.dangerreg, 0)
@@ -604,7 +591,7 @@ def send_status_to_mqtt(axlecounters, trackcircuits, signals, sections, plungers
         mqtt_dict[("error/trackcircuit/comms/" + trackcircuit.ref)] = trackcircuit.comms_status
     # set signal dynamic variables
     for signal in signals.values():
-        mqtt_dict[("report/signal/" + signal.ref + "/aspect")] = (",".join(signal.aspect))
+        mqtt_dict[("report/signal/" + signal.ref + "/aspect")] = (",".join(signal.display_aspect))
         mqtt_dict[("error/signal/comms/" + signal.ref)] = signal.comms_status
     # set section dynamic variables
     for section in sections.values():
