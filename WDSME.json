@@ -463,15 +463,177 @@
     },
     "Signals": {
         "1": {
-            "ref": "1",
-            "description": "1",
             "address": 64,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [],
+            "dangerreg": false,
+            "description": "1",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "109R",
+            "ref": "1",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": 204,
+            "route5reg": 205,
+            "route6reg": null,
+            "sigtype": 0
+        },
+        "4": {
+            "address": 4,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": 5,
+            "cautionreg": null,
+            "clearreg": null,
+            "conflicting_signals": [
+                "11",
+                "12"
+            ],
+            "dangerreg": false,
+            "description": "4",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "",
+            "ref": "4",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 0
+        },
+        "5": {
+            "address": 5,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [
+                "6"
+            ],
+            "dangerreg": 1,
+            "description": "5",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "10",
+            "ref": "5",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 1
+        },
+        "6": {
+            "address": 6,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [
+                "5"
+            ],
+            "dangerreg": false,
+            "description": "6",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "10",
+            "ref": "6",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 1
+        },
+        "7": {
+            "address": 7,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [
+                "10",
+                "17",
+                "19"
+            ],
+            "dangerreg": false,
+            "description": "7",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "1",
+            "ref": "7",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 0
+        },
+        "9": {
+            "address": 63,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [
+                "7",
+                "19"
+            ],
+            "dangerreg": 1,
+            "description": "9 Signal",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "1",
+            "ref": "9",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 0
+        },
+        "10": {
+            "ref": "10",
+            "description": "10",
+            "address": 10,
             "network": "network_1",
             "sigtype": 0,
             "availableaspects": 3,
             "directionindicator": 0,
-            "nextsignal": "109R",
-            "conflicting_signals": [],
+            "nextsignal": "11",
+            "conflicting_signals": [
+                "7",
+                "17",
+                "19"
+            ],
             "board_index": 0,
             "dangerreg": false,
             "cautionreg": 2,
@@ -482,26 +644,54 @@
             "route1reg": null,
             "route2reg": null,
             "route3reg": null,
-            "route4reg": 204,
-            "route5reg": 205,
+            "route4reg": null,
+            "route5reg": null,
             "route6reg": null
         },
-        "9": {
-            "address": 63,
+        "11": {
+            "address": 11,
             "availableaspects": 3,
             "bannerreg": null,
             "board_index": 0,
             "callingonreg": null,
             "cautionreg": 2,
             "clearreg": 4,
-            "conflicting_signals": [],
-            "dangerreg": 1,
-            "description": "9 Signal",
+            "conflicting_signals": [
+                "12"
+            ],
+            "dangerreg": false,
+            "description": "11",
             "directionindicator": 0,
             "doublecautionreg": null,
             "network": "network_1",
-            "nextsignal": "1",
-            "ref": "9",
+            "nextsignal": "47",
+            "ref": "11",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 0
+        },
+        "12": {
+            "address": 12,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": null,
+            "conflicting_signals": [
+                "11"
+            ],
+            "dangerreg": null,
+            "description": "12",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "",
+            "ref": "12",
             "route1reg": null,
             "route2reg": null,
             "route3reg": null,
@@ -518,14 +708,97 @@
             "callingonreg": null,
             "cautionreg": 2,
             "clearreg": 4,
-            "conflicting_signals": [],
+            "conflicting_signals": [
+                "16"
+            ],
             "dangerreg": 1,
             "description": "15 Signal",
             "directionindicator": 0,
             "doublecautionreg": null,
             "network": "network_1",
-            "nextsignal": "",
+            "nextsignal": "9",
             "ref": "15",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 0
+        },
+        "16": {
+            "address": 16,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [
+                "15"
+            ],
+            "dangerreg": false,
+            "description": "16",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "9",
+            "ref": "16",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 0
+        },
+        "17": {
+            "address": 17,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": null,
+            "clearreg": 4,
+            "conflicting_signals": [
+                "19"
+            ],
+            "dangerreg": false,
+            "description": "17",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "",
+            "ref": "17",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 0
+        },
+        "19": {
+            "address": 19,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": null,
+            "clearreg": 4,
+            "conflicting_signals": [
+                "7",
+                "9",
+                "10",
+                "17"
+            ],
+            "dangerreg": false,
+            "description": "19",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "",
+            "ref": "19",
             "route1reg": null,
             "route2reg": null,
             "route3reg": null,
@@ -883,6 +1156,30 @@
             "route6reg": null,
             "sigtype": 1
         },
+        "108": {
+            "address": 108,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [],
+            "dangerreg": false,
+            "description": "108",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "6",
+            "ref": "108",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 0
+        },
         "109": {
             "address": 109,
             "availableaspects": 3,
@@ -907,6 +1204,54 @@
             "route6reg": null,
             "sigtype": 1
         },
+        "110": {
+            "address": 110,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [],
+            "dangerreg": 1,
+            "description": "110",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "108",
+            "ref": "110",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": 205,
+            "route6reg": null,
+            "sigtype": 0
+        },
+        "112": {
+            "address": 112,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [],
+            "dangerreg": false,
+            "description": "112",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "110",
+            "ref": "112",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 0
+        },
         "109R": {
             "address": 209,
             "availableaspects": 3,
@@ -923,6 +1268,30 @@
             "network": "network_1",
             "nextsignal": "109",
             "ref": "109R",
+            "route1reg": null,
+            "route2reg": null,
+            "route3reg": null,
+            "route4reg": null,
+            "route5reg": null,
+            "route6reg": null,
+            "sigtype": 1
+        },
+        "112R": {
+            "address": 113,
+            "availableaspects": 3,
+            "bannerreg": null,
+            "board_index": 0,
+            "callingonreg": null,
+            "cautionreg": false,
+            "clearreg": 4,
+            "conflicting_signals": [],
+            "dangerreg": null,
+            "description": "112R",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "112",
+            "ref": "112R",
             "route1reg": null,
             "route2reg": null,
             "route3reg": null,
@@ -970,6 +1339,39 @@
             "slave": null,
             "unlocked": true
         },
+        "150": {
+            "address": 150,
+            "board_index": 0,
+            "description": "150 Points",
+            "detection_mode": 0,
+            "network": "network_1",
+            "normal_coil": 21,
+            "ref": "150",
+            "reverse_coil": 22,
+            "section": "U"
+        },
+        "200": {
+            "address": 200,
+            "board_index": 0,
+            "description": "200 Points",
+            "detection_mode": 0,
+            "network": "network_1",
+            "normal_coil": 21,
+            "ref": "200",
+            "reverse_coil": 22,
+            "section": "S"
+        },
+        "250": {
+            "address": 250,
+            "board_index": 0,
+            "description": "250 Points",
+            "detection_mode": 0,
+            "network": "network_1",
+            "normal_coil": 21,
+            "ref": "250",
+            "reverse_coil": 22,
+            "section": "T"
+        },
         "300": {
             "address": 100,
             "board_index": 1,
@@ -996,6 +1398,61 @@
             "set_direction": "",
             "slave": null,
             "unlocked": true
+        },
+        "20A": {
+            "address": 20,
+            "board_index": 0,
+            "description": "20A",
+            "detection_mode": 0,
+            "network": "network_1",
+            "normal_coil": 21,
+            "ref": "20A",
+            "reverse_coil": 22,
+            "section": "G"
+        },
+        "3A": {
+            "address": 303,
+            "board_index": 0,
+            "description": "3 Points",
+            "detection_mode": 0,
+            "network": "network_1",
+            "normal_coil": 21,
+            "ref": "3A",
+            "reverse_coil": 22,
+            "section": "P"
+        },
+        "3B": {
+            "address": 304,
+            "board_index": 0,
+            "description": "3 Points",
+            "detection_mode": 0,
+            "network": "network_1",
+            "normal_coil": 21,
+            "ref": "3B",
+            "reverse_coil": 22,
+            "section": "P"
+        },
+        "8A": {
+            "address": 8,
+            "board_index": 0,
+            "description": "8A",
+            "detection_mode": 0,
+            "network": "network_1",
+            "normal_coil": 21,
+            "ref": "8A",
+            "reverse_coil": 22,
+            "section": "W"
+        },
+        "8B": {
+            "address": 8,
+            "board_index": 0,
+            "description": "8B",
+            "detection_mode": 0,
+            "network": "network_1",
+            "normal_coil": 21,
+            "ref": "8B",
+            "reverse_coil": 22,
+            "section": "G"
         }
     },
     "Plungers": {
@@ -1478,18 +1935,27 @@
             ]
         },
         "G": {
-            "conflictingsections": [],
-            "dectrig": {},
-            "description": "G",
-            "homesignal": [
-                "9"
-            ],
-            "inctrig": {},
-            "mode": "trackcircuit",
             "ref": "G",
+            "description": "G",
+            "mode": "trackcircuit",
             "trackcircuits": [
                 "G"
-            ]
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [
+                "9",
+                "10"
+            ],
+            "protecting_points": {
+                "9": {
+                    "20A": "normal"
+                },
+                "10": {
+                    "8A": "reverse"
+                }
+            },
+            "conflictingsections": []
         },
         "H": {
             "conflictingsections": [],
@@ -1514,7 +1980,9 @@
             "conflictingsections": [],
             "dectrig": {},
             "description": "J",
-            "homesignal": [],
+            "homesignal": [
+                "112"
+            ],
             "inctrig": {},
             "mode": "trackcircuit",
             "ref": "J",
@@ -1523,22 +1991,35 @@
             ]
         },
         "K": {
-            "conflictingsections": [],
-            "dectrig": {},
-            "description": "K",
-            "homesignal": [],
-            "inctrig": {},
-            "mode": "trackcircuit",
             "ref": "K",
+            "description": "K",
+            "mode": "trackcircuit",
             "trackcircuits": [
                 "K"
-            ]
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [
+                "110",
+                "105"
+            ],
+            "protecting_points": {
+                "105": {
+                    "200": "reverse"
+                },
+                "110": {
+                    "150": "normal"
+                }
+            },
+            "conflictingsections": []
         },
         "L": {
             "conflictingsections": [],
             "dectrig": {},
             "description": "L",
-            "homesignal": [],
+            "homesignal": [
+                "108"
+            ],
             "inctrig": {},
             "mode": "trackcircuit",
             "ref": "L",
@@ -1550,7 +2031,10 @@
             "conflictingsections": [],
             "dectrig": {},
             "description": "M",
-            "homesignal": [],
+            "homesignal": [
+                "5",
+                "6"
+            ],
             "inctrig": {},
             "mode": "trackcircuit",
             "ref": "M",
@@ -1559,22 +2043,35 @@
             ]
         },
         "N": {
-            "conflictingsections": [],
-            "dectrig": {},
-            "description": "N",
-            "homesignal": [],
-            "inctrig": {},
-            "mode": "trackcircuit",
             "ref": "N",
+            "description": "N",
+            "mode": "trackcircuit",
             "trackcircuits": [
                 "N"
-            ]
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [
+                "10",
+                "9"
+            ],
+            "protecting_points": {
+                "9": {
+                    "20A": "reverse"
+                },
+                "10": {
+                    "8A": "normal"
+                }
+            },
+            "conflictingsections": []
         },
         "P": {
             "conflictingsections": [],
             "dectrig": {},
             "description": "P",
-            "homesignal": [],
+            "homesignal": [
+                "11"
+            ],
             "inctrig": {},
             "mode": "trackcircuit",
             "ref": "P",
@@ -1583,22 +2080,35 @@
             ]
         },
         "S": {
-            "conflictingsections": [],
-            "dectrig": {},
-            "description": "S",
-            "homesignal": [],
-            "inctrig": {},
-            "mode": "trackcircuit",
             "ref": "S",
+            "description": "S",
+            "mode": "trackcircuit",
             "trackcircuits": [
                 "S"
-            ]
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [
+                "105",
+                "110"
+            ],
+            "protecting_points": {
+                "105": {
+                    "200": "normal"
+                },
+                "110": {
+                    "150": "reverse"
+                }
+            },
+            "conflictingsections": []
         },
         "T": {
             "conflictingsections": [],
             "dectrig": {},
             "description": "T",
-            "homesignal": [],
+            "homesignal": [
+                "105"
+            ],
             "inctrig": {},
             "mode": "trackcircuit",
             "ref": "T",
@@ -1607,22 +2117,35 @@
             ]
         },
         "U": {
-            "conflictingsections": [],
-            "dectrig": {},
-            "description": "U",
-            "homesignal": [],
-            "inctrig": {},
-            "mode": "trackcircuit",
             "ref": "U",
+            "description": "U",
+            "mode": "trackcircuit",
             "trackcircuits": [
                 "U"
-            ]
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [
+                "110",
+                "105"
+            ],
+            "protecting_points": {
+                "105": {
+                    "200": "reverse"
+                },
+                "110": {
+                    "150": "normal"
+                }
+            },
+            "conflictingsections": []
         },
         "W": {
             "conflictingsections": [],
             "dectrig": {},
             "description": "W",
-            "homesignal": [],
+            "homesignal": [
+                "10"
+            ],
             "inctrig": {},
             "mode": "trackcircuit",
             "ref": "W",
@@ -1632,6 +2155,21 @@
         }
     },
     "Routes": {
+        "110 Route": {
+            "description": "Set route through 110",
+            "points": {
+                "150": "normal"
+            },
+            "ref": "110 Route",
+            "sections": [
+                "U"
+            ],
+            "signals": {
+                "110": [
+                    "clear"
+                ]
+            }
+        },
         "45intoR": {
             "available": false,
             "description": "Yard 45 Signal into R",
@@ -2001,6 +2539,27 @@
         }
     },
     "Triggers": {
+        "110 Clear": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "Set r",
+            "plungers": [],
+            "priority": 5,
+            "ref": "110 Clear",
+            "retain_request": 1,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "110 Route"
+            ],
+            "sections_clear": [],
+            "sections_occupied": [
+                "H"
+            ],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
+        },
         "45_yard_exit": {
             "axlecount": {},
             "conditions": [

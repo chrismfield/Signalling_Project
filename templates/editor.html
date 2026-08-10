@@ -16,7 +16,14 @@
 </head>
 <body>
 <div class="container py-4">
-  <h1 class="mb-4">Signalling Infrastructure Editor</h1>
+  <div class="d-flex align-items-center flex-wrap gap-3 mb-4">
+    <h1 class="mb-0">Signalling Infrastructure Editor</h1>
+    <button type="button" id="dirtySaveBtn" class="btn btn-warning btn-sm d-none" onclick="saveJSON()">
+      <i class="fa fa-triangle-exclamation"></i>
+      Unsaved changes<span id="dirtyWhat"></span> — Save now
+    </button>
+    <span id="draftStatus" class="small-muted"></span>
+  </div>
 
   <!-- Tabs -->
   <ul class="nav nav-tabs mb-4" role="tablist">
@@ -59,6 +66,24 @@
             <label class="form-label">Save Current Data As</label><br>
             <input type="text" id="filename" class="form-control w-auto d-inline-block" value="{{ current_file }}">
             <button class="btn btn-success ms-2" onclick="saveJSON()"><i class="fa fa-save"></i> Save to Server</button>
+            <div class="form-text">
+              Shortcut: <kbd>Ctrl</kbd>+<kbd>S</kbd> (<kbd>&#8984;</kbd>+<kbd>S</kbd> on Mac) saves from any tab.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="autoSaveToggle">
+              <label class="form-check-label" for="autoSaveToggle">
+                Auto-save to server 5&nbsp;seconds after each change
+              </label>
+            </div>
+            <div class="form-text">
+              Off by default. When off, unsaved edits are still kept as a draft in this
+              browser and offered back to you next time you open the editor — nothing is
+              lost if the tab closes, but the layout file on the server is only written
+              when you choose to save.
+            </div>
           </div>
 
           <div class="mb-3">
@@ -405,14 +430,6 @@
                   <input type="number" class="form-control" name="axle_tolerance">
                 </div>                
                 <div class="col-md-4">
-                  <label class="form-label">Home&nbsp;Signals</label>
-                  <select multiple class="form-select" name="homesignal">
-                    {% for s in data["Signals"].keys() %}
-                    <option value="{{ s }}">{{ s }}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-                <div class="col-md-4">
                   <label class="form-label">Conflicting&nbsp;Sections</label>
                   <select multiple class="form-select" name="conflictingsections">
                     {% for s in data["Sections"].keys() %}
@@ -422,7 +439,17 @@
                 </div>
               </div>
 
+              <hr class="my-3">
 
+              <h6 class="mt-2 mb-1">Home&nbsp;Signals &amp; Protecting&nbsp;Points</h6>
+              <div class="form-text mb-2">
+                For each home signal, select points/directions which DO allow a train to be
+                routed from that signal into this section.
+              </div>
+              <div class="section-homesignals mb-2"></div>
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-add-homesignal>
+                <i class="fa fa-plus"></i> Add home signal
+              </button>
 
               {% endif %}
 
@@ -674,15 +701,17 @@ function loadConfig(){
         }
       } catch(e){ console.warn('layoutDB default handling failed', e); }
 
+      markConfigSaved();   // fields now match the server copy
 })
     .catch(err => {
       console.warn('Config load failed:', err);
       configStore = {};
       renderNetworksTable(); // empty
       populateNetworkSelects();
+      markConfigSaved();
     });
 }
-function saveConfig(){
+function collectConfigPayload(){
   // collect
   const portsMap = {};
   $('#cfg_networks_tbody tr').each(function(){
@@ -690,7 +719,7 @@ function saveConfig(){
     const port = $(this).find('.cfg-port').val().trim();
     if(name) portsMap[name] = port || '';
   });
-  const payload = {
+  return {
     layoutDB: ($('#cfg_layoutDB_select').val() || '').trim(),
     axle_tolerance: num($('#cfg_axle_tolerance').val(), 0),
     logging_level: num($('#cfg_logging_level').val(), 20),
@@ -698,6 +727,9 @@ function saveConfig(){
     point_interlock_timeout: num($('#cfg_point_interlock_timeout').val(), 5),
     network_ports: portsMap
   };
+}
+function saveConfig(){
+  const payload = collectConfigPayload();
   fetch('/api/save?filename=config.json', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -706,7 +738,8 @@ function saveConfig(){
     alert('Config saved.');
     configStore = payload;
     populateNetworkSelects();
-  });
+    markConfigSaved();
+  }).catch(err => alert('Config save failed: ' + (err.message || err)));
 }
 function renderNetworksTable(){
   const tb = $('#cfg_networks_tbody').empty();
@@ -932,6 +965,7 @@ const tableCols = {
     { key:'axle_tolerance',  label:'Axle Tol' },
     { key:'mode',            label:'Mode' },
     { key:'homesignal',      label:'Home Signals', formatter:v=> (v||[]).length },
+    { key:'protecting_points', label:'Protected', formatter:v=> Object.keys(v||{}).length },
     { key:'conflictingsections', label:'Conflicts', formatter:v=> (v||[]).length }
   ],
   Routes: [
@@ -1200,6 +1234,144 @@ function addSignalRow($form, sigRef=null, aspects=[]){
 }
 
 
+// ----- Sections: Home Signals → Protecting Points builder -----
+function hsPointOptions(){
+  return Object.keys(dataStore["Points"]||{}).map(p=>`<option value="${p}">${p}</option>`).join('');
+}
+function hsSignalOptions(){
+  return Object.keys(dataStore["Signals"]||{}).map(s=>`<option value="${s}">${s}</option>`).join('');
+}
+
+// One point + direction row inside a home signal block
+function addProtectingPointRow($block, pointRef=null, dir="normal"){
+  const row = $(`
+    <div class="d-flex align-items-center gap-2 hs-point-row mb-2">
+      <select class="form-select form-select-sm hs-point" style="max-width:220px">
+        <option value="">Select point…</option>
+        ${hsPointOptions()}
+      </select>
+      <select class="form-select form-select-sm hs-point-dir" style="max-width:160px">
+        <option value="normal">normal</option>
+        <option value="reverse">reverse</option>
+      </select>
+      <button type="button" class="btn btn-sm btn-outline-danger hs-remove-point" title="Remove point">
+        <i class="fa fa-trash"></i>
+      </button>
+    </div>
+  `);
+  if(pointRef){ row.find('.hs-point').val(pointRef); }
+  row.find('.hs-point-dir').val(dir||"normal");
+  $block.find('.hs-points').append(row);
+  return row;
+}
+
+// One home signal block, containing zero or more protecting point rows
+function addHomeSignalBlock($form, sigRef=null, pointsMap=null){
+  const block = $(`
+    <div class="card mb-2 hs-block">
+      <div class="card-body py-2 px-3">
+        <div class="row g-2 align-items-center">
+          <div class="col-auto"><label class="form-label mb-0 small text-muted">Home signal</label></div>
+          <div class="col-auto">
+            <select class="form-select form-select-sm hs-signal" style="min-width:180px">
+              <option value="">Select signal…</option>
+              ${hsSignalOptions()}
+            </select>
+          </div>
+          <div class="col text-end">
+            <button type="button" class="btn btn-sm btn-outline-danger hs-remove">
+              <i class="fa fa-trash"></i> Remove home signal
+            </button>
+          </div>
+        </div>
+        <div class="mt-2 ps-1 border-start ps-3">
+          <div class="small-muted mb-2">
+            Protecting points — with these points in these positions, a train at this
+            signal CAN be routed into this section. Leave empty if no points protect
+            this approach.
+          </div>
+          <div class="hs-points"></div>
+          <button type="button" class="btn btn-outline-secondary btn-sm hs-add-point">
+            <i class="fa fa-plus"></i> Add point
+          </button>
+        </div>
+      </div>
+    </div>
+  `);
+
+  $form.find('.section-homesignals').append(block);
+  if(sigRef){ block.find('.hs-signal').val(sigRef); }
+  Object.entries(pointsMap || {}).forEach(([p,d]) => addProtectingPointRow(block, p, d));
+  hsMarkDuplicates($form);
+  return block;
+}
+
+// Visual flag when the same signal is used in two blocks
+function hsMarkDuplicates($form){
+  const seen = {};
+  $form.find('.hs-block .hs-signal').each(function(){
+    const v = $(this).val();
+    if(v) seen[v] = (seen[v]||0) + 1;
+  });
+  $form.find('.hs-block .hs-signal').each(function(){
+    const v = $(this).val();
+    $(this).toggleClass('is-invalid', !!(v && seen[v] > 1));
+  });
+}
+
+// Read the builder back into { homesignal: [...], protecting_points: {sig:{point:dir}} }
+function gatherHomeSignals($form){
+  const homesignal = [];
+  const protecting_points = {};
+  const errors = [];
+
+  $form.find('.hs-block').each(function(){
+    const $b  = $(this);
+    const sig = $b.find('.hs-signal').val();
+    const rows = $b.find('.hs-point-row').length;
+
+    if(!sig){
+      if(rows) errors.push('A home signal block has points selected but no signal chosen.');
+      return; // skip empty blocks silently
+    }
+    if(homesignal.includes(sig)){
+      errors.push(`Home signal "${sig}" appears in more than one block — merge its points into a single block.`);
+      return;
+    }
+    homesignal.push(sig);
+
+    const pts = {};
+    $b.find('.hs-point-row').each(function(){
+      const p = $(this).find('.hs-point').val();
+      const d = $(this).find('.hs-point-dir').val() || 'normal';
+      if(!p) return;                       // ignore unfilled rows
+      if(p in pts && pts[p] !== d){
+        errors.push(`Point "${p}" is listed twice with different directions under home signal "${sig}".`);
+        return;
+      }
+      pts[p] = d;
+    });
+
+    // Only record signals that actually have protecting points
+    if(Object.keys(pts).length) protecting_points[sig] = pts;
+  });
+
+  return { homesignal, protecting_points, errors };
+}
+
+// Rebuild the whole builder from a saved Sections entry
+function rebuildHomeSignals($form, it){
+  const $panel = $form.find('.section-homesignals').empty();
+  const pp     = it && it.protecting_points ? it.protecting_points : {};
+  const list   = arrify(it && it.homesignal);
+
+  list.forEach(s => addHomeSignalBlock($form, s, pp[s] || {}));
+  // Tolerate legacy data where protecting_points names a signal missing from homesignal
+  Object.keys(pp).filter(s => !list.includes(s))
+                 .forEach(s => addHomeSignalBlock($form, s, pp[s]));
+  return $panel;
+}
+
 function toggleSectionsFields(formEl){
   const $f = $(formEl);
   const mode = $f.find('[name=mode]').val();
@@ -1224,6 +1396,181 @@ function toggleSectionsFields(formEl){
 }
 
 
+// ====== Unsaved change tracking / draft autosave ======
+// Three layers, weakest to strongest:
+//   1. visible indicator + Ctrl+S            — so you notice
+//   2. beforeunload prompt                   — so the browser asks before you leave
+//   3. draft copy in localStorage            — so nothing is lost even if you say "leave"
+// Optional: real auto-save to the server, opt-in via the File tab checkbox.
+
+const DRAFT_PREFIX  = 'wdsme.editor.draft:';
+const AUTOSAVE_PREF = 'wdsme.editor.autosave';
+const PAGE_TITLE    = 'Signalling Infrastructure Editor';
+const DRAFT_DEBOUNCE_MS  = 1200;
+const AUTOSAVE_DELAY_MS  = 5000;
+
+let layoutBaseline = null;   // canonical fingerprint at last load/save; null = not tracking yet
+let configBaseline = null;
+let draftTimer     = null;
+let autoSaveTimer  = null;
+
+// Order-insensitive fingerprint, so re-saving an entry without editing it
+// (which rebuilds the object and may reorder keys) does not read as a change.
+function canonical(v){
+  if (Array.isArray(v)) return v.map(canonical);
+  if (v && typeof v === 'object'){
+    const out = {};
+    Object.keys(v).sort().forEach(k => { out[k] = canonical(v[k]); });
+    return out;
+  }
+  return v;
+}
+function layoutPayload(){
+  const p = {};
+  entityTypes.forEach(t => { p[t] = dataStore[t] || {}; });
+  return p;
+}
+function fingerprint(obj){
+  try { return JSON.stringify(canonical(obj)); } catch(e){ return null; }
+}
+function currentFilename(){
+  return ($('#filename').val() || '').trim() || 'default.json';
+}
+
+function layoutDirty(){
+  if (layoutBaseline === null) return false;
+  const fp = fingerprint(layoutPayload());
+  return fp !== null && fp !== layoutBaseline;
+}
+function configDirty(){
+  if (configBaseline === null) return false;
+  const fp = fingerprint(collectConfigPayload());
+  return fp !== null && fp !== configBaseline;
+}
+function anyDirty(){ return layoutDirty() || configDirty(); }
+
+function markLayoutSaved(){ layoutBaseline = fingerprint(layoutPayload()); clearDraft(); updateDirtyUI(); }
+function markConfigSaved(){ configBaseline = fingerprint(collectConfigPayload()); updateDirtyUI(); }
+
+function updateDirtyUI(){
+  const l = layoutDirty(), c = configDirty();
+  const parts = [];
+  if (l) parts.push('layout');
+  if (c) parts.push('config');
+  $('#dirtySaveBtn').toggleClass('d-none', parts.length === 0);
+  $('#dirtyWhat').text(parts.length ? ` (${parts.join(' & ')})` : '');
+  document.title = (parts.length ? '\u2022 ' : '') + PAGE_TITLE;
+}
+
+// Called after anything mutates dataStore
+function onLayoutChanged(){
+  updateDirtyUI();
+  scheduleDraftSave();
+  scheduleAutoSave();
+}
+
+// ---- draft copy in this browser ----
+function draftKey(){ return DRAFT_PREFIX + currentFilename(); }
+function writeDraft(){
+  try {
+    if (!layoutDirty()){ clearDraft(); return; }
+    localStorage.setItem(draftKey(), JSON.stringify({
+      savedAt:  new Date().toISOString(),
+      filename: currentFilename(),
+      data:     layoutPayload()
+    }));
+    $('#draftStatus').text(`Draft kept in this browser ${new Date().toLocaleTimeString()}`);
+  } catch(e){
+    // localStorage full or blocked (private browsing) — indicator only, not fatal
+    console.warn('Draft save failed:', e);
+    $('#draftStatus').text('Draft could not be kept in this browser');
+  }
+}
+function writeDraftNow(){ clearTimeout(draftTimer); writeDraft(); }
+function scheduleDraftSave(){ clearTimeout(draftTimer); draftTimer = setTimeout(writeDraft, DRAFT_DEBOUNCE_MS); }
+function clearDraft(){
+  try { localStorage.removeItem(draftKey()); } catch(e){}
+  $('#draftStatus').text('');
+}
+function maybeOfferDraftRestore(){
+  let raw = null;
+  try { raw = localStorage.getItem(draftKey()); } catch(e){ return; }
+  if (!raw) return;
+
+  let d = null;
+  try { d = JSON.parse(raw); } catch(e){ clearDraft(); return; }
+  if (!d || !d.data){ clearDraft(); return; }
+
+  // Nothing to recover if the draft matches what we just loaded
+  if (fingerprint(d.data) === layoutBaseline){ clearDraft(); return; }
+
+  const when = d.savedAt ? new Date(d.savedAt).toLocaleString() : 'an earlier session';
+  const msg  = `Unsaved changes to "${d.filename}" were found in this browser, from ${when}.\n\n`
+             + `OK      = restore those changes (you can then save, or discard by reloading)\n`
+             + `Cancel  = discard the draft and keep the version from the server`;
+  if (confirm(msg)){
+    entityTypes.forEach(t => { dataStore[t] = d.data[t] || {}; });
+    entityTypes.forEach(t => renderTable(t));
+    refreshAllSelects();
+    updateDirtyUI();   // stays dirty against the server copy, which is correct
+  } else {
+    clearDraft();
+  }
+}
+
+// ---- optional auto-save to the server ----
+function autoSaveEnabled(){ return $('#autoSaveToggle').is(':checked'); }
+function scheduleAutoSave(){
+  clearTimeout(autoSaveTimer);
+  if (!autoSaveEnabled()) return;
+  autoSaveTimer = setTimeout(() => { if (layoutDirty()) saveJSON({ silent:true }); }, AUTOSAVE_DELAY_MS);
+}
+function initAutoSaveToggle(){
+  let pref = null;
+  try { pref = localStorage.getItem(AUTOSAVE_PREF); } catch(e){}
+  $('#autoSaveToggle').prop('checked', pref === '1');
+  $('#autoSaveToggle').on('change', function(){
+    try { localStorage.setItem(AUTOSAVE_PREF, this.checked ? '1' : '0'); } catch(e){}
+    if (this.checked) scheduleAutoSave(); else clearTimeout(autoSaveTimer);
+  });
+}
+
+// ---- leaving the page ----
+function installUnloadGuard(){
+  window.addEventListener('beforeunload', function(e){
+    writeDraftNow();                 // localStorage is synchronous, so this completes
+    if (!anyDirty()) return;
+    // Browsers show their own generic wording; custom text is ignored.
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
+  });
+  // More reliable than beforeunload on mobile Safari / backgrounded tabs
+  window.addEventListener('pagehide', writeDraftNow);
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'hidden') writeDraftNow();
+  });
+}
+
+function installSaveShortcut(){
+  $(document).on('keydown', function(e){
+    if (!(e.ctrlKey || e.metaKey)) return;
+    if (String(e.key || '').toLowerCase() !== 's') return;
+    e.preventDefault();
+    // On the Config tab, Ctrl+S saves config; everywhere else it saves the layout
+    if ($('#config').hasClass('active') && configDirty()) saveConfig();
+    else saveJSON();
+  });
+}
+
+function refreshAllSelects(){
+  refreshDependentSelects();
+  refreshSectionsDependentSelects();
+  refreshTrackCircuitSelects();
+  refreshRoutesSelects();
+  refreshTriggerRefSelects();
+}
+
 // ====== Init ======
 function rebootPi(){
   if(!confirm('Reboot the Raspberry Pi now?\n\nAll services will be interrupted.\n\nAre you sure?')) return;
@@ -1235,9 +1582,17 @@ function rebootPi(){
 
 $(function(){
   // Config tab controls
-  $('#cfgAddNetwork').on('click', ()=> { addNetworkRow(); });
+  $('#cfgAddNetwork').on('click', ()=> { addNetworkRow(); updateDirtyUI(); });
   $('#cfgReloadBtn').on('click', ()=> loadConfig());
   $('#cfgSaveBtn').on('click', ()=> saveConfig());
+
+  // Unsaved change tracking
+  initAutoSaveToggle();
+  installUnloadGuard();
+  installSaveShortcut();
+  $('#config').on('input change', ':input', function(){ updateDirtyUI(); });
+  $('#cfg_networks_tbody').on('click', 'button', function(){ setTimeout(updateDirtyUI, 0); });
+  $('#filename').on('input', function(){ updateDirtyUI(); });
 
   // NEW: reboot button
   $('#rebootBtn').on('click', rebootPi);
@@ -1267,6 +1622,11 @@ $(function(){
         form.find('.route-signals').empty();
         addPointRow(form);
         addSignalRow(form);
+      }
+
+      // Sections: clear the home signal / protecting points builder
+      if(type==="Sections"){
+        form.find('.section-homesignals').empty();
       }
 
       // Signals: default a board index and prefill from mapping
@@ -1451,7 +1811,12 @@ $(function(){
 
           delete entry.trackcircuit; // ensure we don't carry stale value
         }
-        entry.homesignal = arrify(vals.homesignal);
+        // Home signals + protecting points come from the builder UI
+        const hs = gatherHomeSignals($(this));
+        if(hs.errors.length){ alert(hs.errors.join("\n")); return; }
+        entry.homesignal        = hs.homesignal;
+        entry.protecting_points = hs.protecting_points;
+
         entry.conflictingsections = arrify(vals.conflictingsections);
         // Preserve coords from original entry if present
         if (!entry.coords && dataStore.Sections[vals.ref]?.coords) {
@@ -1530,6 +1895,7 @@ $(function(){
 
 
       dataStore[type][ref] = entry;
+      onLayoutChanged();
       bsModals[type].hide();
       if(type==="Signals") refreshDependentSelects();
       refreshSectionsDependentSelects();
@@ -1556,6 +1922,24 @@ $(function(){
       $form.on('click','.signal-remove-aspect', function(){
         $(this).closest('.signal-aspect-row').remove();
       });
+    }
+
+    // Sections extra handlers (home signals → protecting points builder)
+    if (type === "Sections"){
+      const $form = $(`.${lc}Form`);
+      $form.off('click.hs change.hs');
+      $form.on('click.hs','[data-add-homesignal]', ()=> addHomeSignalBlock($form));
+      $form.on('click.hs','.hs-add-point', function(){
+        addProtectingPointRow($(this).closest('.hs-block'));
+      });
+      $form.on('click.hs','.hs-remove-point', function(){
+        $(this).closest('.hs-point-row').remove();
+      });
+      $form.on('click.hs','.hs-remove', function(){
+        $(this).closest('.hs-block').remove();
+        hsMarkDuplicates($form);
+      });
+      $form.on('change.hs','.hs-signal', ()=> hsMarkDuplicates($form));
     }
 
     // TrackCircuits extra handlers
@@ -1602,6 +1986,7 @@ $('body').on('change', '.pointsForm [name=board_index]', function(){
         const ref = $(this).closest('tr').data('ref');
         if(confirm(`Delete ${type.slice(0,-1)} "${ref}"?`)){
           delete dataStore[type][ref];
+          onLayoutChanged();
           renderTable(type);
           if(type==="Signals") refreshDependentSelects();
           if (type === "Triggers") refreshTriggerRefSelects();
@@ -1610,6 +1995,12 @@ $('body').on('change', '.pointsForm [name=board_index]', function(){
         }
       });
   });
+
+  // Everything rendered — treat the current state as the clean baseline.
+  // (If loadConfig auto-loads a layout, loadFromServer resets this again.)
+  layoutBaseline = fingerprint(layoutPayload());
+  updateDirtyUI();
+  if (currentFile) maybeOfferDraftRestore();
 });
 
 // ====== Render tables ======
@@ -1749,7 +2140,7 @@ function openEditorForRow(type, ref){
     form.find('[name=axle_tolerance]').val(it.axle_tolerance);
     form.find('[name=mode]').val(it.mode || 'axlecounter');
     toggleSectionsFields(form[0]);
-    form.find('[name=homesignal]').val(it.homesignal || []);
+    rebuildHomeSignals(form, it);
     form.find('[name=conflictingsections]').val(it.conflictingsections || []);
     form.find('[name=inctrig]').val(flattenAcDirMap(it.inctrig));
     form.find('[name=dectrig]').val(flattenAcDirMap(it.dectrig));
@@ -1816,22 +2207,27 @@ function openEditorForRow(type, ref){
 function loadFromServer(filename){
   const f = filename || $('#serverFiles').val();
   if(!f){ alert('Select a file to load.'); return; }
+  if (layoutDirty() && !confirm(
+        `You have unsaved changes to "${currentFilename()}".\n\n`
+      + `Loading "${f}" will replace them.\n\nContinue?`)){
+    return;
+  }
   fetch(`/api/load?filename=${encodeURIComponent(f)}`)
     .then(r => r.ok ? r.json() : Promise.reject(new Error('File not found')))
     .then(d => {
       // populate dataStore and refresh UI in-place
       entityTypes.forEach(t => dataStore[t] = d[t] || {});
       entityTypes.forEach(t => renderTable(t));
-      refreshDependentSelects();
-      refreshSectionsDependentSelects();
-      refreshTrackCircuitSelects();
-      refreshRoutesSelects();
-      refreshTriggerRefSelects();
+      refreshAllSelects();
       // reflect filename in UI and update URL without navigating
       $('#filename').val(f);
       $('#serverFiles').val(f);
       try { window.history.replaceState(null, '', `/editor?file=${encodeURIComponent(f)}`); } catch(e){}
+      // this is now the clean state for the newly loaded file
+      layoutBaseline = fingerprint(layoutPayload());
+      updateDirtyUI();
       alert(`Loaded "${f}"`);
+      maybeOfferDraftRestore();
     })
     .catch(err => alert('Load failed: ' + (err.message || err)));
 }
@@ -1847,13 +2243,29 @@ function uploadFile(){
     })
     .catch(err => alert('Upload failed: ' + (err.message || err)));
 }
-function saveJSON(){
-  const fn = $('#filename').val().trim()||'default.json';
+function saveJSON(opts){
+  const silent  = !!(opts && opts.silent);
+  const fn      = currentFilename();
   const payload = {};
   entityTypes.forEach(t=>payload[t]=dataStore[t]);
-  fetch(`/api/save?filename=${encodeURIComponent(fn)}`,{
+  return fetch(`/api/save?filename=${encodeURIComponent(fn)}`,{
     method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
-  }).then(r=>r.json()).then(d=>alert(`Saved to "${d.filename}"`));
+  })
+    .then(r => r.ok ? r.json() : Promise.reject(new Error(`server returned ${r.status}`)))
+    .then(d => {
+      markLayoutSaved();
+      if (silent){
+        $('#draftStatus').text(`Auto-saved to "${d.filename}" ${new Date().toLocaleTimeString()}`);
+      } else {
+        alert(`Saved to "${d.filename}"`);
+      }
+    })
+    .catch(err => {
+      // Never clear the dirty state on a failed save
+      const m = 'Save failed: ' + (err.message || err);
+      if (silent) $('#draftStatus').text(m + ' — your draft is still held in this browser');
+      else alert(m);
+    });
 }
 function downloadFile(){
   const fn = $('#filename').val().trim()||'default.json';
@@ -1870,11 +2282,26 @@ function refreshDependentSelects(){
     signalKeys.forEach(s=> $(this).append(`<option value="${s}">${s}</option>`));
     if(signalKeys.includes(cur)) $(this).val(cur);
   });
-  $('select[name=conflicting_signals], select[name=homesignal]').each(function(){
+  $('select[name=conflicting_signals]').each(function(){
     const cur=$(this).val()||[];
     $(this).empty();
     signalKeys.forEach(s=> $(this).append(`<option value="${s}">${s}</option>`));
     $(this).val(arrify(cur).filter(v=>signalKeys.includes(v)));
+  });
+  // Sections builder: home signal dropdowns
+  $('select.hs-signal').each(function(){
+    const cur=$(this).val();
+    $(this).empty().append(`<option value="">Select signal…</option>`);
+    signalKeys.forEach(s=> $(this).append(`<option value="${s}">${s}</option>`));
+    if(signalKeys.includes(cur)) $(this).val(cur);
+  });
+  // Sections builder: point dropdowns
+  const pointKeys = Object.keys(dataStore["Points"] || {});
+  $('select.hs-point').each(function(){
+    const cur=$(this).val();
+    $(this).empty().append(`<option value="">Select point…</option>`);
+    pointKeys.forEach(p=> $(this).append(`<option value="${p}">${p}</option>`));
+    if(pointKeys.includes(cur)) $(this).val(cur);
   });
 }
 
