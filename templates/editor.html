@@ -871,44 +871,104 @@ function applyPointDefaults(formEl, { force=false } = {}){
 
 
 // ====== Allowed aspects for Routes -> Signals builder ======
-function allowedAspectsForSignal(sigRef){
+const ASPECT_MAP_KEY_TO_ROUTE_NAME = {
+  danger_aspect:          "danger",
+  caution_aspect:         "caution",
+  double_caution_aspect:  "double_caution",
+  clear_aspect:           "clear",
+  banner_repeater:        "banner",
+  calling_on:             "calling_on",
+  route_1: "route1", route_2: "route2", route_3: "route3",
+  route_4: "route4", route_5: "route5", route_6: "route6",
+};
+const ASPECT_LEGACY_TO_MAP_KEY = {
+  dangerreg: 'danger_aspect',
+  cautionreg: 'caution_aspect',
+  doublecautionreg: 'double_caution_aspect',
+  clearreg: 'clear_aspect',
+  bannerreg: 'banner_repeater',
+  callingonreg: 'calling_on',
+  route1reg: 'route_1',
+  route2reg: 'route_2',
+  route3reg: 'route_3',
+  route4reg: 'route_4',
+  route5reg: 'route_5',
+  route6reg: 'route_6',
+};
+// The three interchangeable ways a calling-on may appear in a saved route
+const CALLING_ON_NAMES = ['calling_on','position_light','associated_position_light'];
+
+// Canonical aspect keys a signal actually has (new `aspects` map, else legacy *reg fields)
+function signalAspectKeys(sigRef){
   const s = (dataStore["Signals"] || {})[sigRef];
   if(!s) return [];
-  const mapKeyToRouteName = {
-    danger_aspect:          "danger",
-    caution_aspect:         "caution",
-    double_caution_aspect:  "double_caution",
-    clear_aspect:           "clear",
-    banner_repeater:        "banner",
-    calling_on:             "calling_on",
-    route_1: "route1", route_2: "route2", route_3: "route3",
-    route_4: "route4", route_5: "route5", route_6: "route6",
-  };
-  const legacyToMapKey = {
-    dangerreg: 'danger_aspect',
-    cautionreg: 'caution_aspect',
-    doublecautionreg: 'double_caution_aspect',
-    clearreg: 'clear_aspect',
-    bannerreg: 'banner_repeater',
-    callingonreg: 'calling_on',
-    route1reg: 'route_1',
-    route2reg: 'route_2',
-    route3reg: 'route_3',
-    route4reg: 'route_4',
-    route5reg: 'route_5',
-    route6reg: 'route_6',
-  };
+  const keys = Object.keys(s.aspects || {});
+  if (keys.length) return keys;
+  return Object.entries(ASPECT_LEGACY_TO_MAP_KEY)
+    .filter(([legacyField]) => s[legacyField] != null && s[legacyField] !== "")
+    .map(([, aspectKey]) => aspectKey);
+}
 
-  // Prefer new structure
-  let keys = Object.keys(s.aspects || {});
-  // If absent, fall back to legacy fields that are not null/undefined/""
-  if (keys.length === 0) {
-    keys = Object.entries(legacyToMapKey)
-      .filter(([legacyField]) => s[legacyField] != null && s[legacyField] !== "")
-      .map(([, aspectKey]) => aspectKey);
-  }
+// A calling-on is stored in a route as one of two position light types:
+//   associated_position_light — the signal also shows a running aspect (clear/caution)
+//                               alongside a danger aspect, so the subsidiary is
+//                               associated with a main signal head
+//   position_light            — otherwise (a ground/shunt signal with no running aspect,
+//                               or one with no danger aspect to be subsidiary to)
+function callingOnAspectFor(sigRef){
+  const keys    = signalAspectKeys(sigRef);
+  const danger  = keys.includes('danger_aspect');
+  const clear   = keys.includes('clear_aspect');
+  const caution = keys.includes('caution_aspect') || keys.includes('double_caution_aspect');
+  return (danger && (clear || caution)) ? 'associated_position_light' : 'position_light';
+}
 
-  return keys.map(k => mapKeyToRouteName[k]).filter(Boolean);
+function allowedAspectsForSignal(sigRef){
+  return signalAspectKeys(sigRef)
+    .map(k => k === 'calling_on'
+                ? callingOnAspectFor(sigRef)
+                : ASPECT_MAP_KEY_TO_ROUTE_NAME[k])
+    .filter(Boolean);
+}
+
+// Bring saved route aspects into line with what the signal currently offers, so a
+// calling-on written under a different name (or before the signal's aspects changed)
+// is preserved rather than silently dropped.
+function normaliseRouteAspects(sigRef, aspects){
+  const resolved = callingOnAspectFor(sigRef);
+  const out = [];
+  (aspects || []).forEach(a => {
+    const v = CALLING_ON_NAMES.includes(a) ? resolved : a;
+    if (!out.includes(v)) out.push(v);
+  });
+  return out;
+}
+
+function routeAspectLabel(name){
+  if (name === 'associated_position_light') return 'associated_position_light (calling-on)';
+  if (name === 'position_light')            return 'position_light (calling-on)';
+  return name;
+}
+
+// Editing a signal's aspects can leave routes holding the wrong calling-on form
+// (or one the signal no longer offers). Re-resolve rather than leave stale data.
+// Returns a list of the routes it changed.
+function reconcileRouteCallingOn(sigRef){
+  const allowed = new Set(allowedAspectsForSignal(sigRef));
+  const changed = [];
+  Object.entries(dataStore["Routes"] || {}).forEach(([rRef, r]) => {
+    const asp = r && r.signals && r.signals[sigRef];
+    if (!Array.isArray(asp)) return;
+    const before  = JSON.stringify(asp);
+    const mapped  = normaliseRouteAspects(sigRef, asp);
+    const next    = mapped.filter(a => allowed.has(a));
+    const dropped = mapped.filter(a => !allowed.has(a));
+    if (JSON.stringify(next) === before) return;
+    if (next.length) r.signals[sigRef] = next;
+    else delete r.signals[sigRef];
+    changed.push({ ref: rRef, from: asp.slice(), to: next, dropped });
+  });
+  return changed;
 }
 
 
@@ -1221,9 +1281,11 @@ function addSignalRow($form, sigRef=null, aspects=[]){
     const $as = row.find('.route-signal-aspects');
     const prev = $as.val() || [];
     $as.empty();
-    opts.forEach(x => $as.append(`<option value="${x}">${x}</option>`));
+    opts.forEach(x => $as.append(`<option value="${x}">${routeAspectLabel(x)}</option>`));
     const next = (aspects && aspects.length) ? aspects : prev;
-    $as.val((next||[]).filter(v=>opts.includes(v)));
+    // Map calling_on / position_light / associated_position_light onto whichever
+    // form this signal uses, so a saved selection is never silently discarded
+    $as.val(normaliseRouteAspects(ref, next).filter(v=>opts.includes(v)));
   }
 
   row.on('change','.route-signal', refreshAspects);
@@ -1848,7 +1910,7 @@ $(function(){
           let aspects = $(this).find('.route-signal-aspects').val() || [];
           if(sRef){
             const allowed = new Set(allowedAspectsForSignal(sRef));
-            aspects = aspects.filter(a => allowed.has(a));
+            aspects = normaliseRouteAspects(sRef, aspects).filter(a => allowed.has(a));
             if(aspects.length) signals[sRef] = aspects;
           }
         });
@@ -1895,6 +1957,21 @@ $(function(){
 
 
       dataStore[type][ref] = entry;
+
+      // A changed signal can invalidate the calling-on form stored in routes
+      if (type === "Signals"){
+        const changed = reconcileRouteCallingOn(ref);
+        if (changed.length){
+          const lines = changed.map(c =>
+            `  ${c.ref}: ${JSON.stringify(c.from)} -> ${JSON.stringify(c.to)}`
+            + (c.dropped.length ? `   (no longer available: ${c.dropped.join(', ')})` : ''));
+          alert(`Signal "${ref}" now offers different aspects, so these routes were updated:\n\n`
+              + lines.join('\n')
+              + `\n\nCheck they are still correct before saving to the server.`);
+          renderTable("Routes");
+        }
+      }
+
       onLayoutChanged();
       bsModals[type].hide();
       if(type==="Signals") refreshDependentSelects();

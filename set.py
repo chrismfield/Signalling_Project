@@ -84,6 +84,10 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                 if section.occstatus and (aspect in main_proceed_aspects):
                     logger.critical("Cannot clear signal when section is occupied for signal " + signal.ref + " in section " + section.ref)
                     raise InterlockingError("Cannot clear signal when section is occupied signal " + signal.ref + " in " + section.ref)
+                # TODO figure out why this raises exception
+                # if section.routeset and not (aspect == "danger"):
+                #     logger.critical("Cannot clear signal when route is set for signal " + signal.ref + " in section " + section.ref)
+                #     raise InterlockingError("Cannot clear signal when route is set signal " + signal.ref + " in " + section.ref)
                 # don't set signal if section is blocked
                 if section.blocked and not (aspect == "danger"):
                     logger.critical("Cannot clear signal when section is blocked for signal " + signal.ref + " in section " + section.ref)
@@ -509,6 +513,8 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
                     mqtt_error = "Cannot clear signal when section is occupied"
                 if section.blocked and not (aspect == "danger"):
                     mqtt_error = "Cannot clear signal when section is blocked"
+                if section.routeset and not (aspect == "danger"):
+                    mqtt_error = "Cannot clear signal when section has route already set"
                 for point in points.values():
                     if point.section == section.ref:
                         if not point.detection_boolean:
