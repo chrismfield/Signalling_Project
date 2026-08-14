@@ -244,8 +244,8 @@ def interlocking(logger):
 
     def check_protecting_points(section, homesignal):
         """returns true if points are set to protect section"""
-        if homesignal in section.protecting_points:
-            protecting_points_dict = section.protecting_points[homesignal]
+        if homesignal in section.section_entry:
+            protecting_points_dict = section.section_entry[homesignal]["points"]
             for point, direction in protecting_points_dict.items():
                 if Point.instances[point].set_direction and \
                         direction != Point.instances[point].set_direction:

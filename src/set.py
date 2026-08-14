@@ -75,7 +75,7 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
             if aspect == "danger":
                 break
             # only check signal for section if points are not already protecting the section
-            if signal.ref in section.homesignal and not check_protecting_points(section.protecting_points):
+            if signal.ref in section.homesignal and not check_protecting_points(section.section_entry):
                 # don't set signal if section is occupied
                 if section.occstatus and (aspect in main_proceed_aspects):
                     logger.critical("Cannot clear signal when section is occupied")
@@ -442,7 +442,7 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
         for section in sections.values():
             if aspect == "danger":
                 break
-            if signal.ref in section.homesignal and not check_protecting_points(section.protecting_points):
+            if signal.ref in section.homesignal and not check_protecting_points(section.section_entry):
                 if section.occstatus and (aspect in main_proceed_aspects):
                     mqtt_error = "Cannot clear signal when section is occupied"
                 for point in points.values():

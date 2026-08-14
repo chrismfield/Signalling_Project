@@ -65,11 +65,30 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
     def check_protecting_points(protecting_points):
         """returns true if points are set to protect section"""
         if protecting_points and (signal.ref in protecting_points):
-            section_protecting_points = protecting_points[signal.ref]
+            section_protecting_points = protecting_points[signal.ref]["points"]
             for point, direction in section_protecting_points.items():
                 if direction != points[point].set_direction:
                     return True
         return False
+
+    def check_route_indicator():
+        #find the sections that will be set into by checking which section this is a homesignal for
+        correct_route = False
+        for section in sections.values():
+            if signal.ref in section.section_entry.keys():
+                #find which section the points are set for
+                if "points" in section.section_entry[signal.ref]:
+                    for point, direction in section.section_entry[signal.ref]["points"].items():
+                        if points[point].set_direction == direction:
+                            correct_route = section.section_entry[signal.ref]["route"]
+                            continue
+                        else:
+                            correct_route = False
+                            break
+                    if correct_route:
+                        # return the route for that section from this signal
+                        return correct_route
+
 
     def set_aspect():
         """only sets aspect if permitted"""
@@ -79,7 +98,7 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
             if aspect == "danger":
                 break
             # only check signal for section if points are not already protecting the section
-            if signal.ref in section.homesignal and not check_protecting_points(section.protecting_points):
+            if signal.ref in section.homesignal and not check_protecting_points(section.section_entry):
                 # don't set signal if section is occupied
                 if section.occstatus and (aspect in main_proceed_aspects):
                     logger.critical("Cannot clear signal when section is occupied for signal " + signal.ref + " in section " + section.ref)
@@ -118,6 +137,9 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
                 for PA in proceed_aspects:
                     signal.aspect.discard(PA)
             signal.aspect.add(aspect)
+            # add route indicators
+            if check_route_indicator():
+                signal.aspect.add(check_route_indicator())
             signal.routeset = route
 
         # Determine if logging is required
@@ -478,7 +500,7 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
     def check_protecting_points(protecting_points):
         """returns true if points are set to protect section"""
         if protecting_points and (signal.ref in protecting_points):
-            section_protecting_points = protecting_points[signal.ref]
+            section_protecting_points = protecting_points[signal.ref]["points"]
             for point, direction in section_protecting_points.items():
                 if direction != points[point].set_direction:
                     return True
@@ -508,7 +530,7 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
         for section in sections.values():
             if aspect == "danger":
                 break
-            if signal.ref in section.homesignal and not check_protecting_points(section.protecting_points):
+            if signal.ref in section.homesignal and not check_protecting_points(section.section_entry):
                 if section.occstatus and (aspect in main_proceed_aspects):
                     mqtt_error = "Cannot clear signal when section is occupied"
                 if section.blocked and not (aspect == "danger"):

@@ -24,6 +24,7 @@
     </button>
     <span id="draftStatus" class="small-muted"></span>
   </div>
+  <div id="schemaNotice" class="alert alert-info py-2 px-3 mb-3 d-none"></div>
 
   <!-- Tabs -->
   <ul class="nav nav-tabs mb-4" role="tablist">
@@ -441,14 +442,22 @@
 
               <hr class="my-3">
 
-              <h6 class="mt-2 mb-1">Home&nbsp;Signals &amp; Protecting&nbsp;Points</h6>
+              <h6 class="mt-2 mb-1">Home&nbsp;Signals, Route&nbsp;Indicators &amp; Protecting&nbsp;Points</h6>
               <div class="form-text mb-2">
                 For each home signal, select points/directions which DO allow a train to be
                 routed from that signal into this section.
               </div>
+              <div class="form-text mb-2">
+                The route indicator is the aspect set automatically on that signal when a
+                route into this section is called, so it no longer has to be chosen per
+                route. Only indicators the signal can actually display are offered.
+              </div>
               <div class="section-homesignals mb-2"></div>
               <button type="button" class="btn btn-outline-secondary btn-sm" data-add-homesignal>
                 <i class="fa fa-plus"></i> Add home signal
+              </button>
+              <button type="button" class="btn btn-outline-secondary btn-sm ms-1" data-fill-route-indicators>
+                <i class="fa fa-wand-magic-sparkles"></i> Fill route indicators from existing routes
               </button>
 
               {% endif %}
@@ -1026,6 +1035,7 @@ const tableCols = {
     { key:'mode',            label:'Mode' },
     { key:'homesignal',      label:'Home Signals', formatter:v=> (v||[]).length },
     { key:'protecting_points', label:'Protected', formatter:v=> Object.keys(v||{}).length },
+    { key:'protecting_points', label:'Route Ind', formatter:v=> Object.values(v||{}).filter(r=>r&&r.route).length },
     { key:'conflictingsections', label:'Conflicts', formatter:v=> (v||[]).length }
   ],
   Routes: [
@@ -1303,6 +1313,71 @@ function hsPointOptions(){
 function hsSignalOptions(){
   return Object.keys(dataStore["Signals"]||{}).map(s=>`<option value="${s}">${s}</option>`).join('');
 }
+// Route indicator aspects this signal can actually display
+function hsRouteOptionsFor(sigRef){
+  return allowedAspectsForSignal(sigRef).filter(a => /^route[1-6]$/.test(a));
+}
+// Fill (or refill) a block's route indicator dropdown from its selected signal
+function hsRefreshRouteOptions($block, keep=null){
+  const sig  = $block.find('.hs-signal').val();
+  const opts = sig ? hsRouteOptionsFor(sig) : [];
+  const $sel = $block.find('.hs-route');
+  const cur  = keep !== null ? keep : $sel.val();
+
+  $sel.empty().append('<option value="">(none)</option>');
+  opts.forEach(r => $sel.append(`<option value="${r}">${r}</option>`));
+  $sel.val(opts.includes(cur) ? cur : '');
+  $sel.prop('disabled', opts.length === 0);
+  $block.find('.hs-route-note').text(
+    !sig                ? 'select a signal first'
+    : opts.length === 0 ? 'this signal has no route indicators'
+    : ''
+  );
+}
+
+// ---- protecting_points record shape ----
+// New form:  { points: {point: direction}, route: "routeN" }   (route optional)
+// Old form:  { point: direction }                              (migrated on load)
+function hsIsNestedRecord(v){
+  return !!v && typeof v === 'object' && !Array.isArray(v)
+      && Object.prototype.hasOwnProperty.call(v, 'points')
+      && !!v.points && typeof v.points === 'object';
+}
+function hsToNestedRecord(v){
+  if (hsIsNestedRecord(v)){
+    const out = { points: Object.assign({}, v.points) };
+    if (v.route) out.route = v.route;
+    return out;
+  }
+  // legacy flat {point: direction}
+  return { points: Object.assign({}, v || {}) };
+}
+// Convert any legacy sections in place. Returns the refs that changed.
+function migrateProtectingPoints(){
+  const changed = [];
+  Object.entries(dataStore["Sections"] || {}).forEach(([ref, sec]) => {
+    const pp = sec && sec.protecting_points;
+    if (!pp || typeof pp !== 'object') return;
+    let touched = false;
+    const out = {};
+    Object.entries(pp).forEach(([sig, rec]) => {
+      if (!hsIsNestedRecord(rec)) touched = true;
+      out[sig] = hsToNestedRecord(rec);
+    });
+    if (touched){ sec.protecting_points = out; changed.push(ref); }
+  });
+  return changed;
+}
+function showSchemaNotice(refs){
+  const $n = $('#schemaNotice');
+  if (!refs || !refs.length){ $n.addClass('d-none').empty(); return; }
+  $n.removeClass('d-none').html(
+      `<strong>Protecting points updated to the new format</strong> in `
+    + `${refs.length} section${refs.length===1?'':'s'} `
+    + `(${refs.join(', ')}) — each home signal now holds `
+    + `<code>{ points: {…}, route: "routeN" }</code>. `
+    + `This is held in the editor only until you save to the server.`);
+}
 
 // One point + direction row inside a home signal block
 function addProtectingPointRow($block, pointRef=null, dir="normal"){
@@ -1327,19 +1402,27 @@ function addProtectingPointRow($block, pointRef=null, dir="normal"){
   return row;
 }
 
-// One home signal block, containing zero or more protecting point rows
-function addHomeSignalBlock($form, sigRef=null, pointsMap=null){
+// One home signal block: signal + route indicator + zero or more protecting point rows
+function addHomeSignalBlock($form, sigRef=null, record=null){
+  const rec = hsToNestedRecord(record || {});
   const block = $(`
     <div class="card mb-2 hs-block">
       <div class="card-body py-2 px-3">
         <div class="row g-2 align-items-center">
           <div class="col-auto"><label class="form-label mb-0 small text-muted">Home signal</label></div>
           <div class="col-auto">
-            <select class="form-select form-select-sm hs-signal" style="min-width:180px">
+            <select class="form-select form-select-sm hs-signal" style="min-width:150px">
               <option value="">Select signal…</option>
               ${hsSignalOptions()}
             </select>
           </div>
+          <div class="col-auto"><label class="form-label mb-0 small text-muted">Route indicator</label></div>
+          <div class="col-auto">
+            <select class="form-select form-select-sm hs-route" style="min-width:130px">
+              <option value="">(none)</option>
+            </select>
+          </div>
+          <div class="col-auto"><span class="hs-route-note small-muted"></span></div>
           <div class="col text-end">
             <button type="button" class="btn btn-sm btn-outline-danger hs-remove">
               <i class="fa fa-trash"></i> Remove home signal
@@ -1363,7 +1446,8 @@ function addHomeSignalBlock($form, sigRef=null, pointsMap=null){
 
   $form.find('.section-homesignals').append(block);
   if(sigRef){ block.find('.hs-signal').val(sigRef); }
-  Object.entries(pointsMap || {}).forEach(([p,d]) => addProtectingPointRow(block, p, d));
+  hsRefreshRouteOptions(block, rec.route || '');
+  Object.entries(rec.points || {}).forEach(([p,d]) => addProtectingPointRow(block, p, d));
   hsMarkDuplicates($form);
   return block;
 }
@@ -1381,7 +1465,8 @@ function hsMarkDuplicates($form){
   });
 }
 
-// Read the builder back into { homesignal: [...], protecting_points: {sig:{point:dir}} }
+// Read the builder back into
+//   { homesignal: [...], protecting_points: {sig: {points:{point:dir}, route:"routeN"}} }
 function gatherHomeSignals($form){
   const homesignal = [];
   const protecting_points = {};
@@ -1414,11 +1499,71 @@ function gatherHomeSignals($form){
       pts[p] = d;
     });
 
-    // Only record signals that actually have protecting points
-    if(Object.keys(pts).length) protecting_points[sig] = pts;
+    // Only offered aspects can be stored, in case the signal changed since this was set
+    const routeSel = $b.find('.hs-route').val() || '';
+    const route    = hsRouteOptionsFor(sig).includes(routeSel) ? routeSel : '';
+
+    // Record the signal if it carries either protecting points or a route indicator
+    if(Object.keys(pts).length || route){
+      const rec = { points: pts };
+      if (route) rec.route = route;
+      protecting_points[sig] = rec;
+    }
   });
 
   return { homesignal, protecting_points, errors };
+}
+
+// Infer the route indicator for (section, home signal) from Routes already defined:
+// any route that covers this section and sets a routeN aspect on that signal.
+function suggestRouteIndicator(sectionRef, sigRef){
+  const found = [];
+  Object.values(dataStore["Routes"] || {}).forEach(r => {
+    if(!r || !Array.isArray(r.sections) || !r.sections.includes(sectionRef)) return;
+    const asp = (r.signals || {})[sigRef];
+    if(!Array.isArray(asp)) return;
+    asp.filter(a => /^route[1-6]$/.test(a)).forEach(a => { if(!found.includes(a)) found.push(a); });
+  });
+  return found;
+}
+
+// Fill any blank route indicator in the builder from existing Routes.
+// Never overwrites a choice already made.
+function fillRouteIndicatorsFromRoutes($form){
+  const sectionRef = ($form.find('[name=ref]').val() || '').trim();
+  if(!sectionRef){
+    alert('Give this section a Ref first — the lookup matches it against each route\u2019s sections list.');
+    return;
+  }
+
+  const set = [], already = [], ambiguous = [], notOnSignal = [], noRoute = [];
+  $form.find('.hs-block').each(function(){
+    const $b  = $(this);
+    const sig = $b.find('.hs-signal').val();
+    if(!sig) return;
+
+    const avail = hsRouteOptionsFor(sig);
+    if(avail.length === 0) return;                       // signal has no indicators at all
+    if(($b.find('.hs-route').val() || '')){ already.push(sig); return; }
+
+    const cands = suggestRouteIndicator(sectionRef, sig);
+    if(cands.length === 0){ noRoute.push(sig); return; }
+    if(cands.length > 1){ ambiguous.push(`${sig}: ${cands.join(', ')}`); return; }
+    if(!avail.includes(cands[0])){ notOnSignal.push(`${sig}: ${cands[0]}`); return; }
+
+    $b.find('.hs-route').val(cands[0]);
+    set.push(`${sig} \u2192 ${cands[0]}`);
+  });
+
+  const msg = [];
+  if(set.length)         msg.push(`Filled in:\n  ` + set.join('\n  '));
+  if(ambiguous.length)   msg.push(`More than one indicator found — choose these manually:\n  ` + ambiguous.join('\n  '));
+  if(notOnSignal.length) msg.push(`Found in a route but the signal cannot display it:\n  ` + notOnSignal.join('\n  '));
+  if(noRoute.length)     msg.push(`No route covering "${sectionRef}" sets an indicator on: ` + noRoute.join(', '));
+  if(already.length)     msg.push(`Left alone (already set): ` + already.join(', '));
+  alert(msg.length ? msg.join('\n\n')
+                   : `Nothing to fill in for "${sectionRef}".`);
+  updateDirtyUI();
 }
 
 // Rebuild the whole builder from a saved Sections entry
@@ -1511,7 +1656,12 @@ function configDirty(){
 }
 function anyDirty(){ return layoutDirty() || configDirty(); }
 
-function markLayoutSaved(){ layoutBaseline = fingerprint(layoutPayload()); clearDraft(); updateDirtyUI(); }
+function markLayoutSaved(){
+  layoutBaseline = fingerprint(layoutPayload());
+  clearDraft();
+  showSchemaNotice(null);   // the new format is now on the server
+  updateDirtyUI();
+}
 function markConfigSaved(){ configBaseline = fingerprint(collectConfigPayload()); updateDirtyUI(); }
 
 function updateDirtyUI(){
@@ -1572,8 +1722,10 @@ function maybeOfferDraftRestore(){
              + `Cancel  = discard the draft and keep the version from the server`;
   if (confirm(msg)){
     entityTypes.forEach(t => { dataStore[t] = d.data[t] || {}; });
+    const migrated = migrateProtectingPoints();
     entityTypes.forEach(t => renderTable(t));
     refreshAllSelects();
+    if (migrated.length) showSchemaNotice(migrated);
     updateDirtyUI();   // stays dirty against the server copy, which is correct
   } else {
     clearDraft();
@@ -2006,6 +2158,7 @@ $(function(){
       const $form = $(`.${lc}Form`);
       $form.off('click.hs change.hs');
       $form.on('click.hs','[data-add-homesignal]', ()=> addHomeSignalBlock($form));
+      $form.on('click.hs','[data-fill-route-indicators]', ()=> fillRouteIndicatorsFromRoutes($form));
       $form.on('click.hs','.hs-add-point', function(){
         addProtectingPointRow($(this).closest('.hs-block'));
       });
@@ -2016,7 +2169,10 @@ $(function(){
         $(this).closest('.hs-block').remove();
         hsMarkDuplicates($form);
       });
-      $form.on('change.hs','.hs-signal', ()=> hsMarkDuplicates($form));
+      $form.on('change.hs','.hs-signal', function(){
+        hsRefreshRouteOptions($(this).closest('.hs-block'));
+        hsMarkDuplicates($form);
+      });
     }
 
     // TrackCircuits extra handlers
@@ -2076,6 +2232,11 @@ $('body').on('change', '.pointsForm [name=board_index]', function(){
   // Everything rendered — treat the current state as the clean baseline.
   // (If loadConfig auto-loads a layout, loadFromServer resets this again.)
   layoutBaseline = fingerprint(layoutPayload());
+  const migratedAtInit = migrateProtectingPoints();
+  if (migratedAtInit.length){
+    renderTable("Sections");
+    showSchemaNotice(migratedAtInit);
+  }
   updateDirtyUI();
   if (currentFile) maybeOfferDraftRestore();
 });
@@ -2294,14 +2455,18 @@ function loadFromServer(filename){
     .then(d => {
       // populate dataStore and refresh UI in-place
       entityTypes.forEach(t => dataStore[t] = d[t] || {});
+      // fingerprint the file exactly as it arrived, before any schema upgrade
+      const asLoaded = fingerprint(layoutPayload());
+      const migrated = migrateProtectingPoints();
       entityTypes.forEach(t => renderTable(t));
       refreshAllSelects();
       // reflect filename in UI and update URL without navigating
       $('#filename').val(f);
       $('#serverFiles').val(f);
       try { window.history.replaceState(null, '', `/editor?file=${encodeURIComponent(f)}`); } catch(e){}
-      // this is now the clean state for the newly loaded file
-      layoutBaseline = fingerprint(layoutPayload());
+      // the server copy is the clean state, so a migration correctly reads as unsaved
+      layoutBaseline = asLoaded;
+      showSchemaNotice(migrated);
       updateDirtyUI();
       alert(`Loaded "${f}"`);
       maybeOfferDraftRestore();
@@ -2372,6 +2537,8 @@ function refreshDependentSelects(){
     signalKeys.forEach(s=> $(this).append(`<option value="${s}">${s}</option>`));
     if(signalKeys.includes(cur)) $(this).val(cur);
   });
+  // Sections builder: route indicator dropdowns follow their signal
+  $('.hs-block').each(function(){ hsRefreshRouteOptions($(this)); });
   // Sections builder: point dropdowns
   const pointKeys = Object.keys(dataStore["Points"] || {});
   $('select.hs-point').each(function(){

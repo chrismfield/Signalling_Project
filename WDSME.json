@@ -1218,28 +1218,28 @@
             "sigtype": 1
         },
         "110": {
-            "ref": "110",
-            "description": "110",
             "address": 110,
-            "network": "network_1",
-            "sigtype": 0,
             "availableaspects": 3,
-            "directionindicator": 0,
-            "nextsignal": "108",
-            "conflicting_signals": [],
-            "board_index": 0,
-            "dangerreg": 1,
-            "cautionreg": 2,
-            "doublecautionreg": null,
-            "clearreg": 4,
             "bannerreg": null,
+            "board_index": 0,
             "callingonreg": null,
+            "cautionreg": 2,
+            "clearreg": 4,
+            "conflicting_signals": [],
+            "dangerreg": 1,
+            "description": "110",
+            "directionindicator": 0,
+            "doublecautionreg": null,
+            "network": "network_1",
+            "nextsignal": "108",
+            "ref": "110",
             "route1reg": null,
             "route2reg": null,
             "route3reg": null,
             "route4reg": 204,
             "route5reg": null,
-            "route6reg": null
+            "route6reg": null,
+            "sigtype": 0
         },
         "112": {
             "address": 112,
@@ -1796,31 +1796,22 @@
                 "x": 21.23,
                 "y": 3.77
             },
-            "dectrig": {
-                "A5": "Upcount",
-                "A7": "Downcount",
-                "A8": "Downcount"
-            },
+            "dectrig": {},
             "description": "Platform 2 Section",
             "homesignal": [
                 "48"
             ],
-            "inctrig": {
-                "A7": "Upcount",
-                "A8": "Upcount"
-            },
-            "instances": {},
+            "inctrig": {},
             "mode": "axlecounter",
-            "occstatus": 0,
-            "previousoccstatus": 0,
             "protecting_points": {
                 "48": {
-                    "100": "normal"
+                    "points": {
+                        "100": "normal"
+                    },
+                    "route": "route2"
                 }
             },
-            "ref": "AT",
-            "routeset": false,
-            "routestatus": ""
+            "ref": "AT"
         },
         "AU": {
             "conflictingsections": [],
@@ -1828,30 +1819,23 @@
                 "x": 28.91,
                 "y": 16.35
             },
-            "dectrig": {
-                "A6": "Upcount",
-                "A9": "Downcount"
-            },
+            "dectrig": {},
             "description": "Platform 3 Section",
             "homesignal": [
                 "48"
             ],
-            "inctrig": {
-                "A9": "Upcount"
-            },
-            "instances": {},
+            "inctrig": {},
             "mode": "axlecounter",
-            "occstatus": 0,
-            "previousoccstatus": 0,
             "protecting_points": {
                 "48": {
-                    "100": "reverse",
-                    "300": "normal"
+                    "points": {
+                        "100": "reverse",
+                        "300": "normal"
+                    },
+                    "route": "route3"
                 }
             },
-            "ref": "AU",
-            "routeset": false,
-            "routestatus": ""
+            "ref": "AU"
         },
         "AV": {
             "conflictingsections": [],
@@ -1859,48 +1843,45 @@
                 "x": 18.88,
                 "y": 22.64
             },
-            "dectrig": {
-                "A10": "Downcount"
-            },
+            "dectrig": {},
             "description": "Platform 4 Section",
             "homesignal": [
                 "48"
             ],
-            "inctrig": {
-                "A10": "Upcount"
-            },
-            "instances": {},
+            "inctrig": {},
             "mode": "axlecounter",
-            "occstatus": 0,
-            "previousoccstatus": 0,
             "protecting_points": {
                 "48": {
-                    "100": "reverse",
-                    "300": "reverse"
+                    "points": {
+                        "100": "reverse",
+                        "300": "reverse"
+                    },
+                    "route": "route4"
                 }
             },
-            "ref": "AV",
-            "routeset": false,
-            "routestatus": ""
+            "ref": "AV"
         },
         "B": {
-            "conflictingsections": [],
-            "dectrig": {},
+            "ref": "B",
             "description": "B",
+            "mode": "trackcircuit",
+            "trackcircuits": [
+                "B"
+            ],
+            "inctrig": {},
+            "dectrig": {},
             "homesignal": [
                 "1"
             ],
-            "inctrig": {},
-            "mode": "trackcircuit",
             "protecting_points": {
                 "1": {
-                    "50": "normal"
+                    "points": {
+                        "50": "normal"
+                    },
+                    "route": "route4"
                 }
             },
-            "ref": "B",
-            "trackcircuits": [
-                "B"
-            ]
+            "conflictingsections": []
         },
         "C": {
             "conflictingsections": [],
@@ -1941,7 +1922,9 @@
             "mode": "trackcircuit",
             "protecting_points": {
                 "103": {
-                    "250": "normal"
+                    "points": {
+                        "250": "normal"
+                    }
                 }
             },
             "ref": "E",
@@ -1975,10 +1958,14 @@
             "mode": "trackcircuit",
             "protecting_points": {
                 "9": {
-                    "20": "normal"
+                    "points": {
+                        "20": "normal"
+                    }
                 },
                 "10": {
-                    "8A": "reverse"
+                    "points": {
+                        "8A": "reverse"
+                    }
                 }
             },
             "ref": "G",
@@ -1987,23 +1974,26 @@
             ]
         },
         "H": {
-            "conflictingsections": [],
-            "dectrig": {},
+            "ref": "H",
             "description": "H",
+            "mode": "trackcircuit",
+            "trackcircuits": [
+                "H"
+            ],
+            "inctrig": {},
+            "dectrig": {},
             "homesignal": [
                 "1"
             ],
-            "inctrig": {},
-            "mode": "trackcircuit",
             "protecting_points": {
                 "1": {
-                    "50": "reverse"
+                    "points": {
+                        "50": "reverse"
+                    },
+                    "route": "route3"
                 }
             },
-            "ref": "H",
-            "trackcircuits": [
-                "H"
-            ]
+            "conflictingsections": []
         },
         "J": {
             "conflictingsections": [],
@@ -2031,10 +2021,14 @@
             "mode": "trackcircuit",
             "protecting_points": {
                 "105": {
-                    "200": "reverse"
+                    "points": {
+                        "200": "reverse"
+                    }
                 },
                 "110": {
-                    "150": "normal"
+                    "points": {
+                        "150": "normal"
+                    }
                 }
             },
             "ref": "K",
@@ -2083,11 +2077,15 @@
             "mode": "trackcircuit",
             "protecting_points": {
                 "9": {
-                    "20": "reverse"
+                    "points": {
+                        "20": "reverse"
+                    }
                 },
                 "10": {
-                    "18": "normal",
-                    "8A": "normal"
+                    "points": {
+                        "18": "normal",
+                        "8A": "normal"
+                    }
                 }
             },
             "ref": "N",
@@ -2121,10 +2119,14 @@
             "mode": "trackcircuit",
             "protecting_points": {
                 "105": {
-                    "200": "normal"
+                    "points": {
+                        "200": "normal"
+                    }
                 },
                 "110": {
-                    "150": "reverse"
+                    "points": {
+                        "150": "reverse"
+                    }
                 }
             },
             "ref": "S",
@@ -2169,10 +2171,14 @@
             "mode": "trackcircuit",
             "protecting_points": {
                 "105": {
-                    "200": "reverse"
+                    "points": {
+                        "200": "reverse"
+                    }
                 },
                 "110": {
-                    "150": "normal"
+                    "points": {
+                        "150": "normal"
+                    }
                 }
             },
             "ref": "U",
@@ -2191,7 +2197,10 @@
             "mode": "trackcircuit",
             "protecting_points": {
                 "103": {
-                    "250": "reverse"
+                    "points": {
+                        "250": "reverse"
+                    },
+                    "route": "route4"
                 }
             },
             "ref": "V",
@@ -2251,16 +2260,16 @@
             }
         },
         "105-K": {
-            "ref": "105-K",
             "description": "105 to Inner",
+            "points": {
+                "200": "reverse"
+            },
+            "ref": "105-K",
             "sections": [
                 "K",
                 "S",
                 "U"
             ],
-            "points": {
-                "200": "reverse"
-            },
             "signals": {
                 "105": [
                     "clear",
@@ -2269,16 +2278,16 @@
             }
         },
         "110-T": {
-            "ref": "110-T",
             "description": "110 to outer",
+            "points": {
+                "150": "reverse"
+            },
+            "ref": "110-T",
             "sections": [
                 "S",
                 "T",
                 "U"
             ],
-            "points": {
-                "150": "reverse"
-            },
             "signals": {
                 "110": [
                     "clear",
@@ -2847,14 +2856,14 @@
             }
         },
         "V": {
-            "ref": "V",
             "description": "V Picnic Loop",
-            "sections": [
-                "V"
-            ],
             "points": {
                 "250": "reverse"
             },
+            "ref": "V",
+            "sections": [
+                "V"
+            ],
             "signals": {
                 "103": [
                     "caution",
