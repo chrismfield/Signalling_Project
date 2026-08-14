@@ -7,5 +7,6 @@
     "network_ports": {
         "network_1": "COM5",
         "network_2": "COM2"
-    }
+    },
+    "baudrate" : 115200
 }

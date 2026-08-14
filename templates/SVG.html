@@ -72,6 +72,14 @@
     .point-flashing path {
       animation: point-flash 0.7s ease-in-out infinite;
     }
+    /* Route indicator: thickened while its route is included in the aspect.
+       !important is needed because draw.io may write stroke-width inline. */
+    .route-active,
+    .route-active path,
+    .route-active line,
+    .route-active polyline {
+      stroke-width: 4 !important;
+    }
   </style>
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
@@ -180,6 +188,42 @@
       });
     }
 
+    // --- Route indicator display ---
+    // Finds every route indicator belonging to a signal, e.g. "Signal-1-route4".
+    // The trailing hyphen in the prefix keeps Signal-1 from matching Signal-10.
+    function routeIndicatorElements(signalNumber) {
+      const prefix = `Signal-${signalNumber}-route`;
+      return document.querySelectorAll(
+        `[data-cell-id^="${prefix}"], [id^="${prefix}"]`
+      );
+    }
+
+    // Takes the full token list from one aspect message, so any route not named
+    // in the message is switched off. Called once per message, not per token.
+    // At most one route may be active per signal; extra route tokens are a fault
+    // in the reported aspect, so nothing is lit and the payload is logged.
+    function updateRouteIndicators(signalNumber, tokens) {
+      const routeTokens = tokens
+        .map(t => t.toLowerCase())
+        .filter(t => /^route\d+$/.test(t));
+
+      let activeRoute = null;
+      if (routeTokens.length === 1) {
+        activeRoute = routeTokens[0];
+      } else if (routeTokens.length > 1) {
+        console.warn(
+          `Signal ${signalNumber}: ${routeTokens.length} routes in one aspect ` +
+          `(${routeTokens.join(', ')}) — showing none.`
+        );
+      }
+
+      routeIndicatorElements(signalNumber).forEach(el => {
+        const name = el.getAttribute('data-cell-id') || el.id || '';
+        const routeToken = name.slice(`Signal-${signalNumber}-`.length).toLowerCase();
+        el.classList.toggle('route-active', routeToken === activeRoute);
+      });
+    }
+
     function getSectionUnoccupiedColour() {
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'white' : 'black';
     }
@@ -248,7 +292,9 @@
         const payload = typeof message === 'string' ? message : new TextDecoder().decode(message);
 
       if (parts[0] === 'report' && parts[1] === 'signal' && parts[3] === 'aspect') {
-        payload.split(',').filter(Boolean).forEach(aspect => setAspect(parts[2], aspect));
+        const tokens = payload.split(',').map(t => t.trim()).filter(Boolean);
+        tokens.forEach(aspect => setAspect(parts[2], aspect));
+        updateRouteIndicators(parts[2], tokens);
       }
       else if (parts[0] === 'report' && parts[1] === 'section' && parts[3] === 'occstatus') {
         if (!sectionState[parts[2]]) sectionState[parts[2]] = {};
@@ -280,7 +326,7 @@
     // Wire up signal click handlers
     Object.entries(jsonData.Signals).forEach(([ref, signal]) => {
       const group = document.querySelector(`g[data-cell-id="${ref}"]`);
-      const element = document.querySelector(`g[data-cell-id="${ref}"] g[data-cell-id*="Signal-${ref}"] path, g[data-cell-id="${ref}"] ellipse`);
+      const element = document.querySelector(`g[data-cell-id="${ref}"] g[data-cell-id*="Signal-${ref}"]:not([data-cell-id*="route"]) path, g[data-cell-id="${ref}"] ellipse`);
       if (group) {
         if (element) element.style.fill = 'gray';
         group.classList.add('interactive-element');

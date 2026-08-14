@@ -493,9 +493,9 @@
             "ref": "1",
             "route1reg": null,
             "route2reg": null,
-            "route3reg": null,
+            "route3reg": 203,
             "route4reg": 204,
-            "route5reg": 205,
+            "route5reg": null,
             "route6reg": null,
             "sigtype": 0
         },
@@ -1218,28 +1218,28 @@
             "sigtype": 1
         },
         "110": {
-            "address": 110,
-            "availableaspects": 3,
-            "bannerreg": null,
-            "board_index": 0,
-            "callingonreg": null,
-            "cautionreg": 2,
-            "clearreg": 4,
-            "conflicting_signals": [],
-            "dangerreg": 1,
-            "description": "110",
-            "directionindicator": 0,
-            "doublecautionreg": null,
-            "network": "network_1",
-            "nextsignal": "108",
             "ref": "110",
+            "description": "110",
+            "address": 110,
+            "network": "network_1",
+            "sigtype": 0,
+            "availableaspects": 3,
+            "directionindicator": 0,
+            "nextsignal": "108",
+            "conflicting_signals": [],
+            "board_index": 0,
+            "dangerreg": 1,
+            "cautionreg": 2,
+            "doublecautionreg": null,
+            "clearreg": 4,
+            "bannerreg": null,
+            "callingonreg": null,
             "route1reg": null,
             "route2reg": null,
             "route3reg": null,
-            "route4reg": null,
-            "route5reg": 205,
-            "route6reg": null,
-            "sigtype": 0
+            "route4reg": 204,
+            "route5reg": null,
+            "route6reg": null
         },
         "112": {
             "address": 112,
@@ -1295,7 +1295,7 @@
             "bannerreg": null,
             "board_index": 0,
             "callingonreg": null,
-            "cautionreg": false,
+            "cautionreg": 2,
             "clearreg": 4,
             "conflicting_signals": [],
             "dangerreg": null,
@@ -2216,18 +2216,20 @@
     },
     "Routes": {
         "10-G": {
-            "ref": "10-G",
             "description": "10 onto main line",
-            "sections": [
-                "G"
-            ],
             "points": {
+                "20": "normal",
                 "8A": "reverse",
                 "8B": "reverse"
             },
+            "ref": "10-G",
+            "sections": [
+                "G"
+            ],
             "signals": {
                 "10": [
-                    "clear"
+                    "clear",
+                    "route4"
                 ]
             }
         },
@@ -2243,56 +2245,44 @@
             ],
             "signals": {
                 "10": [
-                    "associated_position_light"
+                    "associated_position_light",
+                    "route3"
                 ]
             }
         },
         "105-K": {
-            "description": "105 to Inner",
-            "points": {
-                "200": "reverse"
-            },
             "ref": "105-K",
+            "description": "105 to Inner",
             "sections": [
                 "K",
                 "S",
                 "U"
             ],
+            "points": {
+                "200": "reverse"
+            },
             "signals": {
                 "105": [
-                    "clear"
-                ]
-            }
-        },
-        "110 Route": {
-            "description": "Set route through 110",
-            "points": {
-                "150": "normal"
-            },
-            "ref": "110 Route",
-            "sections": [
-                "U"
-            ],
-            "signals": {
-                "110": [
-                    "clear"
+                    "clear",
+                    "route3"
                 ]
             }
         },
         "110-T": {
-            "description": "110 to outer",
-            "points": {
-                "150": "reverse"
-            },
             "ref": "110-T",
+            "description": "110 to outer",
             "sections": [
                 "S",
                 "T",
                 "U"
             ],
+            "points": {
+                "150": "reverse"
+            },
             "signals": {
                 "110": [
-                    "clear"
+                    "clear",
+                    "route4"
                 ]
             }
         },
@@ -2320,7 +2310,8 @@
             ],
             "signals": {
                 "9": [
-                    "associated_position_light"
+                    "associated_position_light",
+                    "route3"
                 ]
             }
         },
@@ -2555,7 +2546,7 @@
             "signals": {
                 "1": [
                     "clear",
-                    "route5"
+                    "route4"
                 ]
             }
         },
@@ -2572,7 +2563,7 @@
             "signals": {
                 "1": [
                     "clear",
-                    "route4"
+                    "route3"
                 ]
             }
         },
@@ -2650,12 +2641,12 @@
             }
         },
         "J Route": {
-            "ref": "J Route",
             "description": "J Route",
+            "points": {},
+            "ref": "J Route",
             "sections": [
                 "J"
             ],
-            "points": {},
             "signals": {
                 "112": [
                     "clear"
@@ -2856,17 +2847,18 @@
             }
         },
         "V": {
-            "description": "V Picnic Loop",
-            "points": {
-                "250": "reverse"
-            },
             "ref": "V",
+            "description": "V Picnic Loop",
             "sections": [
                 "V"
             ],
+            "points": {
+                "250": "reverse"
+            },
             "signals": {
                 "103": [
-                    "caution"
+                    "caution",
+                    "route4"
                 ]
             }
         }
@@ -3119,48 +3111,48 @@
             "triggered": false
         },
         "AB": {
-            "ref": "AB",
-            "description": "AB Route",
-            "priority": 0,
-            "retain_request": 0,
+            "axlecount": {},
             "conditions": [
                 "True"
             ],
+            "description": "AB Route",
             "plungers": [],
+            "priority": 0,
+            "ref": "AB",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "A Route"
+            ],
+            "sections_clear": [],
             "sections_occupied": [
                 "F",
                 "G"
             ],
-            "sections_clear": [],
-            "routes_to_set": [
-                "A Route"
-            ],
-            "routes_to_cancel": [],
-            "trigger_special_actions": [],
             "stored_requests_to_cancel": [],
-            "axlecount": {}
+            "trigger_special_actions": []
         },
         "C Route": {
-            "ref": "C Route",
-            "description": "C Route Trigger",
-            "priority": 0,
-            "retain_request": 0,
+            "axlecount": {},
             "conditions": [
                 "True"
             ],
+            "description": "C Route Trigger",
             "plungers": [],
+            "priority": 0,
+            "ref": "C Route",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "C Route"
+            ],
+            "sections_clear": [],
             "sections_occupied": [
                 "A",
                 "G"
             ],
-            "sections_clear": [],
-            "routes_to_set": [
-                "C Route"
-            ],
-            "routes_to_cancel": [],
-            "trigger_special_actions": [],
             "stored_requests_to_cancel": [],
-            "axlecount": {}
+            "trigger_special_actions": []
         },
         "Cancel_P2_shunt": {
             "axlecount": {
@@ -3295,25 +3287,200 @@
             "triggered": false
         },
         "D Route Trigger": {
-            "ref": "D Route Trigger",
-            "description": "D Route Trigger",
-            "priority": 0,
-            "retain_request": 0,
+            "axlecount": {},
             "conditions": [
                 "True"
             ],
+            "description": "D Route Trigger",
             "plungers": [],
-            "sections_occupied": [
-                "B"
-            ],
-            "sections_clear": [],
+            "priority": 0,
+            "ref": "D Route Trigger",
+            "retain_request": 0,
+            "routes_to_cancel": [],
             "routes_to_set": [
                 "D Route"
             ],
-            "routes_to_cancel": [],
-            "trigger_special_actions": [],
+            "sections_clear": [],
+            "sections_occupied": [
+                "B"
+            ],
             "stored_requests_to_cancel": [],
-            "axlecount": {}
+            "trigger_special_actions": []
+        },
+        "E": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "E Route",
+            "plungers": [],
+            "priority": 5,
+            "ref": "E",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "E Route"
+            ],
+            "sections_clear": [],
+            "sections_occupied": [
+                "D",
+                "S",
+                "T"
+            ],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
+        },
+        "F": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "F Route",
+            "plungers": [],
+            "priority": 5,
+            "ref": "F",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "F Route"
+            ],
+            "sections_clear": [],
+            "sections_occupied": [
+                "T"
+            ],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
+        },
+        "G": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "G Route",
+            "plungers": [],
+            "priority": 5,
+            "ref": "G",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "G Route"
+            ],
+            "sections_clear": [],
+            "sections_occupied": [
+                "E"
+            ],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
+        },
+        "J": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "J Route",
+            "plungers": [],
+            "priority": 5,
+            "ref": "J",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "J Route"
+            ],
+            "sections_clear": [],
+            "sections_occupied": [
+                "H"
+            ],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
+        },
+        "K": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "K Route",
+            "plungers": [],
+            "priority": 5,
+            "ref": "K",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "UK Route"
+            ],
+            "sections_clear": [],
+            "sections_occupied": [
+                "H",
+                "J"
+            ],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
+        },
+        "L": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "L Route",
+            "plungers": [],
+            "priority": 5,
+            "ref": "L",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "L Route"
+            ],
+            "sections_clear": [],
+            "sections_occupied": [
+                "J",
+                "K",
+                "U"
+            ],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
+        },
+        "M6": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "M From 6 Triggers",
+            "plungers": [],
+            "priority": 5,
+            "ref": "M6",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "6-M"
+            ],
+            "sections_clear": [],
+            "sections_occupied": [
+                "K",
+                "L"
+            ],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
+        },
+        "NP": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "NP Trigger from 6",
+            "plungers": [],
+            "priority": 5,
+            "ref": "NP",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "N Route",
+                "P Route"
+            ],
+            "sections_clear": [],
+            "sections_occupied": [
+                "L"
+            ],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
         },
         "P10cleartrig": {
             "axlecount": {},
@@ -3865,6 +4032,27 @@
             "trigger_special_actions": [],
             "triggered": false
         },
+        "S&T": {
+            "axlecount": {},
+            "conditions": [
+                "True"
+            ],
+            "description": "S&T Route",
+            "plungers": [],
+            "priority": 0,
+            "ref": "S&T",
+            "retain_request": 0,
+            "routes_to_cancel": [],
+            "routes_to_set": [
+                "S&T"
+            ],
+            "sections_clear": [],
+            "sections_occupied": [
+                "B"
+            ],
+            "stored_requests_to_cancel": [],
+            "trigger_special_actions": []
+        },
         "ShuntP2": {
             "axlecount": {},
             "conditions": [
@@ -4024,202 +4212,6 @@
             "sections_occupied": [],
             "stored_requests_to_cancel": [],
             "trigger_special_actions": []
-        },
-        "S&T": {
-            "ref": "S&T",
-            "description": "S&T Route",
-            "priority": 0,
-            "retain_request": 0,
-            "conditions": [
-                "True"
-            ],
-            "plungers": [],
-            "sections_occupied": [
-                "B"
-            ],
-            "sections_clear": [],
-            "routes_to_set": [
-                "S&T"
-            ],
-            "routes_to_cancel": [],
-            "trigger_special_actions": [],
-            "stored_requests_to_cancel": [],
-            "axlecount": {}
-        },
-        "E": {
-            "ref": "E",
-            "description": "E Route",
-            "priority": 5,
-            "retain_request": 0,
-            "conditions": [
-                "True"
-            ],
-            "plungers": [],
-            "sections_occupied": [
-                "D",
-                "S",
-                "T"
-            ],
-            "sections_clear": [],
-            "routes_to_set": [
-                "E Route"
-            ],
-            "routes_to_cancel": [],
-            "trigger_special_actions": [],
-            "stored_requests_to_cancel": [],
-            "axlecount": {}
-        },
-        "F": {
-            "ref": "F",
-            "description": "F Route",
-            "priority": 5,
-            "retain_request": 0,
-            "conditions": [
-                "True"
-            ],
-            "plungers": [],
-            "sections_occupied": [
-                "T"
-            ],
-            "sections_clear": [],
-            "routes_to_set": [
-                "F Route"
-            ],
-            "routes_to_cancel": [],
-            "trigger_special_actions": [],
-            "stored_requests_to_cancel": [],
-            "axlecount": {}
-        },
-        "G": {
-            "ref": "G",
-            "description": "G Route",
-            "priority": 5,
-            "retain_request": 0,
-            "conditions": [
-                "True"
-            ],
-            "plungers": [],
-            "sections_occupied": [
-                "E"
-            ],
-            "sections_clear": [],
-            "routes_to_set": [
-                "G Route"
-            ],
-            "routes_to_cancel": [],
-            "trigger_special_actions": [],
-            "stored_requests_to_cancel": [],
-            "axlecount": {}
-        },
-        "J": {
-            "ref": "J",
-            "description": "J Route",
-            "priority": 5,
-            "retain_request": 0,
-            "conditions": [
-                "True"
-            ],
-            "plungers": [],
-            "sections_occupied": [
-                "H"
-            ],
-            "sections_clear": [],
-            "routes_to_set": [
-                "J Route"
-            ],
-            "routes_to_cancel": [],
-            "trigger_special_actions": [],
-            "stored_requests_to_cancel": [],
-            "axlecount": {}
-        },
-        "K": {
-            "ref": "K",
-            "description": "K Route",
-            "priority": 5,
-            "retain_request": 0,
-            "conditions": [
-                "True"
-            ],
-            "plungers": [],
-            "sections_occupied": [
-                "H",
-                "J"
-            ],
-            "sections_clear": [],
-            "routes_to_set": [
-                "UK Route"
-            ],
-            "routes_to_cancel": [],
-            "trigger_special_actions": [],
-            "stored_requests_to_cancel": [],
-            "axlecount": {}
-        },
-        "L": {
-            "ref": "L",
-            "description": "L Route",
-            "priority": 5,
-            "retain_request": 0,
-            "conditions": [
-                "True"
-            ],
-            "plungers": [],
-            "sections_occupied": [
-                "J",
-                "K",
-                "U"
-            ],
-            "sections_clear": [],
-            "routes_to_set": [
-                "L Route"
-            ],
-            "routes_to_cancel": [],
-            "trigger_special_actions": [],
-            "stored_requests_to_cancel": [],
-            "axlecount": {}
-        },
-        "M6": {
-            "ref": "M6",
-            "description": "M From 6 Triggers",
-            "priority": 5,
-            "retain_request": 0,
-            "conditions": [
-                "True"
-            ],
-            "plungers": [],
-            "sections_occupied": [
-                "K",
-                "L"
-            ],
-            "sections_clear": [],
-            "routes_to_set": [
-                "6-M"
-            ],
-            "routes_to_cancel": [],
-            "trigger_special_actions": [],
-            "stored_requests_to_cancel": [],
-            "axlecount": {}
-        },
-        "NP": {
-            "ref": "NP",
-            "description": "NP Trigger from 6",
-            "priority": 5,
-            "retain_request": 0,
-            "conditions": [
-                "True"
-            ],
-            "plungers": [],
-            "sections_occupied": [
-                "L"
-            ],
-            "sections_clear": [],
-            "routes_to_set": [
-                "N Route",
-                "P Route"
-            ],
-            "routes_to_cancel": [],
-            "trigger_special_actions": [],
-            "stored_requests_to_cancel": [],
-            "axlecount": {}
         }
     }
 }

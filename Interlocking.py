@@ -72,25 +72,30 @@ def loadlayoutjson(logger, mqtt_client):
         # create modbus slave object for each Axlecounter instance:
         AxleCounter.instances[x].slave = minimalmodbus.Instrument(
             config["network_ports"][AxleCounter.instances[x].network], AxleCounter.instances[x].address)
+        AxleCounter.instances[x].slave.baudrate = config["baudrate"]
     for x in jsonTCdict.keys():
         TrackCircuit.instances[x] = jsons.load(jsonTCdict[x], TrackCircuit)
         # create modbus slave object for each TrackCircuit instance:
         TrackCircuit.instances[x].slave = minimalmodbus.Instrument(
             config["network_ports"][TrackCircuit.instances[x].network], TrackCircuit.instances[x].address)
+        TrackCircuit.instances[x].slave.baudrate = config["baudrate"]
     for x in jsonsignaldict.keys():
         Signal.instances[x] = jsons.load(jsonsignaldict[x], Signal)
         Signal.instances[x].slave = minimalmodbus.Instrument(
             config["network_ports"][Signal.instances[x].network], Signal.instances[x].address)
+        Signal.instances[x].slave.baudrate = config["baudrate"]
         Signal.instances[x].aspect = {"danger"}  # convert aspect from dictionary to set following deserialisation.
     for x in jsonplungerdict.keys():
         Plunger.instances[x] = jsons.load(jsonplungerdict[x], Plunger)
         Plunger.instances[x].slave = minimalmodbus.Instrument(
             config["network_ports"][Plunger.instances[x].network], Plunger.instances[x].address)
+        Plunger.instances[x].slave.baudrate = config["baudrate"]
     for x in jsonpointdict.keys():
         Point.instances[x] = jsons.load(jsonpointdict[x], Point)
         # create modbus slave object for each Point instance:
         Point.instances[x].slave = minimalmodbus.Instrument(
             config["network_ports"][Point.instances[x].network], Point.instances[x].address)
+        Point.instances[x].slave.baudrate = config["baudrate"]
     for x in jsonroutesdict.keys():
         Route.instances[x] = jsons.load(jsonroutesdict[x], Route)
     for x in json_trigger_dict.keys():
