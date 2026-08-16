@@ -98,6 +98,43 @@
           </div>
         </div>
       </div>
+
+      <!-- TRACK DIAGRAM (SVG) -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header"><h5 class="mb-0">Track Diagram (SVG)</h5></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Diagram in use</label>
+            <div class="input-group">
+              <select id="svgFiles" class="form-select"></select>
+              <button class="btn btn-info" type="button" onclick="setCurrentSvg()">
+                <i class="fa fa-check"></i> Use this
+              </button>
+              <button class="btn btn-outline-secondary" type="button" onclick="previewSvg()">
+                <i class="fa fa-eye"></i> Preview &amp; check
+              </button>
+            </div>
+            <div class="form-text">
+              Served from <code>static/images/</code> and recorded as <code>layoutSVG</code> in
+              <code>config.json</code>. The Track Diagram and SVG pages fetch it from <code>/api/svg</code>.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Upload SVG (Local File)</label>
+            <input type="file" id="svgUploadInput" class="form-control" accept=".svg,image/svg+xml" onchange="uploadSvg()">
+            <div class="form-text">
+              The uploaded file becomes the diagram in use. Spaces in the filename become
+              underscores, and any existing file of the same name is kept as <code>.bak</code>.
+            </div>
+          </div>
+
+          <div id="svgStatus" class="small-muted mb-2"></div>
+          <div id="svgAudit" class="alert py-2 px-3 mb-2 d-none"></div>
+          <div id="svgPreview" class="border rounded p-2 d-none"
+               style="max-height:420px; overflow:auto; background:#fff"></div>
+        </div>
+      </div>
     </div>
 
     <!-- CONFIG TAB -->
@@ -125,6 +162,11 @@
                 </select>
               </div>
               <div class="form-text">Stored in <code>config.json</code>. The link button copies the currently loaded file.</div>
+            </div>
+            <div class="col-md-5">
+              <label class="form-label">layoutSVG (track diagram)</label>
+              <select id="cfg_layoutSVG_select" class="form-select"></select>
+              <div class="form-text">Upload new diagrams from the <strong>File</strong> tab.</div>
             </div>
             <div class="col-md-2">
               <label class="form-label">axle_tolerance</label>
@@ -456,9 +498,21 @@
               <button type="button" class="btn btn-outline-secondary btn-sm" data-add-homesignal>
                 <i class="fa fa-plus"></i> Add home signal
               </button>
-              <button type="button" class="btn btn-outline-secondary btn-sm ms-1" data-fill-route-indicators>
-                <i class="fa fa-wand-magic-sparkles"></i> Fill route indicators from existing routes
-              </button>
+
+              <div class="form-check mt-3">
+                <input class="form-check-input" type="checkbox" id="sectionsAutoRoutes">
+                <label class="form-check-label" for="sectionsAutoRoutes">
+                  <i class="fa fa-wand-magic-sparkles"></i>
+                  Build routes into this section from these home signals
+                </label>
+              </div>
+              <div class="form-text">
+                On Save, one route per home signal is proposed, with its points, signal
+                aspect and sections filled in from the blocks above. Sections entered from
+                the same signal on the same points are amalgamated into a single route.
+                You can edit each one and choose which to keep — nothing is written until
+                you confirm.
+              </div>
 
               {% endif %}
 
@@ -609,6 +663,36 @@
     </div>
     {% endfor %}
   </div>
+
+  <!-- Route builder review (opened after saving a Section with route building ticked) -->
+  <div class="modal fade" id="autoRoutesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Routes into section <span id="autoRoutesSection"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-text mb-3">
+            One route per home signal of the section you just saved. Where other sections
+            are entered from the same signal on the same points, they are amalgamated into
+            a single route, since there is no way to route into one without the others.
+            Route indicators are not listed as aspects: the interlocking adds them itself
+            from the section entry when the points are detected. Routes are held in the
+            editor until you save the layout to the server.
+          </div>
+          <div id="autoRoutesList"></div>
+        </div>
+        <div class="modal-footer">
+          <span id="autoRoutesCount" class="small-muted me-auto"></span>
+          <button type="button" class="btn btn-primary" id="autoRoutesApply">
+            <i class="fa fa-check"></i> Apply selected
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 {% block scripts %}
@@ -710,14 +794,165 @@ function loadConfig(){
         }
       } catch(e){ console.warn('layoutDB default handling failed', e); }
 
-      markConfigSaved();   // fields now match the server copy
+      // Fill the SVG selects first, otherwise the baseline is taken while
+      // #cfg_layoutSVG_select is still empty and the form reads as dirty.
+      return refreshSvgFiles(cfg.layoutSVG).then(() => markConfigSaved());
 })
     .catch(err => {
       console.warn('Config load failed:', err);
       configStore = {};
       renderNetworksTable(); // empty
       populateNetworkSelects();
-      markConfigSaved();
+      return refreshSvgFiles().then(() => markConfigSaved());
+    });
+}
+
+// ====== Track diagram (SVG) ======
+function svgSelects(){ return ['#svgFiles', '#cfg_layoutSVG_select']; }
+
+// Populates both SVG dropdowns from the server. Always resolves, so callers can
+// chain markConfigSaved() without worrying about the server being unreachable.
+function refreshSvgFiles(selected){
+  return fetch('/api/svg/list')
+    .then(r => r.ok ? r.json() : Promise.reject(new Error('could not list SVG files')))
+    .then(d => {
+      const files = d.files || [];
+      const want  = (selected || d.current || configStore.layoutSVG || '').trim();
+      svgSelects().forEach(sel => {
+        const $s = $(sel).empty();
+        if(!files.length){
+          $s.append($('<option>', { value:'', text:'(no .svg files in static/images)' }));
+          return;
+        }
+        files.forEach(f => $s.append($('<option>', { value:f, text:f })));
+        if(want && files.includes(want)) $s.val(want);
+      });
+      if(want && !files.includes(want)){
+        $('#svgStatus').text(`config.json names "${want}", which is not in static/images.`);
+      }
+      return d;
+    })
+    .catch(err => { $('#svgStatus').text('SVG list failed: ' + (err.message || err)); });
+}
+
+// The server updates config.json itself on upload, so mirror that locally rather
+// than re-reading config (which would discard any edits open on the Config tab).
+function adoptCurrentSvg(name){
+  const wasClean = !configDirty();
+  configStore.layoutSVG = name;
+  svgSelects().forEach(sel => $(sel).val(name));
+  if(wasClean) markConfigSaved();
+  updateDirtyUI();
+}
+
+function uploadSvg(){
+  const input = $('#svgUploadInput')[0];
+  const file  = input.files[0];
+  if(!file) return;
+  if(!/\.svg$/i.test(file.name)){
+    alert('Please choose a .svg file.');
+    input.value = '';
+    return;
+  }
+  $('#svgStatus').text(`Uploading "${file.name}"…`);
+  const fd = new FormData(); fd.append('file', file);
+  fetch('/api/svg/upload', { method:'POST', body: fd })
+    .then(r => r.json()
+      .catch(() => Promise.reject(new Error(`server returned ${r.status}`)))
+      .then(j => r.ok ? j : Promise.reject(new Error(j.error || `server returned ${r.status}`))))
+    .then(d => {
+      $('#svgStatus').text(
+        `Uploaded "${d.filename}" (${(d.bytes/1024).toFixed(1)} kB)`
+        + (d.replaced ? ', previous version kept as .bak' : '')
+        + '. Now the diagram in use.');
+      return refreshSvgFiles(d.filename).then(() => {
+        adoptCurrentSvg(d.filename);
+        previewSvg();   // immediate feedback that it renders and matches the layout
+      });
+    })
+    .catch(err => { $('#svgStatus').text(''); alert('SVG upload failed: ' + (err.message || err)); })
+    .finally(() => { input.value = ''; });
+}
+
+function setCurrentSvg(){
+  const f = ($('#svgFiles').val() || '').trim();
+  if(!f){ alert('No SVG file selected.'); return; }
+  $('#cfg_layoutSVG_select').val(f);
+  saveConfig();   // writes the whole of config.json, including anything open on the Config tab
+}
+
+function cssEscape(s){
+  return (window.CSS && CSS.escape) ? CSS.escape(s) : String(s).replace(/["\\]/g, '\\$&');
+}
+
+// Cross-checks the diagram against the loaded layout, using the same cell-id
+// conventions the SVG page relies on to find and colour elements.
+function auditSvgAgainstLayout(doc){
+  const missing = { Signals: [], Sections: [], Points: [] };
+  const gone = sel => !doc.querySelector(sel);
+  Object.keys(dataStore['Signals']  || {}).forEach(ref => {
+    if(gone(`[data-cell-id="${cssEscape(ref)}"]`)) missing.Signals.push(ref);
+  });
+  Object.keys(dataStore['Sections'] || {}).forEach(ref => {
+    if(gone(`[data-cell-id="${cssEscape('Section-' + ref)}"]`)) missing.Sections.push(ref);
+  });
+  Object.keys(dataStore['Points']   || {}).forEach(ref => {
+    if(gone(`[data-cell-id="${cssEscape('Points-' + ref + '-normal')}"]`)
+    || gone(`[data-cell-id="${cssEscape('Points-' + ref + '-reverse')}"]`)) missing.Points.push(ref);
+  });
+  return missing;
+}
+
+function showSvgAudit(doc){
+  const $a = $('#svgAudit').removeClass('d-none alert-success alert-warning');
+  const counts = {
+    Signals:  Object.keys(dataStore['Signals']  || {}).length,
+    Sections: Object.keys(dataStore['Sections'] || {}).length,
+    Points:   Object.keys(dataStore['Points']   || {}).length
+  };
+  if(!(counts.Signals + counts.Sections + counts.Points)){
+    $a.addClass('alert-warning').text('No layout loaded, so the diagram was not cross-checked.');
+    return;
+  }
+  const missing = auditSvgAgainstLayout(doc);
+  const problems = Object.entries(missing).filter(([, list]) => list.length);
+  if(!problems.length){
+    $a.addClass('alert-success').text(
+      `All ${counts.Signals} signals, ${counts.Sections} sections and ${counts.Points} points `
+      + 'in the layout have matching elements in this diagram.');
+    return;
+  }
+  const detail = problems
+    .map(([type, list]) => `${type}: ${list.slice(0, 12).join(', ')}${list.length > 12 ? ` (+${list.length - 12} more)` : ''}`)
+    .join(' · ');
+  $a.addClass('alert-warning').html(
+    '<strong>Not shown on this diagram</strong> (these will stay dark on the SVG page): '
+    + $('<div>').text(detail).html());
+}
+
+function previewSvg(){
+  const f = ($('#svgFiles').val() || '').trim();
+  if(!f){ alert('No SVG file selected.'); return; }
+  const $p = $('#svgPreview').removeClass('d-none').text('Loading…');
+  fetch(`/api/svg?filename=${encodeURIComponent(f)}&t=${Date.now()}`)
+    .then(r => r.ok ? r.text() : Promise.reject(new Error('file not found on server')))
+    .then(txt => {
+      const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
+      const root = doc.documentElement;
+      if(!root || root.nodeName.toLowerCase() !== 'svg' || doc.querySelector('parsererror')){
+        throw new Error('file did not parse as SVG');
+      }
+      const node = document.importNode(root, true);
+      node.removeAttribute('width');
+      node.removeAttribute('height');
+      node.style.maxWidth = '100%';
+      node.style.height   = 'auto';
+      $p.empty()[0].appendChild(node);
+      showSvgAudit(doc);
+    })
+    .catch(err => {
+      $p.text('Preview failed: ' + (err.message || err));
+      $('#svgAudit').addClass('d-none');
     });
 }
 function collectConfigPayload(){
@@ -730,6 +965,7 @@ function collectConfigPayload(){
   });
   return {
     layoutDB: ($('#cfg_layoutDB_select').val() || '').trim(),
+    layoutSVG: ($('#cfg_layoutSVG_select').val() || '').trim(),
     axle_tolerance: num($('#cfg_axle_tolerance').val(), 0),
     logging_level: num($('#cfg_logging_level').val(), 20),
     mqtt_broker_address: $('#cfg_mqtt_broker_address').val().trim(),
@@ -1514,56 +1750,293 @@ function gatherHomeSignals($form){
   return { homesignal, protecting_points, errors };
 }
 
-// Infer the route indicator for (section, home signal) from Routes already defined:
-// any route that covers this section and sets a routeN aspect on that signal.
-function suggestRouteIndicator(sectionRef, sigRef){
-  const found = [];
-  Object.values(dataStore["Routes"] || {}).forEach(r => {
-    if(!r || !Array.isArray(r.sections) || !r.sections.includes(sectionRef)) return;
-    const asp = (r.signals || {})[sigRef];
-    if(!Array.isArray(asp)) return;
-    asp.filter(a => /^route[1-6]$/.test(a)).forEach(a => { if(!found.includes(a)) found.push(a); });
-  });
-  return found;
+// ----- Sections: build Routes from the home signal blocks -----
+// A section defines how a train may be routed into it, so the routes that do the
+// routing can be generated from it rather than typed in twice.
+
+// The aspect a route should call at a home signal: the best running aspect the
+// signal can actually display, falling back to a calling-on for shunt signals.
+function defaultRouteAspectsFor(sigRef){
+  const allowed = allowedAspectsForSignal(sigRef);
+  const running = ['clear','caution','double_caution'].find(a => allowed.includes(a));
+  if (running) return [running];
+  const shunt = allowed.find(a => a === 'associated_position_light' || a === 'position_light');
+  return shunt ? [shunt] : [];
 }
 
-// Fill any blank route indicator in the builder from existing Routes.
-// Never overwrites a choice already made.
-function fillRouteIndicatorsFromRoutes($form){
-  const sectionRef = ($form.find('[name=ref]').val() || '').trim();
-  if(!sectionRef){
-    alert('Give this section a Ref first — the lookup matches it against each route\u2019s sections list.');
-    return;
+// Canonical form of a points configuration, for comparing section entries
+function hsPointsKey(points){
+  const p = points || {};
+  return Object.keys(p).sort().map(k => `${k}:${p[k]}`).join(',');
+}
+
+// Every section entered from this signal with this same points configuration.
+// A signal governs a run of consecutive sections, and where the points needed to
+// enter them are identical there is no way to route into one without the others,
+// so a single route should set the lot.
+function sectionsSharingEntry(sigRef, pointsKey){
+  return Object.entries(dataStore["Sections"] || {})
+    .filter(([, sec]) => {
+      if(!sec || !arrify(sec.homesignal).includes(sigRef)) return false;
+      const rec = hsToNestedRecord((sec.protecting_points || {})[sigRef] || {});
+      return hsPointsKey(rec.points) === pointsKey;
+    })
+    .map(([ref]) => ref)
+    .sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:'base'}));
+}
+
+// The route indicator each member section names for this signal
+function groupRouteIndicators(sigRef, sections){
+  const out = {};
+  sections.forEach(s => {
+    const rec = hsToNestedRecord(((dataStore["Sections"][s] || {}).protecting_points || {})[sigRef] || {});
+    if(rec.route) out[s] = rec.route;
+  });
+  return out;
+}
+
+function sameSet(a, b){
+  return a.length === b.length && a.every(x => b.includes(x));
+}
+
+// Routes that already run from this signal into any of these sections
+function existingRoutesFor(sections, sigRef){
+  return Object.entries(dataStore["Routes"] || {})
+    .filter(([, r]) => r && r.signals && Array.isArray(r.signals[sigRef])
+                        && Array.isArray(r.sections) && r.sections.some(s => sections.includes(s)))
+    .map(([ref]) => ref);
+}
+
+function uniqueRouteRef(base, taken){
+  if(!taken.has(base)) return base;
+  let n = 2;
+  while(taken.has(`${base}_${n}`)) n++;
+  return `${base}_${n}`;
+}
+
+// Build one proposal per home signal of the section just saved. Each covers every
+// section that shares that signal and points configuration, not just this one.
+function proposeRoutesForSection(entry){
+  const sectionRef = entry.ref;
+  const pp    = entry.protecting_points || {};
+  const taken = new Set(Object.keys(dataStore["Routes"] || {}));
+
+  return arrify(entry.homesignal).map(sigRef => {
+    const rec    = hsToNestedRecord(pp[sigRef] || {});
+    const points = Object.assign({}, rec.points || {});
+    const key    = hsPointsKey(points);
+    const notes  = [];
+
+    let sections = sectionsSharingEntry(sigRef, key);
+    // dataStore holds the section we just saved, but don't rely on it
+    if(!sections.includes(sectionRef)) sections = [sectionRef].concat(sections);
+
+    const aspects  = defaultRouteAspectsFor(sigRef);
+    const existing = existingRoutesFor(sections, sigRef);
+
+    let ref, description;
+    if(existing.length){
+      ref = existing[0];
+      const r = dataStore["Routes"][ref] || {};
+      description = r.description || '';
+      const identical = sameSet(arrify(r.sections), sections)
+                     && hsPointsKey(r.points) === key;
+      notes.push({ level: identical ? 'info' : 'warn', text:
+        `Route "${ref}" already runs from ${sigRef} into ${arrify(r.sections).join(', ')}`
+        + (existing.length > 1 ? ` (as do ${existing.slice(1).join(', ')})` : '')
+        + (identical
+            ? ' and already matches this entry, so there is nothing to change.'
+            : '. Applying will overwrite its sections, points and aspects, so it is off by default.') });
+    } else {
+      ref = uniqueRouteRef(`${sigRef}_${sections.join('-')}`, taken);
+      taken.add(ref);
+      description = `From ${sigRef} into ${sections.join(', ')}`;
+      if(ref !== `${sigRef}_${sections.join('-')}`){
+        notes.push({ level:'info', text:
+          `"${sigRef}_${sections.join('-')}" is taken by an unrelated route, so this one is "${ref}".` });
+      }
+    }
+
+    if(sections.length > 1){
+      notes.push({ level:'info', text:
+        `${sections.join(', ')} are all entered from ${sigRef} on the same points, so one `
+        + 'route sets them together.' });
+    }
+    if(!aspects.length){
+      notes.push({ level:'error', text:
+        `${sigRef} has no proceed aspect defined, so a route cannot clear it. `
+        + 'Give the signal a clear, caution or calling-on aspect first.' });
+    }
+
+    // Route indicators are per section entry; the interlocking picks the one for
+    // whichever section the points are set into, so disagreement inside a group
+    // that shares points means one of them will never be reached.
+    const indicators = groupRouteIndicators(sigRef, sections);
+    const distinct   = [...new Set(Object.values(indicators))];
+    if(distinct.length === 1){
+      notes.push({ level:'info', text:
+        `${distinct[0]} is added at ${sigRef} by the interlocking when these points are `
+        + 'detected, so it is not listed as a route aspect.' });
+    } else if(distinct.length > 1){
+      notes.push({ level:'warn', text:
+        'These sections share an entry but name different route indicators ('
+        + Object.entries(indicators).map(([s,r]) => `${s}: ${r}`).join(', ')
+        + `). Only the first match is displayed, so check the entries on the Sections tab.` });
+    }
+
+    if(!Object.keys(points).length){
+      notes.push({ level:'info', text:
+        'No protecting points on this approach, so the route sets no points.' });
+    }
+    const foreign = Object.keys(points).filter(p => {
+      const sec = (dataStore["Points"][p] || {}).section;
+      return sec && !sections.includes(sec);
+    });
+    if(foreign.length){
+      const where = foreign.map(p => `${p} (in ${dataStore["Points"][p].section})`).join(', ');
+      notes.push({ level:'warn', text:
+        `${where} — the route moves points in a section it does not cover, so nothing stops `
+        + 'another route moving them back. Either add that section below, or give it the same '
+        + 'entry from ' + sigRef + ' so it joins this route.' });
+    }
+
+    return {
+      sigRef, sectionRef, ref, description, aspects, points, sections,
+      isUpdate: existing.length > 0,
+      blocked: aspects.length === 0,
+      notes
+    };
+  });
+}
+
+const NOTE_CLASS = { error:'text-danger', warn:'text-warning-emphasis', info:'small-muted' };
+
+function autoRouteCard(p, idx){
+  const pointsText = Object.keys(p.points).length
+    ? Object.entries(p.points).map(([pt,d]) => `${pt} ${d}`).join(', ')
+    : '—';
+  const sectionOpts = Object.keys(dataStore["Sections"] || {})
+    .map(s => `<option value="${s}"${p.sections.includes(s) ? ' selected' : ''}>${s}</option>`).join('');
+  const aspectOpts = allowedAspectsForSignal(p.sigRef)
+    .map(a => `<option value="${a}"${p.aspects.includes(a) ? ' selected' : ''}>${routeAspectLabel(a)}</option>`).join('');
+  const notes = p.notes.map(n =>
+    `<div class="small ${NOTE_CLASS[n.level] || ''}">${$('<div>').text(n.text).html()}</div>`).join('');
+
+  return $(`
+    <div class="card mb-2 ar-item" data-idx="${idx}">
+      <div class="card-body py-2 px-3">
+        <div class="form-check mb-2">
+          <input class="form-check-input ar-include" type="checkbox" id="ar_inc_${idx}"
+                 ${(!p.blocked && !p.isUpdate) ? 'checked' : ''} ${p.blocked ? 'disabled' : ''}>
+          <label class="form-check-label" for="ar_inc_${idx}">
+            <strong>${p.sigRef}</strong> → <strong>${p.sections.join(' + ')}</strong>
+            ${p.isUpdate ? '<span class="badge text-bg-warning ms-1">updates existing route</span>' : ''}
+            ${p.blocked ? '<span class="badge text-bg-danger ms-1">cannot be built</span>' : ''}
+          </label>
+        </div>
+        <div class="row g-2">
+          <div class="col-md-3">
+            <label class="form-label mb-0 small text-muted">Route ref</label>
+            <input type="text" class="form-control form-control-sm ar-ref" value="${p.ref}">
+          </div>
+          <div class="col-md-5">
+            <label class="form-label mb-0 small text-muted">Description</label>
+            <input type="text" class="form-control form-control-sm ar-desc" value="${p.description}">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label mb-0 small text-muted">Aspects at ${p.sigRef}</label>
+            <select multiple size="3" class="form-select form-select-sm ar-aspects">${aspectOpts}</select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label mb-0 small text-muted">Sections covered</label>
+            <select multiple size="3" class="form-select form-select-sm ar-sections">${sectionOpts}</select>
+          </div>
+          <div class="col-md-8">
+            <label class="form-label mb-0 small text-muted">Points set by this route</label>
+            <div class="form-control form-control-sm bg-light">${pointsText}</div>
+            <div class="mt-1">${notes}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+let autoRouteProposals = [];
+
+function openAutoRoutesDialog(sectionRef, proposals){
+  autoRouteProposals = proposals;
+  $('#autoRoutesSection').text(sectionRef);
+  const $list = $('#autoRoutesList').empty();
+
+  if(!proposals.length){
+    $list.append('<div class="alert alert-info mb-0">This section has no home signals, '
+               + 'so there is nothing to route from. Add a home signal block and save again.</div>');
+    $('#autoRoutesApply').prop('disabled', true);
+    $('#autoRoutesCount').text('');
+  } else {
+    proposals.forEach((p, i) => $list.append(autoRouteCard(p, i)));
+    $('#autoRoutesApply').prop('disabled', false);
+    updateAutoRouteCount();
   }
+  bsModals.AutoRoutes.show();
+}
 
-  const set = [], already = [], ambiguous = [], notOnSignal = [], noRoute = [];
-  $form.find('.hs-block').each(function(){
-    const $b  = $(this);
-    const sig = $b.find('.hs-signal').val();
-    if(!sig) return;
+function updateAutoRouteCount(){
+  const n = $('#autoRoutesList .ar-include:checked').length;
+  $('#autoRoutesCount').text(`${n} of ${autoRouteProposals.length} selected`);
+}
 
-    const avail = hsRouteOptionsFor(sig);
-    if(avail.length === 0) return;                       // signal has no indicators at all
-    if(($b.find('.hs-route').val() || '')){ already.push(sig); return; }
+function applyAutoRoutes(){
+  const errors = [], pending = [], seen = {};
 
-    const cands = suggestRouteIndicator(sectionRef, sig);
-    if(cands.length === 0){ noRoute.push(sig); return; }
-    if(cands.length > 1){ ambiguous.push(`${sig}: ${cands.join(', ')}`); return; }
-    if(!avail.includes(cands[0])){ notOnSignal.push(`${sig}: ${cands[0]}`); return; }
+  // Validate the whole list first: a failure part way down must not leave some
+  // routes written and others not.
+  $('#autoRoutesList .ar-item').each(function(){
+    const $c = $(this);
+    if(!$c.find('.ar-include').is(':checked')) return;
+    const p        = autoRouteProposals[Number($c.data('idx'))];
+    const ref      = ($c.find('.ar-ref').val() || '').trim();
+    const aspects  = $c.find('.ar-aspects').val() || [];
+    const sections = $c.find('.ar-sections').val() || [];
 
-    $b.find('.hs-route').val(cands[0]);
-    set.push(`${sig} \u2192 ${cands[0]}`);
+    if(!ref){ errors.push(`${p.sigRef}: no route ref given.`); return; }
+    if(seen[ref]){ errors.push(`Route ref "${ref}" is used twice in this list.`); return; }
+    if(!aspects.length){ errors.push(`${ref}: select at least one aspect for ${p.sigRef}.`); return; }
+    if(!sections.length){ errors.push(`${ref}: select at least one section.`); return; }
+    seen[ref] = true;
+
+    pending.push({ p, ref, aspects, sections, description: ($c.find('.ar-desc').val() || '').trim() });
   });
 
+  if(errors.length){ alert(errors.join('\n')); return; }
+  if(!pending.length){ alert('Nothing selected, so no routes were changed.'); return; }
+
+  const created = [], updated = [];
+  pending.forEach(({ p, ref, aspects, sections, description }) => {
+    const existing = dataStore["Routes"][ref];
+    // Keep any fields an existing route carries that this dialog does not manage
+    dataStore["Routes"][ref] = Object.assign({}, existing || {}, {
+      ref,
+      description,
+      sections,
+      points: Object.assign({}, p.points),
+      signals: Object.assign({}, (existing || {}).signals || {},
+                             { [p.sigRef]: normaliseRouteAspects(p.sigRef, aspects) })
+    });
+    (existing ? updated : created).push(ref);
+  });
+
+  onLayoutChanged();
+  renderTable("Routes");
+  refreshRoutesSelects();
+  refreshSectionsDependentSelects();
+  bsModals.AutoRoutes.hide();
+
   const msg = [];
-  if(set.length)         msg.push(`Filled in:\n  ` + set.join('\n  '));
-  if(ambiguous.length)   msg.push(`More than one indicator found — choose these manually:\n  ` + ambiguous.join('\n  '));
-  if(notOnSignal.length) msg.push(`Found in a route but the signal cannot display it:\n  ` + notOnSignal.join('\n  '));
-  if(noRoute.length)     msg.push(`No route covering "${sectionRef}" sets an indicator on: ` + noRoute.join(', '));
-  if(already.length)     msg.push(`Left alone (already set): ` + already.join(', '));
-  alert(msg.length ? msg.join('\n\n')
-                   : `Nothing to fill in for "${sectionRef}".`);
-  updateDirtyUI();
+  if(created.length) msg.push(`Created: ${created.join(', ')}`);
+  if(updated.length) msg.push(`Updated: ${updated.join(', ')}`);
+  alert(msg.join('\n') + '\n\nCheck them on the Routes tab, then save the layout to the server.');
 }
 
 // Rebuild the whole builder from a saved Sections entry
@@ -1810,6 +2283,11 @@ $(function(){
 
   // NEW: reboot button
   $('#rebootBtn').on('click', rebootPi);
+
+  // Route builder review dialog (driven from the Sections form)
+  bsModals.AutoRoutes = new bootstrap.Modal($byId('autoRoutesModal'));
+  $('#autoRoutesApply').on('click', applyAutoRoutes);
+  $('#autoRoutesList').on('change', '.ar-include', updateAutoRouteCount);
 
   // Load supporting data
   buildPortsDatalist();
@@ -2131,6 +2609,13 @@ $(function(){
       refreshTrackCircuitSelects();
       refreshRoutesSelects(); 
       renderTable(type);
+
+      // Sections: offer the routes that go with what was just defined. Wait for the
+      // section modal to finish closing, or Bootstrap leaves a stacked backdrop.
+      if(type==="Sections" && $('#sectionsAutoRoutes').is(':checked')){
+        const proposals = proposeRoutesForSection(entry);
+        $(`#${lc}Modal`).one('hidden.bs.modal', () => openAutoRoutesDialog(entry.ref, proposals));
+      }
     });
 
     // Routes extra handlers
@@ -2158,7 +2643,6 @@ $(function(){
       const $form = $(`.${lc}Form`);
       $form.off('click.hs change.hs');
       $form.on('click.hs','[data-add-homesignal]', ()=> addHomeSignalBlock($form));
-      $form.on('click.hs','[data-fill-route-indicators]', ()=> fillRouteIndicatorsFromRoutes($form));
       $form.on('click.hs','.hs-add-point', function(){
         addProtectingPointRow($(this).closest('.hs-block'));
       });

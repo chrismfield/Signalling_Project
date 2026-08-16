@@ -73,21 +73,22 @@ def set_signal(signal, signals, sections, points, logger, aspect=None, nextsigna
 
     def check_route_indicator():
         #find the sections that will be set into by checking which section this is a homesignal for
-        correct_route = False
+        route_indicator = False
         for section in sections.values():
             if signal.ref in section.section_entry.keys():
                 #find which section the points are set for
-                if "points" in section.section_entry[signal.ref]:
+                if "points" in section.section_entry[signal.ref] and "route" in section.section_entry[signal.ref]:
                     for point, direction in section.section_entry[signal.ref]["points"].items():
                         if points[point].set_direction == direction:
-                            correct_route = section.section_entry[signal.ref]["route"]
+                            route_indicator = section.section_entry[signal.ref]["route"]
                             continue
                         else:
-                            correct_route = False
+                            route_indicator = False
                             break
-                    if correct_route:
+                    if route_indicator:
                         # return the route for that section from this signal
-                        return correct_route
+                        return route_indicator
+
 
 
     def set_aspect():
@@ -453,6 +454,7 @@ def cancel_route(route, sections, points, signals, triggers, logger, mqtt_client
     for signal_ref, aspects in route.signals.items():
         if signals[signal_ref].routeset == route.ref:
             set_signal(signals[signal_ref], signals, sections=sections, points=points, logger=logger, aspect="danger")
+            #TODO this sets caution only signals to danger - to fix
     for point_ref, direction in route.points.items():
         if points[point_ref].routeset == route.ref:
             points[point_ref].routeset = None
@@ -478,11 +480,40 @@ def set_plungers_clear(all_plungers_dict):
         plunger.status = 0
 
 
+# Interpretation of MQTT payloads
+_TRUE_PAYLOADS = {"true", "1", "on", "yes", "enable", "enabled"}
+_FALSE_PAYLOADS = {"false", "0", "off", "no", "disable", "disabled"}
+
+
+def payload_to_bool(payload, default=None):
+    """Interpret an MQTT payload as a boolean.
+
+    Returns default (None unless overridden) for anything unrecognised, so a
+    malformed payload leaves the setting alone rather than silently picking a
+    state for it.
+    """
+    val = str(payload).strip().lower()
+    if val in _TRUE_PAYLOADS:
+        return True
+    if val in _FALSE_PAYLOADS:
+        return False
+    return default
+
+
 def set_ARS(automatic_route_setting, status):
-    if status:
-        automatic_route_setting.global_active = True
+    """Enable or disable automatic route setting.
+
+    status may be a bool or an MQTT payload string. An unrecognised payload is
+    rejected and reported back rather than applied.
+    """
+    if isinstance(status, bool):
+        requested = status
     else:
-        automatic_route_setting.global_active = False
+        requested = payload_to_bool(status)
+    if requested is None:
+        return "Unrecognised ARS payload: " + repr(status)
+    automatic_route_setting.global_active = requested
+    return None
 
 
 def check_route_availability_for_mqtt(routes, points, sections):
@@ -555,7 +586,7 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
                        aspect=aspect,
                        send_commands=False)
     if command_l[1] == "route":
-        if eval(command_payload):
+        if payload_to_bool(command_payload):
             set_route(route=routes[command_l[2]],
                       sections=sections,
                       points=points,
@@ -563,7 +594,7 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
                       triggers=triggers,
                       logger=logger,
                       mqtt_client=mqtt_client)
-        if not eval(command_payload):
+        if not payload_to_bool(command_payload):
             cancel_route(route=routes[command_l[2]],
                          sections=sections,
                          points=points,
@@ -574,7 +605,7 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
     if command_l[1] == "plunger":
         plungers[command_l[2]].status = command_payload
     if command_l[1] == "trigger":
-        triggers[command_l[2]].triggered = eval(command_payload)
+        triggers[command_l[2]].triggered = payload_to_bool(command_payload)
     if command_l[1] == "section" and command_l[3] == "occstatus":
         sections[command_l[2]].occstatus = int(command_payload)
         logger.info(str(command_l[2]) + " set to " + str(command_payload))
@@ -603,8 +634,10 @@ def set_from_mqtt(command, signals, sections, plungers, points, routes, triggers
                         train.routes.append(command_payload)
             except ValueError:
                 pass
-    if command_l[1] == "automatic_route_settting":
+    if command_l[1] == "automatic_route_setting":
         set_ARS(automatic_route_setting, command_payload)
+        logger.info("Automatic route setting set to "
+                    + str(automatic_route_setting.global_active))
     return mqtt_error
 
 
@@ -654,7 +687,7 @@ def send_status_to_mqtt(axlecounters, trackcircuits, signals, sections, plungers
     #add in reporting parameters
     for trigger in triggers.values():
         mqtt_dict[("report/trigger/"+trigger.ref+"/stored_request")] = trigger.stored_request
-    mqtt_dict["report/automatic route setting"] = automatic_route_setting.global_active
+    mqtt_dict["report/automatic_route_setting"] = automatic_route_setting.global_active
     if mqtt_error:
         mqtt_dict["error/MQTT_Command"] = mqtt_error
 

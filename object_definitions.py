@@ -177,6 +177,7 @@ class Route:
         self.setting = False
         self.set = False
 
+
 class Trigger:
     """Trigger object containing static and dynamic variables"""
     instances = {}

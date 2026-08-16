@@ -1,7 +1,10 @@
 import os
 import json
+import shutil
 from json import JSONDecodeError
+from xml.etree import ElementTree
 from flask import Flask, render_template, request, jsonify, send_file, Blueprint, Response, stream_with_context, send_from_directory
+from werkzeug.utils import secure_filename
 import sys, os, glob
 import subprocess
 import time
@@ -15,16 +18,31 @@ except Exception:
 
 app = Flask(__name__)
 
+# Cap any upload (layout JSON or track diagram) at 32 MB.
+app.config["MAX_CONTENT_LENGTH"] = 32 * 1024 * 1024
+
 UPLOAD_FOLDER = os.path.abspath(".")
 DEFAULT_FILE  = "default.json"
 CONFIG_FILE   = "config.json"
 MAPPING_FILE  = "function_to_coil_mapping.json"
-SVG_FILE      = "static/images/WDSME Scheme_C.svg"
+SVG_FOLDER    = os.path.join(UPLOAD_FOLDER, "static", "images")
+DEFAULT_SVG   = "WDSME Scheme_C.svg"
+SVG_FILE      = "static/images/WDSME Scheme_C.svg"   # legacy constant, kept for compatibility
 
 def get_layout_file():
     """Get the layout file from config.json, fallback to DEFAULT_FILE."""
     cfg = load_json_file(os.path.join(UPLOAD_FOLDER, CONFIG_FILE)) or {}
     return cfg.get("layoutDB", DEFAULT_FILE)
+
+def get_svg_file():
+    """Get the current track diagram filename from config.json, fallback to DEFAULT_SVG.
+
+    Only ever a bare filename inside SVG_FOLDER - basename() stops a hand-edited
+    config.json from reaching outside that directory.
+    """
+    cfg = load_json_file(os.path.join(UPLOAD_FOLDER, CONFIG_FILE)) or {}
+    name = str(cfg.get("layoutSVG") or "").strip()
+    return os.path.basename(name) or DEFAULT_SVG
 
 def _stream_journal(unit: str, lines: int, priority: str | None, grep: str | None):
     """
@@ -170,6 +188,7 @@ def default_config():
     return {
         "axle_tolerance": 4,
         "layoutDB": DEFAULT_FILE,
+        "layoutSVG": DEFAULT_SVG,
         "network_ports": {"network_1": "", "network_2": ""},
         "logging_level": 20,
         "mqtt_broker_address": "127.0.0.1",
@@ -265,11 +284,85 @@ def layout_json():
 
     return send_from_directory(UPLOAD_FOLDER, layout_file)
 
-# return whichever json file is specified by layoutDB in config.json
+# Unchanged contract: returns the *path* of the current diagram as plain text,
+# but now reads layoutSVG from config.json instead of the hard-coded constant.
 @app.route("/layout-svg")
 def layout_svg():
-    svg = SVG_FILE
-    return svg
+    return "static/images/" + get_svg_file()
+
+# ---- Track diagram (SVG) API ----
+
+@app.get("/api/svg")
+def api_svg():
+    """Serve a track diagram. Defaults to the one named by layoutSVG in config.json.
+
+    ?filename=<name> serves a specific file (used by the editor's preview).
+    """
+    name = os.path.basename(request.args.get("filename") or get_svg_file())
+    path = os.path.join(SVG_FOLDER, name)
+    if not name.lower().endswith(".svg") or not os.path.exists(path):
+        return jsonify({"error": "SVG not found", "filename": name}), 404
+    resp = send_from_directory(SVG_FOLDER, name, mimetype="image/svg+xml")
+    # The diagram changes when someone uploads a new one, so don't let it stick.
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+@app.get("/api/svg/list")
+def api_svg_list():
+    """List the .svg files available in static/images and say which one is current."""
+    os.makedirs(SVG_FOLDER, exist_ok=True)
+    files = sorted(f for f in os.listdir(SVG_FOLDER) if f.lower().endswith(".svg"))
+    return jsonify({"files": files, "current": get_svg_file()})
+
+@app.post("/api/svg/upload")
+def api_svg_upload():
+    """Upload a track diagram into static/images.
+
+    Validates that the payload really is an SVG before it lands on disk, keeps a
+    .bak of anything it replaces, and (unless ?setCurrent=0) points config.json's
+    layoutSVG at the new file.
+    """
+    file = request.files.get("file")
+    if not file or not file.filename:
+        return jsonify({"error": "no file provided"}), 400
+
+    name = secure_filename(file.filename)   # spaces become underscores, no path separators
+    if not name.lower().endswith(".svg"):
+        return jsonify({"error": "file must have a .svg extension"}), 400
+
+    data = file.read()
+    if not data:
+        return jsonify({"error": "file is empty"}), 400
+    try:
+        root = ElementTree.fromstring(data)
+    except ElementTree.ParseError as e:
+        return jsonify({"error": f"not valid XML: {e}"}), 400
+    # ElementTree reports namespaced tags as "{http://www.w3.org/2000/svg}svg"
+    if not root.tag.rsplit("}", 1)[-1].lower() == "svg":
+        return jsonify({"error": "root element is not <svg>"}), 400
+
+    os.makedirs(SVG_FOLDER, exist_ok=True)
+    dest = os.path.join(SVG_FOLDER, name)
+    replaced = os.path.exists(dest)
+    if replaced:
+        shutil.copy2(dest, dest + ".bak")
+    with open(dest, "wb") as f:
+        f.write(data)
+
+    set_current = request.args.get("setCurrent", "1").lower() not in ("0", "false", "no")
+    if set_current:
+        cfg_path = os.path.join(UPLOAD_FOLDER, CONFIG_FILE)
+        cfg = load_json_file(cfg_path) or default_config()
+        cfg["layoutSVG"] = name
+        save_json_file(cfg_path, cfg)
+
+    return jsonify({
+        "status": "uploaded",
+        "filename": name,
+        "bytes": len(data),
+        "replaced": replaced,
+        "current": set_current,
+    })
 
 # Route to serve the JSON file
 @app.route("/routes-data")
@@ -295,11 +388,15 @@ def load_json():
 @app.route("/api/upload", methods=["POST"])
 def upload():
     file = request.files.get("file")
-    if not file:
+    if not file or not file.filename:
         return jsonify({"error":"no file provided"}), 400
-    dest = os.path.join(UPLOAD_FOLDER, file.filename)
+    # file.filename is client-supplied: "../../etc/foo.json" would otherwise escape UPLOAD_FOLDER
+    name = secure_filename(file.filename)
+    if not name.lower().endswith(".json"):
+        return jsonify({"error":"file must have a .json extension"}), 400
+    dest = os.path.join(UPLOAD_FOLDER, name)
     file.save(dest)
-    return jsonify({"status":"uploaded","filename":file.filename})
+    return jsonify({"status":"uploaded","filename":name})
 
 @app.route("/api/download", methods=["GET"])
 def download():

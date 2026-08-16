@@ -65,6 +65,11 @@
       border-top: 1px solid #ccc;
       margin: 4px 0;
     }
+    #context-menu .menu-note {
+      padding: 5px 10px;
+      color: #888;
+      font-style: italic;
+    }
     @keyframes point-flash {
       0%, 100% { opacity: 1; }
       50%       { opacity: 0.15; }
@@ -80,10 +85,43 @@
     .route-active polyline {
       stroke-width: 4 !important;
     }
+    /* ARS control, floating over the diagram */
+    #ars-panel {
+      position: fixed;
+      top: 68px;
+      right: 16px;
+      z-index: 8000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid #333;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: 15px;
+      user-select: none;
+    }
+    #ars-panel label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    #ars-panel input[disabled] + span { color: #888; }
+    #ars-panel input { width: 18px; height: 18px; cursor: pointer; }
+    #arsState { font-weight: 600; }
+    #arsState.on      { color: #0a7d28; }
+    #arsState.off     { color: #444;    }
+    #arsState.pending { color: #b06a00; }
+    #arsState.unknown { color: #888;    }
   </style>
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 <body>
+
+<div id="ars-panel">
+  <label for="arsToggle" title="Automatic Route Setting">
+    <input type="checkbox" id="arsToggle" disabled>
+    <span>ARS</span>
+  </label>
+  <span id="arsState" class="unknown">connecting…</span>
+</div>
 
 <div id="svg-container">Loading SVG...</div>
 <div id="context-menu"></div>
@@ -134,8 +172,61 @@
   const mqttUrl = `${protocol}://${mqttHost}:${mqttPort}`;
   console.log('Connecting to MQTT:', mqttUrl);
 
+  // --- Automatic Route Setting ---
+  const ARS_SET_TOPIC = 'set/automatic_route_setting';
+  const ARS_REPORT_TOPICS = ['report/automatic_route_setting'];
+
+  const arsToggle = document.getElementById('arsToggle');
+  const arsStateEl = document.getElementById('arsState');
+  let arsActual = null;      // last state reported by the interlocking
+  let arsRequested = null;   // what we asked for, until the interlocking confirms
+  let arsTimer = null;
+
+  function renderArs(){
+    const pending = arsRequested !== null && arsRequested !== arsActual;
+    let text, cls;
+    if (pending)                  { text = arsRequested ? 'enabling…' : 'disabling…'; cls = 'pending'; }
+    else if (arsActual === true)  { text = 'ON';       cls = 'on'; }
+    else if (arsActual === false) { text = 'OFF';      cls = 'off'; }
+    else                          { text = 'unknown';  cls = 'unknown'; }
+    arsStateEl.textContent = text;
+    arsStateEl.className = cls;
+    // Show the requested position while pending so the checkbox doesn't snap back
+    arsToggle.checked = pending ? arsRequested : (arsActual === true);
+  }
+
+  function onArsReport(payload){
+    const val = String(payload).trim().toLowerCase();
+    arsActual = (val === 'true' || val === '1' || val === 'on');
+    if (arsRequested !== null && arsRequested === arsActual){
+      arsRequested = null;
+      if (arsTimer) { clearTimeout(arsTimer); arsTimer = null; }
+    }
+    renderArs();
+  }
+
+  arsToggle.addEventListener('change', () => {
+    if (!client || !client.connected){ renderArs(); return; }
+    const want = arsToggle.checked;
+    arsRequested = want;
+    client.publish(ARS_SET_TOPIC, want ? 'True' : 'False');
+    renderArs();
+    if (arsTimer) clearTimeout(arsTimer);
+    // The interlocking only republishes on change, so warn rather than assume success
+    arsTimer = setTimeout(() => {
+      if (arsRequested !== null){
+        console.warn('No ARS confirmation from the interlocking after 5 s');
+        arsStateEl.textContent = 'not confirmed';
+        arsStateEl.className = 'pending';
+      }
+    }, 5000);
+  });
+
   Promise.all([
-    fetch("static/images/WDSME Scheme_C.svg").then(res => res.text()),
+    fetch('/api/svg').then(res => {
+      if (!res.ok) throw new Error('track diagram not found on server');
+      return res.text();
+    }),
     fetch('/layout-json').then(res => res.json())
   ])
   .then(([svgText, data]) => {
@@ -173,6 +264,17 @@
       Object.keys(jsonData.Routes).forEach(ref => {
         client.subscribe(`report/route/${ref}/available`);
       });
+      ARS_REPORT_TOPICS.forEach(t => client.subscribe(t));
+      arsToggle.disabled = false;
+      // Reports are only published on change, so the state stays unknown until
+      // either something changes or the interlocking publishes them retained.
+      if (arsActual === null) { arsStateEl.textContent = 'unknown'; arsStateEl.className = 'unknown'; }
+    });
+
+    client.on('close', () => {
+      arsToggle.disabled = true;
+      arsStateEl.textContent = 'offline';
+      arsStateEl.className = 'unknown';
     });
 
     // --- Signal aspect display ---
@@ -291,7 +393,10 @@
       const parts = topic.split('/');
         const payload = typeof message === 'string' ? message : new TextDecoder().decode(message);
 
-      if (parts[0] === 'report' && parts[1] === 'signal' && parts[3] === 'aspect') {
+      if (ARS_REPORT_TOPICS.includes(topic)) {
+        onArsReport(payload);
+      }
+      else if (parts[0] === 'report' && parts[1] === 'signal' && parts[3] === 'aspect') {
         const tokens = payload.split(',').map(t => t.trim()).filter(Boolean);
         tokens.forEach(aspect => setAspect(parts[2], aspect));
         updateRouteIndicators(parts[2], tokens);
@@ -376,12 +481,13 @@
   });
 
   function showContextMenu(e, ref, element) {
+    // Only danger is offered as a direct aspect command. set_from_mqtt() checks a
+    // signal against section occupancy, blocking and point detection, but it cannot
+    // see conflicting routes, so clearing a signal by hand bypasses checks that
+    // set_route() makes. Proceed aspects therefore come from setting a route.
+    // Replacing to danger needs no such checks and stays available at all times.
     let html = `
       <button data-aspect="danger">Danger</button>
-      <button data-aspect="caution">Caution</button>
-      <button data-aspect="clear">Clear</button>
-      <button data-aspect="associated_position_light">Calling-on</button>
-      <button data-aspect="position_light">Shunt</button>
     `;
 
     const routes = signalRoutes[ref] || [];
@@ -393,6 +499,10 @@
         html += `<button data-route="${routeRef}" data-action="set" ${avail ? '' : 'disabled'}>Set: ${desc}</button>`;
       });
       html += `<button data-action="cancel-all">Cancel routes from this signal</button>`;
+    } else {
+      // Without a route there is now no way to clear this signal from here, so say
+      // so rather than leaving an operator wondering where the options went.
+      html += '<hr><div class="menu-note">No routes defined from this signal</div>';
     }
 
     contextMenu.innerHTML = html;

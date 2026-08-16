@@ -489,7 +489,7 @@
             "directionindicator": 0,
             "doublecautionreg": null,
             "network": "network_1",
-            "nextsignal": "109R",
+            "nextsignal": "109",
             "ref": "1",
             "route1reg": null,
             "route2reg": null,
@@ -1862,17 +1862,14 @@
             "ref": "AV"
         },
         "B": {
-            "ref": "B",
-            "description": "B",
-            "mode": "trackcircuit",
-            "trackcircuits": [
-                "B"
-            ],
-            "inctrig": {},
+            "conflictingsections": [],
             "dectrig": {},
+            "description": "B",
             "homesignal": [
                 "1"
             ],
+            "inctrig": {},
+            "mode": "trackcircuit",
             "protecting_points": {
                 "1": {
                     "points": {
@@ -1881,7 +1878,10 @@
                     "route": "route4"
                 }
             },
-            "conflictingsections": []
+            "ref": "B",
+            "trackcircuits": [
+                "B"
+            ]
         },
         "C": {
             "conflictingsections": [],
@@ -1974,17 +1974,14 @@
             ]
         },
         "H": {
-            "ref": "H",
-            "description": "H",
-            "mode": "trackcircuit",
-            "trackcircuits": [
-                "H"
-            ],
-            "inctrig": {},
+            "conflictingsections": [],
             "dectrig": {},
+            "description": "H",
             "homesignal": [
                 "1"
             ],
+            "inctrig": {},
+            "mode": "trackcircuit",
             "protecting_points": {
                 "1": {
                     "points": {
@@ -1993,7 +1990,10 @@
                     "route": "route3"
                 }
             },
-            "conflictingsections": []
+            "ref": "H",
+            "trackcircuits": [
+                "H"
+            ]
         },
         "J": {
             "conflictingsections": [],
@@ -2010,20 +2010,24 @@
             ]
         },
         "K": {
-            "conflictingsections": [],
-            "dectrig": {},
+            "ref": "K",
             "description": "K",
+            "mode": "trackcircuit",
+            "trackcircuits": [
+                "K"
+            ],
+            "inctrig": {},
+            "dectrig": {},
             "homesignal": [
                 "110",
                 "105"
             ],
-            "inctrig": {},
-            "mode": "trackcircuit",
             "protecting_points": {
                 "105": {
                     "points": {
                         "200": "reverse"
-                    }
+                    },
+                    "route": "route3"
                 },
                 "110": {
                     "points": {
@@ -2031,10 +2035,7 @@
                     }
                 }
             },
-            "ref": "K",
-            "trackcircuits": [
-                "K"
-            ]
+            "conflictingsections": []
         },
         "L": {
             "conflictingsections": [],
@@ -2108,15 +2109,39 @@
             ]
         },
         "S": {
-            "conflictingsections": [],
-            "dectrig": {},
+            "ref": "S",
             "description": "S",
+            "mode": "trackcircuit",
+            "trackcircuits": [
+                "S"
+            ],
+            "inctrig": {},
+            "dectrig": {},
             "homesignal": [
                 "105",
                 "110"
             ],
-            "inctrig": {},
+            "protecting_points": {
+                "110": {
+                    "points": {},
+                    "route": "route4"
+                }
+            },
+            "conflictingsections": []
+        },
+        "T": {
+            "ref": "T",
+            "description": "T",
             "mode": "trackcircuit",
+            "trackcircuits": [
+                "T"
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [
+                "105",
+                "110"
+            ],
             "protecting_points": {
                 "105": {
                     "points": {
@@ -2126,27 +2151,11 @@
                 "110": {
                     "points": {
                         "150": "reverse"
-                    }
+                    },
+                    "route": "route4"
                 }
             },
-            "ref": "S",
-            "trackcircuits": [
-                "S"
-            ]
-        },
-        "T": {
-            "conflictingsections": [],
-            "dectrig": {},
-            "description": "T",
-            "homesignal": [
-                "105"
-            ],
-            "inctrig": {},
-            "mode": "trackcircuit",
-            "ref": "T",
-            "trackcircuits": [
-                "T"
-            ]
+            "conflictingsections": []
         },
         "T-250": {
             "conflictingsections": [],
@@ -2160,31 +2169,19 @@
             "trackcircuits": []
         },
         "U": {
-            "conflictingsections": [],
-            "dectrig": {},
-            "description": "U",
-            "homesignal": [
-                "110",
-                "105"
-            ],
-            "inctrig": {},
-            "mode": "trackcircuit",
-            "protecting_points": {
-                "105": {
-                    "points": {
-                        "200": "reverse"
-                    }
-                },
-                "110": {
-                    "points": {
-                        "150": "normal"
-                    }
-                }
-            },
             "ref": "U",
+            "description": "U",
+            "mode": "trackcircuit",
             "trackcircuits": [
                 "U"
-            ]
+            ],
+            "inctrig": {},
+            "dectrig": {},
+            "homesignal": [
+                "110"
+            ],
+            "protecting_points": {},
+            "conflictingsections": []
         },
         "V": {
             "conflictingsections": [],
@@ -2225,7 +2222,7 @@
     },
     "Routes": {
         "10-G": {
-            "description": "10 onto main line",
+            "description": "10 to 1",
             "points": {
                 "20": "normal",
                 "8A": "reverse",
@@ -2243,7 +2240,7 @@
             }
         },
         "10-Yard": {
-            "description": "Signal 10 into Yard",
+            "description": "10 into Yard",
             "points": {
                 "18": "reverse",
                 "8A": "normal"
@@ -2260,16 +2257,16 @@
             }
         },
         "105-K": {
-            "description": "105 to Inner",
-            "points": {
-                "200": "reverse"
-            },
             "ref": "105-K",
+            "description": "105 to 108",
             "sections": [
                 "K",
-                "S",
-                "U"
+                "S"
             ],
+            "points": {
+                "150": "normal",
+                "200": "reverse"
+            },
             "signals": {
                 "105": [
                     "clear",
@@ -2278,16 +2275,17 @@
             }
         },
         "110-T": {
-            "description": "110 to outer",
-            "points": {
-                "150": "reverse"
-            },
             "ref": "110-T",
+            "description": "110 to 103",
             "sections": [
                 "S",
                 "T",
                 "U"
             ],
+            "points": {
+                "150": "reverse",
+                "200": "normal"
+            },
             "signals": {
                 "110": [
                     "clear",
@@ -2296,7 +2294,7 @@
             }
         },
         "16-F": {
-            "description": "16 Picnic Loop Exit",
+            "description": "16 to 9",
             "points": {},
             "ref": "16-F",
             "sections": [
@@ -2309,7 +2307,7 @@
             }
         },
         "20-Yard": {
-            "description": "Signal 20 into Yard",
+            "description": "20 into Yard",
             "points": {
                 "20": "reverse"
             },
@@ -2325,17 +2323,12 @@
             }
         },
         "45intoR": {
-            "available": false,
-            "description": "Yard 45 Signal into R",
-            "instances": {},
-            "mode": 0,
+            "description": "45 to 48",
             "points": {},
             "ref": "45intoR",
             "sections": [
                 "AR"
             ],
-            "set": false,
-            "setting": false,
             "signals": {
                 "45": [
                     "clear"
@@ -2343,17 +2336,12 @@
             }
         },
         "46intoR": {
-            "available": false,
-            "description": "Yard 46 Signal into R",
-            "instances": {},
-            "mode": 0,
+            "description": "46 to 48",
             "points": {},
             "ref": "46intoR",
             "sections": [
                 "AR"
             ],
-            "set": false,
-            "setting": false,
             "signals": {
                 "46": [
                     "clear"
@@ -2361,17 +2349,12 @@
             }
         },
         "47IntoR": {
-            "available": false,
-            "description": "47 Into R",
-            "instances": {},
-            "mode": 0,
+            "description": "47 to 48",
             "points": {},
             "ref": "47IntoR",
             "sections": [
                 "AR"
             ],
-            "set": false,
-            "setting": false,
             "signals": {
                 "47": [
                     "clear"
@@ -2379,10 +2362,7 @@
             }
         },
         "48intoP2(occupied)": {
-            "available": false,
-            "description": "48 into Platform 2 (occupied)",
-            "instances": {},
-            "mode": 0,
+            "description": "48 into P2 (occupied)",
             "points": {
                 "100": "normal",
                 "300": "normal"
@@ -2392,8 +2372,6 @@
                 "AS",
                 "AT"
             ],
-            "set": false,
-            "setting": false,
             "signals": {
                 "48": [
                     "associated_position_light",
@@ -2402,10 +2380,7 @@
             }
         },
         "48intoP2(unoccupied)": {
-            "available": false,
-            "description": "48 into Platform 2 (unoccupied)",
-            "instances": {},
-            "mode": 0,
+            "description": "48 into P2 (unoccupied)",
             "points": {
                 "100": "normal",
                 "300": "normal"
@@ -2415,8 +2390,6 @@
                 "AS",
                 "AT"
             ],
-            "set": false,
-            "setting": false,
             "signals": {
                 "48": [
                     "caution",
@@ -2425,10 +2398,7 @@
             }
         },
         "48intoP3(occupied)": {
-            "available": false,
-            "description": "48 into Platform 3 (occupied)",
-            "instances": {},
-            "mode": 0,
+            "description": "48 into P3 (occupied)",
             "points": {
                 "100": "reverse",
                 "300": "normal"
@@ -2438,8 +2408,6 @@
                 "AS",
                 "AU"
             ],
-            "set": false,
-            "setting": false,
             "signals": {
                 "48": [
                     "associated_position_light",
@@ -2448,10 +2416,7 @@
             }
         },
         "48intoP3(unoccupied)": {
-            "available": false,
-            "description": "48 into Platform 3 (unoccupied)",
-            "instances": {},
-            "mode": 0,
+            "description": "48 into P3 (unoccupied)",
             "points": {
                 "100": "reverse",
                 "300": "normal"
@@ -2461,8 +2426,6 @@
                 "AS",
                 "AU"
             ],
-            "set": false,
-            "setting": false,
             "signals": {
                 "48": [
                     "caution",
@@ -2517,7 +2480,7 @@
             }
         },
         "5-M": {
-            "description": "Route into M from 5",
+            "description": "5 to 10/11",
             "points": {},
             "ref": "5-M",
             "sections": [
@@ -2530,7 +2493,7 @@
             }
         },
         "6-M": {
-            "description": "Route from signal 6 into M",
+            "description": "6 to 10/11",
             "points": {},
             "ref": "6-M",
             "sections": [
@@ -2543,7 +2506,7 @@
             }
         },
         "A Route": {
-            "description": "A Route",
+            "description": "1 to 109",
             "points": {
                 "50": "normal"
             },
@@ -2560,7 +2523,7 @@
             }
         },
         "AH Route": {
-            "description": "AH - Set 50 Points Reverse",
+            "description": "1 to 112",
             "points": {
                 "50": "reverse"
             },
@@ -2577,7 +2540,7 @@
             }
         },
         "C Route": {
-            "description": "C Route",
+            "description": "109 to 107",
             "points": {},
             "ref": "C Route",
             "sections": [
@@ -2593,7 +2556,7 @@
             }
         },
         "D Route": {
-            "description": "D Route",
+            "description": "107 to 105",
             "points": {},
             "ref": "D Route",
             "sections": [
@@ -2606,7 +2569,7 @@
             }
         },
         "E Route": {
-            "description": "E Route",
+            "description": "103 to 15",
             "points": {
                 "250": "normal"
             },
@@ -2621,7 +2584,7 @@
             }
         },
         "F Route": {
-            "description": "F Route",
+            "description": "15 to 9",
             "points": {},
             "ref": "F Route",
             "sections": [
@@ -2634,7 +2597,7 @@
             }
         },
         "G Route": {
-            "description": "G Route",
+            "description": "9 to 1",
             "points": {
                 "20": "normal",
                 "8B": "normal"
@@ -2650,7 +2613,7 @@
             }
         },
         "J Route": {
-            "description": "J Route",
+            "description": "112 to 110",
             "points": {},
             "ref": "J Route",
             "sections": [
@@ -2666,7 +2629,7 @@
             }
         },
         "L Route": {
-            "description": "L Route",
+            "description": "108 to 6",
             "points": {},
             "ref": "L Route",
             "sections": [
@@ -2679,7 +2642,7 @@
             }
         },
         "N Route": {
-            "description": "N Route",
+            "description": "10 to 11",
             "points": {
                 "18": "normal",
                 "8A": "normal"
@@ -2696,7 +2659,7 @@
             }
         },
         "P Route": {
-            "description": "P Route",
+            "description": "11 to 47",
             "points": {
                 "3A": "normal"
             },
@@ -2712,10 +2675,7 @@
             }
         },
         "P2shunt": {
-            "available": false,
-            "description": "Shunt from Platform 2",
-            "instances": {},
-            "mode": 0,
+            "description": "Platform 2 Shunt",
             "points": {
                 "100": "normal",
                 "300": "normal"
@@ -2725,8 +2685,6 @@
                 "AR",
                 "AS"
             ],
-            "set": false,
-            "setting": false,
             "signals": {
                 "42": [
                     "position_light"
@@ -2734,10 +2692,7 @@
             }
         },
         "P3shunt": {
-            "available": false,
-            "description": "Shunt from Platform 3",
-            "instances": {},
-            "mode": 0,
+            "description": "Platform 3 Shunt",
             "points": {
                 "100": "reverse",
                 "300": "normal"
@@ -2747,8 +2702,6 @@
                 "AR",
                 "AS"
             ],
-            "set": false,
-            "setting": false,
             "signals": {
                 "43": [
                     "position_light"
@@ -2756,10 +2709,7 @@
             }
         },
         "P4shunt": {
-            "available": false,
-            "description": "Shunt from Platform 4",
-            "instances": {},
-            "mode": 0,
+            "description": "Platform 4 Shunt",
             "points": {
                 "100": "reverse",
                 "300": "reverse"
@@ -2769,8 +2719,6 @@
                 "AR",
                 "AS"
             ],
-            "set": false,
-            "setting": false,
             "signals": {
                 "44": [
                     "position_light"
@@ -2792,7 +2740,7 @@
             "signals": {}
         },
         "S&T": {
-            "description": "S&T Route",
+            "description": "105 to 103",
             "points": {
                 "200": "normal"
             },
@@ -2840,7 +2788,7 @@
             }
         },
         "UK Route": {
-            "description": "UK Route",
+            "description": "110 to 108",
             "points": {
                 "150": "normal"
             },
@@ -2856,7 +2804,7 @@
             }
         },
         "V": {
-            "description": "V Picnic Loop",
+            "description": "103 to 16",
             "points": {
                 "250": "reverse"
             },

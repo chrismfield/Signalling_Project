@@ -48,7 +48,6 @@ def setup_logger(logging_level):
     logger.setLevel(logging_level)
     return logger
 
-
 def loadlayoutjson(logger, mqtt_client):
     """Load the layout database from file into instances of classes as defined in object_defintions"""
     json_in = open(config["layoutDB"])
@@ -102,7 +101,6 @@ def loadlayoutjson(logger, mqtt_client):
         Trigger.instances[x] = jsons.load(json_trigger_dict[x], Trigger)
     section_update(logger, mqtt_client)
     pass
-
 
 def check_all_ACs(logger, mqtt_client):
     """ get upcount and downcount from all axlecounters and store them in their instance"""

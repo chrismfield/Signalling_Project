@@ -15,9 +15,32 @@
       button { padding: 6px 10px; cursor: pointer; }
       .inline-help { color: #666; font-size: 0.9rem; margin-left: 8px; }
       .muted { color: #666; }
+      .ars-row { display: flex; align-items: center; gap: 12px; }
+      .ars-row input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+      #arsState { font-weight: 600; }
+      #arsState.on      { color: #0a7d28; }
+      #arsState.off     { color: #444;    }
+      #arsState.pending { color: #b06a00; }
+      #arsState.unknown { color: #888;    }
     </style>
 </head>
 <body>
+
+<!-- Automatic Route Setting -->
+<section id="ars">
+  <h2>Automatic Route Setting</h2>
+  <div class="ars-row">
+    <label for="arsToggle">
+      <input type="checkbox" id="arsToggle" disabled>
+      ARS enabled
+    </label>
+    <span>Interlocking reports: <span id="arsState" class="unknown">connecting…</span></span>
+  </div>
+  <p class="inline-help" style="margin-left:0">
+    Publishes to <code id="arsTopicHelp"></code>. The state shown is what the interlocking
+    reports back, not what was requested.
+  </p>
+</section>
 
 <!-- Train headcode command UI -->
 <section id="train-headcode">
@@ -52,7 +75,8 @@
 </section>
 
 <script>
-  const broker = "127.0.0.1";
+  // Loopback only works when browsing from the Pi itself; use whatever host served the page.
+  const broker = window.location.hostname || "127.0.0.1";
   const clientId = 'webpage-client-' + Math.random().toString(16).slice(2,8);
   var client = new Paho.Client(broker, Number(9001), clientId);
 
@@ -64,9 +88,13 @@
   function onConnect() {
     console.log('Connected to MQTT broker');
     client.subscribe('#');
+    document.getElementById('arsToggle').disabled = false;
+    if (arsActual === null) setArsDisplay('unknown', 'unknown');
   }
 
   function onConnectionLost(responseObject) {
+    document.getElementById('arsToggle').disabled = true;
+    setArsDisplay('offline', 'unknown');
     if (responseObject.errorCode !== 0) {
       console.log('Connection lost: ' + responseObject.errorMessage);
     }
@@ -131,6 +159,11 @@
     var topic = message.destinationName || '';
     var payload = message.payloadString || '';
 
+    if (ARS_REPORT_TOPICS.indexOf(topic) !== -1) {
+      onArsReport(payload);
+      return;
+    }
+
     if (topic === 'report/train') {
       try {
         var data = JSON.parse(payload);
@@ -167,6 +200,55 @@
     const topic = 'set/train/' + trainId + '/headcode';
     publishMessage(topic, headcode);
   }
+
+  // ---- Automatic Route Setting ----
+  var ARS_SET_TOPIC = 'set/automatic_route_setting';
+  var ARS_REPORT_TOPICS = ['report/automatic_route_setting'];
+
+  var arsActual = null;      // last state reported by the interlocking
+  var arsRequested = null;   // what we asked for, until it is confirmed
+  var arsTimer = null;
+
+  function setArsDisplay(text, cls) {
+    var el = document.getElementById('arsState');
+    el.textContent = text;
+    el.className = cls;
+  }
+
+  function renderArs() {
+    var pending = (arsRequested !== null && arsRequested !== arsActual);
+    if (pending) setArsDisplay(arsRequested ? 'enabling…' : 'disabling…', 'pending');
+    else if (arsActual === true)  setArsDisplay('ON', 'on');
+    else if (arsActual === false) setArsDisplay('OFF', 'off');
+    else setArsDisplay('unknown', 'unknown');
+    document.getElementById('arsToggle').checked = pending ? arsRequested : (arsActual === true);
+  }
+
+  function onArsReport(payload) {
+    var val = String(payload).trim().toLowerCase();
+    arsActual = (val === 'true' || val === '1' || val === 'on');
+    if (arsRequested !== null && arsRequested === arsActual) {
+      arsRequested = null;
+      if (arsTimer) { clearTimeout(arsTimer); arsTimer = null; }
+    }
+    renderArs();
+  }
+
+  document.getElementById('arsTopicHelp').textContent = ARS_SET_TOPIC;
+  document.getElementById('arsToggle').addEventListener('change', function () {
+    var want = this.checked;
+    arsRequested = want;
+    publishMessage(ARS_SET_TOPIC, want ? 'True' : 'False');
+    renderArs();
+    if (arsTimer) clearTimeout(arsTimer);
+    // The interlocking only republishes on change, so warn rather than assume success
+    arsTimer = setTimeout(function () {
+      if (arsRequested !== null) {
+        console.warn('No ARS confirmation from the interlocking after 5 s');
+        setArsDisplay('not confirmed', 'pending');
+      }
+    }, 5000);
+  });
 
   document.getElementById('sendHeadcodeBtn').addEventListener('click', sendHeadcodeCommand);
   ['trainIdInput', 'headcodeInput'].forEach(function(id){
