@@ -400,7 +400,7 @@ def set_route(route, sections, points, signals, triggers, logger, mqtt_client):
             # check if all points are set
             if points[point_ref].detection_boolean and points[point_ref].detection_status == direction:
                 pass
-            else:
+            elif check_route_unoccupied(route, points, sections):
                 set_point(points[point_ref], direction, sections, logger, mqtt_client, route=route.ref)
         # iterate again to detect points:
         for point_ref, direction in route.points.items():
