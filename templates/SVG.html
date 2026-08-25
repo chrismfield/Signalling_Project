@@ -172,6 +172,10 @@
   const mqttUrl = `${protocol}://${mqttHost}:${mqttPort}`;
   console.log('Connecting to MQTT:', mqttUrl);
 
+  // Publishing anything to this topic makes the interlocking republish the full
+  // state of every asset, so a freshly loaded page populates immediately.
+  const UPDATE_REQUEST_TOPIC = 'set/update';
+
   // --- Automatic Route Setting ---
   const ARS_SET_TOPIC = 'set/automatic_route_setting';
   const ARS_REPORT_TOPICS = ['report/automatic_route_setting'];
@@ -266,8 +270,14 @@
       });
       ARS_REPORT_TOPICS.forEach(t => client.subscribe(t));
       arsToggle.disabled = false;
-      // Reports are only published on change, so the state stays unknown until
-      // either something changes or the interlocking publishes them retained.
+
+      // Reports are only published on change, so ask the interlocking to
+      // republish everything now rather than waiting for the next change.
+      // Safe here because the SVG and layout JSON have already loaded and every
+      // subscription above is queued ahead of this publish on the same socket.
+      // This also re-runs after an automatic reconnect, which is what we want.
+      client.publish(UPDATE_REQUEST_TOPIC, '1');
+
       if (arsActual === null) { arsStateEl.textContent = 'unknown'; arsStateEl.className = 'unknown'; }
     });
 

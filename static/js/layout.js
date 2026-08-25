@@ -18,16 +18,41 @@ if(client) {
  console.error('Cannot connect to MQTT server');
 }
 
+// ---- Full-state refresh ----
+// Publishing anything to 'set/update' makes the interlocking republish the state
+// of every asset. Two things must be true before it is worth asking:
+//   1. we are connected and the wildcard subscription is acknowledged;
+//   2. the markers and popouts built from the layout JSON exist, so
+//      updateDynamicValue() can find the cells the reports are addressed to
+//      (and oLayoutData is set, which checkRoutesSet() needs).
+// Whichever finishes last fires the request.
+var UPDATE_REQUEST_TOPIC = 'set/update';
+var mqttReady = false;
+var uiReady = false;
+var updateRequested = false;
+
+function requestFullUpdate() {
+ if (!mqttReady || !uiReady || updateRequested) return;
+ updateRequested = true;
+ publishMessage(UPDATE_REQUEST_TOPIC, '1');
+}
+
 function onConnect() {
  console.log('Connected to MQTT broker');
- // Subscribe to all messages
- client.subscribe('#');
+ // Subscribe to all messages. Wait for the SUBACK before asking for a refresh,
+ // otherwise the reply can race ahead of our own subscription and be missed.
+ client.subscribe('#', { onSuccess: function () {
+  mqttReady = true;
+  updateRequested = false;   // a reconnect earns a fresh refresh
+  requestFullUpdate();
+ }});
 }
 function onFailure(responseObject) {
     console.log('Failed to connect: ' + responseObject.errorMessage);
 }
 
 function onConnectionLost(responseObject) {
+ mqttReady = false;
  if (responseObject.errorCode !== 0) {
   console.log('Connection lost: ' + responseObject.errorMessage);
  }
@@ -261,6 +286,11 @@ function gotJSON(jsonData) {
 	createButtonsInSection('Signals', jsonData.Signals);
  createButtonsInSection('Routes', jsonData.Routes);
  createButtonsInSection('Plungers', jsonData.Plungers);
+
+ // Every marker, popout status cell and route row now exists, so reports have
+ // somewhere to land.
+ uiReady = true;
+ requestFullUpdate();
 }
 
 $.getJSON("/layout-json", function(json) {

@@ -19,7 +19,7 @@ from pymodbus.server import StartAsyncSerialServer
 
 PORT = "COM6"
 BAUD = 115200
-JSON_PATH = os.path.join(os.path.dirname(__file__), "..", "WDSME.json")
+JSON_PATH = os.path.join(os.path.dirname(__file__), "..", "default.json")
 
 logging.basicConfig()
 log = logging.getLogger()

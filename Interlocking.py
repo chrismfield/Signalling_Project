@@ -459,7 +459,7 @@ def check_mqtt(logger, mqtt_client):
     while mqtt_received_queue:
         return set.set_from_mqtt(command=mqtt_received_queue.pop(), signals=Signal.instances, sections=Section.instances,
                           plungers= Plunger.instances, points=Point.instances,
-                          routes=Route.instances, triggers=Trigger.instances, logger=logger, mqtt_client=mqtt_client,
+                          routes=Route.instances, triggers=Trigger.instances, logger=logger, mqtt_client=mqtt_client, mqtt_dict=mqtt_dict,
                           automatic_route_setting=AutomaticRouteSetting, axlecounters=AxleCounter.instances,
                                  trains=Train.instances)
 

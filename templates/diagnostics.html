@@ -87,12 +87,19 @@
 
   function onConnect() {
     console.log('Connected to MQTT broker');
-    client.subscribe('#');
+    // Wait for the SUBACK before asking for a refresh, otherwise the reply can
+    // race ahead of our own subscription and be missed.
+    client.subscribe('#', { onSuccess: function () {
+      mqttReady = true;
+      updateRequested = false;   // a reconnect earns a fresh refresh
+      requestFullUpdate();
+    }});
     document.getElementById('arsToggle').disabled = false;
     if (arsActual === null) setArsDisplay('unknown', 'unknown');
   }
 
   function onConnectionLost(responseObject) {
+    mqttReady = false;
     document.getElementById('arsToggle').disabled = true;
     setArsDisplay('offline', 'unknown');
     if (responseObject.errorCode !== 0) {
@@ -199,6 +206,24 @@
     }
     const topic = 'set/train/' + trainId + '/headcode';
     publishMessage(topic, headcode);
+  }
+
+  // ---- Full-state refresh ----
+  // Publishing anything to 'update' makes the interlocking republish the state
+  // of every asset. Two things must be true before it is worth asking:
+  //   1. we are connected and the wildcard subscription is acknowledged;
+  //   2. the tables built from the layout JSON exist, so updateDynamicValue()
+  //      can find the cells the reports are addressed to.
+  // Whichever finishes last fires the request.
+  var UPDATE_REQUEST_TOPIC = 'set/update';
+  var mqttReady = false;
+  var uiReady = false;
+  var updateRequested = false;
+
+  function requestFullUpdate() {
+    if (!mqttReady || !uiReady || updateRequested) return;
+    updateRequested = true;
+    publishMessage(UPDATE_REQUEST_TOPIC, '1');
   }
 
   // ---- Automatic Route Setting ----
@@ -348,6 +373,10 @@
     createButtonsInSection('Routes', jsonData.Routes);
     createButtonsInSection('Sections', jsonData.Sections);
     createButtonsInSection('Plungers', jsonData.Plungers);
+
+    // Every status cell now exists, so reports have somewhere to land.
+    uiReady = true;
+    requestFullUpdate();
   }
 
   $.getJSON('default.json', function(json) {

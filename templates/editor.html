@@ -166,7 +166,12 @@
             <div class="col-md-5">
               <label class="form-label">layoutSVG (track diagram)</label>
               <select id="cfg_layoutSVG_select" class="form-select"></select>
-              <div class="form-text">Upload new diagrams from the <strong>File</strong> tab.</div>
+              <div class="form-text">
+                Stored as <code>layoutSVG</code> in <code>config.json</code>; the file itself
+                lives in <code>static/images</code>. Upload new diagrams from the
+                <strong>File</strong> tab.
+              </div>
+              <div class="form-text text-warning-emphasis d-none" id="cfg_layoutSVG_notice"></div>
             </div>
             <div class="col-md-2">
               <label class="form-label">axle_tolerance</label>
@@ -183,6 +188,15 @@
             <div class="col-md-3">
               <label class="form-label">point_interlock_timeout</label>
               <input type="number" class="form-control" id="cfg_point_interlock_timeout">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">baudrate</label>
+              <select id="cfg_baudrate" class="form-select">
+                <option value="19200">19200</option>
+                <option value="57600">57600</option>
+                <option value="115200">115200</option>
+              </select>
+              <div class="form-text">Serial line speed for every network. Restart the interlocking to apply.</div>
             </div>
           </div>
 
@@ -729,6 +743,26 @@ function buildAcDirMap(arr){ const out = {}; (arr||[]).forEach(s=>{ const [ac,di
 function flattenAcDirMap(map){ const out=[]; Object.entries(map||{}).forEach(([ac,dirs])=>{ (Array.isArray(dirs)?dirs:[dirs]).forEach(d=>out.push(`${ac}:${d}`));}); return out; }
 function arrify(v){ return Array.isArray(v) ? v : (v ? [v] : []); }
 
+// Keys that live on an entity but are deliberately not exposed by this editor.
+// `coords` is the x/y (and rotate/dir) placement used by the SVG track diagram;
+// it is authored elsewhere and would otherwise be lost, because every save
+// rebuilds the record from the form rather than patching the original.
+const PRESERVED_KEYS = ["coords"];
+
+// Copies the untouched keys off the record being replaced. Called with the ref
+// the form is about to write, so it also re-attaches coords if an entity is
+// deleted and re-created under the same name.
+function preserveHiddenFields(type, ref, entry){
+  const prev = (dataStore[type] || {})[ref];
+  if (!prev) return entry;
+  PRESERVED_KEYS.forEach(k => {
+    if (entry[k] === undefined && prev[k] !== undefined){
+      entry[k] = JSON.parse(JSON.stringify(prev[k]));
+    }
+  });
+  return entry;
+}
+
 // ====== Ports datalist (live from server) ======
 function addStaticPorts(dl){
   for(let i=1;i<=32;i++) dl.append(`<option value="COM${i}">`);
@@ -749,6 +783,19 @@ function buildPortsDatalist(){
 }
 
 // ====== Config load/save & networks UI ======
+const DEFAULT_BAUDRATE = 19200;
+
+// Selects the stored baud rate, adding an option for it first if someone has
+// hand-edited config.json to a rate that isn't on the standard list.
+function setBaudrateValue(value){
+  const $sel = $('#cfg_baudrate');
+  const want = String(value ?? '').trim() || String(DEFAULT_BAUDRATE);
+  if (!$sel.find('option').filter(function(){ return this.value === want; }).length){
+    $sel.append($('<option>', { value: want, text: `${want} (non-standard)` }));
+  }
+  $sel.val(want);
+}
+
 function loadConfig(){
   return fetch('/api/load?filename=config.json')
     .then(r => r.ok ? r.json() : Promise.reject(new Error('config.json not found')))
@@ -774,6 +821,7 @@ function loadConfig(){
       $('#cfg_logging_level').val(cfg.logging_level ?? '');
       $('#cfg_mqtt_broker_address').val(cfg.mqtt_broker_address ?? '');
       $('#cfg_point_interlock_timeout').val(cfg.point_interlock_timeout ?? '');
+      setBaudrateValue(cfg.baudrate);
       // networks table
       renderNetworksTable();
       // push to entity modals
@@ -810,6 +858,24 @@ function loadConfig(){
 // ====== Track diagram (SVG) ======
 function svgSelects(){ return ['#svgFiles', '#cfg_layoutSVG_select']; }
 
+// /api/svg/list reports both what config.json says (`configured`) and what the
+// server will actually serve (`current`). They only differ when config.json is
+// silent and the code has fallen back to a built-in constant, which is worth
+// saying out loud rather than showing a dropdown that looks already set.
+function showLayoutSvgNotice(d){
+  const $n = $('#cfg_layoutSVG_notice').addClass('d-none').text('');
+  if (!d) return;
+  if (!d.configured){
+    $n.removeClass('d-none').text(
+      `config.json does not name a diagram, so the server is falling back to `
+      + `"${d.current}". Save this tab to record it properly.`);
+  } else if (d.files && d.files.length && !d.files.includes(d.configured)){
+    $n.removeClass('d-none').text(
+      `config.json names "${d.configured}", which is not in static/images. `
+      + `The server is serving "${d.current}" instead.`);
+  }
+}
+
 // Populates both SVG dropdowns from the server. Always resolves, so callers can
 // chain markConfigSaved() without worrying about the server being unreachable.
 function refreshSvgFiles(selected){
@@ -818,6 +884,7 @@ function refreshSvgFiles(selected){
     .then(d => {
       const files = d.files || [];
       const want  = (selected || d.current || configStore.layoutSVG || '').trim();
+      showLayoutSvgNotice(d);
       svgSelects().forEach(sel => {
         const $s = $(sel).empty();
         if(!files.length){
@@ -963,15 +1030,22 @@ function collectConfigPayload(){
     const port = $(this).find('.cfg-port').val().trim();
     if(name) portsMap[name] = port || '';
   });
-  return {
-    layoutDB: ($('#cfg_layoutDB_select').val() || '').trim(),
-    layoutSVG: ($('#cfg_layoutSVG_select').val() || '').trim(),
+  // An empty dropdown means "nothing to choose from", not "choose nothing".
+  // Posting the blank would drop the setting back to a server-side default.
+  const pick = (sel, fallback) => ($(sel).val() || '').trim() || (fallback || '').trim();
+
+  // Start from the config as loaded so any key this page doesn't render
+  // (now or in future) survives a save rather than being quietly deleted.
+  return Object.assign({}, configStore, {
+    layoutDB: pick('#cfg_layoutDB_select', configStore.layoutDB),
+    layoutSVG: pick('#cfg_layoutSVG_select', configStore.layoutSVG),
     axle_tolerance: num($('#cfg_axle_tolerance').val(), 0),
     logging_level: num($('#cfg_logging_level').val(), 20),
     mqtt_broker_address: $('#cfg_mqtt_broker_address').val().trim(),
     point_interlock_timeout: num($('#cfg_point_interlock_timeout').val(), 5),
+    baudrate: num($('#cfg_baudrate').val(), DEFAULT_BAUDRATE),
     network_ports: portsMap
-  };
+  });
 }
 function saveConfig(){
   const payload = collectConfigPayload();
@@ -2253,6 +2327,7 @@ function installSaveShortcut(){
 function refreshAllSelects(){
   refreshDependentSelects();
   refreshSectionsDependentSelects();
+  refreshAxleCounterSelects();
   refreshTrackCircuitSelects();
   refreshRoutesSelects();
   refreshTriggerRefSelects();
@@ -2367,6 +2442,7 @@ $(function(){
       $(`#${lc}Modal .modal-title`).text(`Add ${type.slice(0,-1)}`);
       if(type==="Sections"){ toggleSectionsFields($(`.${lc}Form`)[0]); }
       refreshSectionsDependentSelects();
+      refreshAxleCounterSelects();
       refreshTrackCircuitSelects();
       bsModals[type].show();
     });
@@ -2510,11 +2586,8 @@ $(function(){
         entry.protecting_points = hs.protecting_points;
 
         entry.conflictingsections = arrify(vals.conflictingsections);
-        // Preserve coords from original entry if present
-        if (!entry.coords && dataStore.Sections[vals.ref]?.coords) {
-          entry.coords = dataStore.Sections[vals.ref].coords;
-        }
-
+        // coords are carried over by preserveHiddenFields() below, along with
+        // the equivalent keys on Signals / Points / Plungers.
       }
 
       if(type==="Plungers"){
@@ -2586,6 +2659,7 @@ $(function(){
       }
 
 
+      preserveHiddenFields(type, ref, entry);
       dataStore[type][ref] = entry;
 
       // A changed signal can invalidate the calling-on form stored in routes
@@ -2606,6 +2680,7 @@ $(function(){
       bsModals[type].hide();
       if(type==="Signals") refreshDependentSelects();
       refreshSectionsDependentSelects();
+      refreshAxleCounterSelects();
       refreshTrackCircuitSelects();
       refreshRoutesSelects(); 
       renderTable(type);
@@ -2708,6 +2783,7 @@ $('body').on('change', '.pointsForm [name=board_index]', function(){
           if(type==="Signals") refreshDependentSelects();
           if (type === "Triggers") refreshTriggerRefSelects();
           if (type === "Routes")  refreshRoutesSelects(); 
+          if (type === "AxleCounters") refreshAxleCounterSelects();
           refreshSectionsDependentSelects();
         }
       });
@@ -2864,6 +2940,10 @@ function openEditorForRow(type, ref){
     toggleSectionsFields(form[0]);
     rebuildHomeSignals(form, it);
     form.find('[name=conflictingsections]').val(it.conflictingsections || []);
+    // Options must exist before .val() can select them, or the stored
+    // arrival/departure triggers are silently dropped from the form.
+    refreshAxleCounterSelects();
+    refreshTrackCircuitSelects();
     form.find('[name=inctrig]').val(flattenAcDirMap(it.inctrig));
     form.find('[name=dectrig]').val(flattenAcDirMap(it.dectrig));
     // Support old JSONs that stored a single "trackcircuit"
@@ -2921,6 +3001,7 @@ function openEditorForRow(type, ref){
 
   $(`#${lc}Modal .modal-title`).text(`Edit ${type.slice(0,-1)}`);
   refreshSectionsDependentSelects();
+  refreshAxleCounterSelects();
   refreshTrackCircuitSelects();
   bsModals[type].show();
 }
@@ -3057,6 +3138,31 @@ function refreshSectionsDependentSelects(){
     $(this).empty();
     secKeys.forEach(s => $(this).append(`<option value="${s}">${s}</option>`));
     if (secKeys.includes(cur)) $(this).val(cur);
+  });
+}
+
+// AxleCounters → the Sections Arrival/Departure trigger pickers.
+// These were the only cross-reference selects with no JS refresher: their
+// options were rendered once by Jinja from the `data` passed to the template.
+// The page normally loads its layout over AJAX (loadFromServer), so `data` is
+// empty and both selects stayed blank however the mode was set. Rebuilding
+// here also picks up axle counters added or deleted during the session.
+function refreshAxleCounterSelects(){
+  const acKeys = Object.keys(dataStore["AxleCounters"] || {});
+  $('select[name=inctrig], select[name=dectrig]').each(function(){
+    const $sel = $(this);
+    const cur  = $sel.val() || [];
+    $sel.empty();
+    acKeys.forEach(ac => {
+      const $g = $('<optgroup>', { label: ac });
+      ['Upcount','Downcount'].forEach(dir => {
+        $g.append($('<option>', { value: `${ac}:${dir}`, text: `${ac} \u2013 ${dir}` }));
+      });
+      $sel.append($g);
+    });
+    // Keep whatever is still valid; a deleted counter drops out of the selection.
+    $sel.val((Array.isArray(cur) ? cur : [cur])
+      .filter(v => acKeys.includes(String(v).split(':')[0])));
   });
 }
 

@@ -29,6 +29,15 @@ SVG_FOLDER    = os.path.join(UPLOAD_FOLDER, "static", "images")
 DEFAULT_SVG   = "WDSME Scheme_C.svg"
 SVG_FILE      = "static/images/WDSME Scheme_C.svg"   # legacy constant, kept for compatibility
 
+DEFAULT_BAUDRATE = 19200
+# config.json values that must end up as ints, whatever the browser posted.
+CONFIG_INT_FIELDS = ("axle_tolerance", "logging_level", "point_interlock_timeout", "baudrate")
+
+# Per-entity keys the editor never shows and must never destroy. These are
+# written by the diagram-authoring side, not the editor, so a round trip
+# through the Add/Edit forms has to put them back.
+PRESERVED_ENTITY_KEYS = ("coords",)
+
 def get_layout_file():
     """Get the layout file from config.json, fallback to DEFAULT_FILE."""
     cfg = load_json_file(os.path.join(UPLOAD_FOLDER, CONFIG_FILE)) or {}
@@ -187,6 +196,7 @@ def default_config():
     # sensible defaults if config.json missing
     return {
         "axle_tolerance": 4,
+        "baudrate": DEFAULT_BAUDRATE,
         "layoutDB": DEFAULT_FILE,
         "layoutSVG": DEFAULT_SVG,
         "network_ports": {"network_1": "", "network_2": ""},
@@ -194,6 +204,53 @@ def default_config():
         "mqtt_broker_address": "127.0.0.1",
         "point_interlock_timeout": 5
     }
+
+def coerce_config(cfg):
+    """Force the numeric config fields to ints, leaving anything odd alone."""
+    for key in CONFIG_INT_FIELDS:
+        if cfg.get(key) not in (None, ""):
+            try:
+                cfg[key] = int(cfg[key])
+            except (TypeError, ValueError):
+                pass
+    return cfg
+
+def merge_config(incoming):
+    """Overlay a posted config on top of what is already on disk.
+
+    The editor only knows about the fields it renders, so writing its payload
+    straight out would silently drop anything hand-added to config.json.
+    Merging means an older browser tab can't wipe a setting it never saw.
+    """
+    cfg = load_json_file(os.path.join(UPLOAD_FOLDER, CONFIG_FILE)) or default_config()
+    cfg.update(incoming or {})
+    cfg.setdefault("network_ports", {})
+    cfg.setdefault("baudrate", DEFAULT_BAUDRATE)
+    return coerce_config(cfg)
+
+def merge_preserved_fields(incoming, existing):
+    """Put back the hidden per-entity keys (coords) the editor doesn't round-trip.
+
+    Walks every entity type / ref in the posted layout and, where the record
+    on disk carries a preserved key that the payload has dropped, restores it.
+    Returns (payload, number_of_keys_restored).
+    """
+    restored = 0
+    if not isinstance(incoming, dict) or not isinstance(existing, dict):
+        return incoming, restored
+    for entity_type, records in incoming.items():
+        old_records = existing.get(entity_type)
+        if not isinstance(records, dict) or not isinstance(old_records, dict):
+            continue
+        for ref, record in records.items():
+            old = old_records.get(ref)
+            if not isinstance(record, dict) or not isinstance(old, dict):
+                continue
+            for key in PRESERVED_ENTITY_KEYS:
+                if key not in record and key in old:
+                    record[key] = old[key]
+                    restored += 1
+    return incoming, restored
 
 @app.route("/editor")
 def editor():
@@ -375,14 +432,31 @@ def routes_data():
 @app.route("/api/save", methods=["POST"])
 def save_json():
     payload  = request.get_json() or {}
-    filename = request.args.get("filename") or get_layout_file()
-    save_json_file(os.path.join(UPLOAD_FOLDER, filename), payload)
-    return jsonify({"status":"saved","filename":filename})
+    # basename() so a crafted ?filename= can't write outside UPLOAD_FOLDER
+    filename = os.path.basename(request.args.get("filename") or get_layout_file())
+    path     = os.path.join(UPLOAD_FOLDER, filename)
+
+    restored = 0
+    if filename == CONFIG_FILE:
+        # The editor posts config.json here as well as to /api/config, so both
+        # doors need the same merge or baudrate would come and go.
+        payload = merge_config(payload)
+    else:
+        payload, restored = merge_preserved_fields(payload, load_json_file(path))
+
+    if os.path.exists(path):
+        shutil.copy2(path, path + ".bak")
+    save_json_file(path, payload)
+    return jsonify({"status":"saved","filename":filename,"preserved":restored})
 
 @app.route("/api/load", methods=["GET"])
 def load_json():
-    filename = request.args.get("filename") or get_layout_file()
-    data     = load_json_file(os.path.join(UPLOAD_FOLDER, filename)) or empty_layout()
+    filename = os.path.basename(request.args.get("filename") or get_layout_file())
+    if filename == CONFIG_FILE:
+        cfg = load_json_file(os.path.join(UPLOAD_FOLDER, CONFIG_FILE)) or default_config()
+        cfg.setdefault("baudrate", DEFAULT_BAUDRATE)
+        return jsonify(coerce_config(cfg))
+    data = load_json_file(os.path.join(UPLOAD_FOLDER, filename)) or empty_layout()
     return jsonify(data)
 
 @app.route("/api/upload", methods=["POST"])
@@ -411,14 +485,18 @@ def download():
 @app.route("/api/config", methods=["GET"])
 def get_config():
     cfg = load_json_file(os.path.join(UPLOAD_FOLDER, CONFIG_FILE)) or default_config()
-    return jsonify(cfg)
+    # An older config.json predates the baudrate setting; report the default
+    # rather than leaving the editor with a blank field.
+    cfg.setdefault("baudrate", DEFAULT_BAUDRATE)
+    return jsonify(coerce_config(cfg))
 
 @app.route("/api/config", methods=["POST"])
 def save_config():
-    cfg = request.get_json() or {}
-    # minimal guard rails
-    cfg.setdefault("network_ports", {})
-    save_json_file(os.path.join(UPLOAD_FOLDER, CONFIG_FILE), cfg)
+    cfg_path = os.path.join(UPLOAD_FOLDER, CONFIG_FILE)
+    cfg = merge_config(request.get_json() or {})
+    if os.path.exists(cfg_path):
+        shutil.copy2(cfg_path, cfg_path + ".bak")
+    save_json_file(cfg_path, cfg)
     return jsonify(cfg)
 
 @app.post('/api/reboot')
